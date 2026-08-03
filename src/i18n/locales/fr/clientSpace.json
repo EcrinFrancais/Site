@@ -1,0 +1,10 @@
+{
+  "title": "Espace client",
+  "intro": "Retrouvez vos projets, vos brouillons et accédez à votre profil personnalisé.",
+  "draftsTitle": "Mes brouillons",
+  "empty": "Aucun brouillon enregistré pour le moment.",
+  "draftLine": "Version {{version}} • Essence : {{essence}} • Finition : {{finition}} • Quantité : {{quantite}}",
+  "ordersTitle": "Mes commandes",
+  "ordersEmpty": "Aucune commande pour le moment.",
+  "orderLine": "Commande {{id}} • {{date}} • Quantité : {{quantite}} • Total : {{total}} €"
+}

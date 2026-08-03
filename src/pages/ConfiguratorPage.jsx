@@ -1,14 +1,18 @@
 import React, { useState, Suspense, useRef, useEffect } from 'react';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { vinsConfig } from '../data/vinsConfig';
-import { Canvas, useFrame } from '@react-three/fiber';
+import { useFrame } from '@react-three/fiber';
+import { configurationService } from '../logic/configurationService';
+import { createDraftConfiguration, calculateConfigurationQuote, buildConfigurationSnapshot, saveConfigurationDraft } from '../application/configurationUseCases';
+import { createOrderDraft } from '../logic/orderModel';
+import { ClientManager } from '../logic/ClientManager';
+import { useAuth } from '../context/AuthContext';
 import * as THREE from 'three';
-import {
-  OrbitControls,
-  ContactShadows,
-  Text,
-  Environment,
-  RoundedBox,
-} from '@react-three/drei';
+import { Text } from '@react-three/drei';
+import ConfigurationPanel from '../components/ConfigurationPanel';
+import Preview3DPanel from '../components/Preview3DPanel';
+import { HEADER_HEIGHT } from '../components/Header';
 
 import bottleImage from '../textures/auxey-duresse.png';
 import textureChene from '../textures/chene.jpg';
@@ -31,9 +35,10 @@ const texturesBois = {
   Merisier: textureMerisier,
 };
 
+// Note : "Serif" n'a pas d'entrée dédiée — le Text de troika retombe sur sa police
+// par défaut (déjà de style serif) tant qu'aucune webfont "classique" compatible
+// (.ttf/.otf/.woff, pas l'ancien format JSON three.js) n'a été choisie.
 const fonts = {
-  Serif:
-    'https://cdn.jsdelivr.net/gh/mrdoob/three.js/examples/fonts/gentilis_bold.typeface.json', // Une police interne à Three.js, très fiable
   SansSerif:
     'https://fonts.gstatic.com/s/roboto/v30/KFOmCnqEu92Fr1Me5WZLCzYlKw.woff',
   Script:
@@ -41,7 +46,7 @@ const fonts = {
 };
 
 // --- LE MOTEUR 3D : CRÉATION DU COFFRET ---
-function Coffret3D({
+export function Coffret3D({
   taille,
   mesures,
   essence,
@@ -53,14 +58,24 @@ function Coffret3D({
   texteGravure,
   modeGravure,
   imageGravure,
+  fermeture,
   fontStyle,
   tailleTexte,
   tailleImage,
   posX,
   posY,
+  viewSize,
 }) {
   const [woodTexture, setWoodTexture] = useState(null);
   const [bottleRatio, setBottleRatio] = useState(1); // 1 par défaut
+
+  // Réinitialisation pendant le rendu (plutôt que dans l'effet) pour éviter
+  // d'afficher un instant l'ancienne texture pendant le chargement de la nouvelle.
+  const [previousEssence, setPreviousEssence] = useState(essence);
+  if (previousEssence !== essence) {
+    setPreviousEssence(essence);
+    setWoodTexture(null);
+  }
 
   useEffect(() => {
     const imagePath = texturesBois[essence] || texturesBois['Chêne'];
@@ -130,29 +145,113 @@ function Coffret3D({
   const estLaque = finition === 'Laque';
   const estBrillant = finition === 'Vernis brillant' || estLaque;
   const textureAAppliquer = estLaque ? null : woodTexture;
+  const woodTints = {
+    Pin: '#b9864f',
+    Peuplier: '#caa06f',
+    Noyer: '#6e3f29',
+    Érable: '#a56b3f',
+    Chêne: '#8b5c3a',
+    Ébène: '#2a201b',
+    Palissandre: '#4b2722',
+    Merisier: '#9b4f36',
+  };
   const baseColor = estLaque
     ? couleurLaque
     : woodTexture
-    ? '#ffffff'
+    ? woodTints[essence] || '#a67b5b'
     : '#a67b5b';
 
   const woodMaterialProps = {
-    key: textureAAppliquer ? textureAAppliquer.uuid : 'sans-texture',
+    key: `${essence}-${textureAAppliquer ? textureAAppliquer.uuid : 'sans-texture'}`,
     map: textureAAppliquer,
     color: baseColor,
-    roughness: estBrillant ? 0.1 : 0.8,
-    metalness: estBrillant ? 0.2 : 0,
+    roughness: estBrillant ? 0.12 : 0.78,
+    metalness: estBrillant ? 0.12 : 0.02,
   };
 
   const lidRef = useRef();
+  const isMagnetic = fermeture === 'Charnières + fermeture magnétique invisible';
+  const isSlidingTop = fermeture === 'Couvercle coulissant';
+  const isSlidingDrawer = fermeture === 'Tiroir coulissant';
+  const isEmboitement = fermeture === 'Couvercle amovible par emboîtement';
+  const isLatch = fermeture === 'Charnières + loquet en laiton';
+
   useFrame(() => {
     if (lidRef.current) {
-      const targetRotation = isOpen ? -Math.PI / 1.4 : 0;
-      lidRef.current.rotation.y = THREE.MathUtils.lerp(
-        lidRef.current.rotation.y,
-        targetRotation,
-        0.08
-      );
+      if (isSlidingTop) {
+        lidRef.current.position.y = THREE.MathUtils.lerp(
+          lidRef.current.position.y,
+          isOpen ? 0.55 : 0,
+          0.08
+        );
+        lidRef.current.position.x = THREE.MathUtils.lerp(
+          lidRef.current.position.x,
+          0,
+          0.08
+        );
+        lidRef.current.position.z = THREE.MathUtils.lerp(
+          lidRef.current.position.z,
+          0,
+          0.08
+        );
+        lidRef.current.rotation.y = 0;
+      } else if (isSlidingDrawer) {
+        lidRef.current.position.z = THREE.MathUtils.lerp(
+          lidRef.current.position.z,
+          isOpen ? 0.35 : 0,
+          0.08
+        );
+        lidRef.current.position.x = THREE.MathUtils.lerp(
+          lidRef.current.position.x,
+          0,
+          0.08
+        );
+        lidRef.current.position.y = THREE.MathUtils.lerp(
+          lidRef.current.position.y,
+          0,
+          0.08
+        );
+        lidRef.current.rotation.y = 0;
+      } else if (isEmboitement) {
+        lidRef.current.position.x = THREE.MathUtils.lerp(
+          lidRef.current.position.x,
+          isOpen ? 0.4 : 0,
+          0.08
+        );
+        lidRef.current.position.y = THREE.MathUtils.lerp(
+          lidRef.current.position.y,
+          0,
+          0.08
+        );
+        lidRef.current.position.z = THREE.MathUtils.lerp(
+          lidRef.current.position.z,
+          0,
+          0.08
+        );
+        lidRef.current.rotation.y = 0;
+      } else {
+        const targetRotation = isOpen ? -Math.PI / 1.45 : 0;
+        lidRef.current.rotation.y = THREE.MathUtils.lerp(
+          lidRef.current.rotation.y,
+          targetRotation,
+          0.08
+        );
+        lidRef.current.position.x = THREE.MathUtils.lerp(
+          lidRef.current.position.x,
+          0,
+          0.08
+        );
+        lidRef.current.position.y = THREE.MathUtils.lerp(
+          lidRef.current.position.y,
+          0,
+          0.08
+        );
+        lidRef.current.position.z = THREE.MathUtils.lerp(
+          lidRef.current.position.z,
+          0,
+          0.08
+        );
+      }
     }
   });
 
@@ -178,9 +277,10 @@ function Coffret3D({
   const textPosY = H / 2 - (posY / 100) * H;
   const actualFontSize = 0.06 * (tailleTexte / 100);
   const actualImageScale = 0.3 * (tailleImage / 100);
+  const modelScale = { petit: 0.58, moyen: 0.72, grand: 0.86 }[viewSize] || 0.72;
 
   return (
-    <group position={[0, H / 2 - 1.5, 0]}>
+    <group scale={[modelScale, modelScale, modelScale]} position={[0, H / 2 - 1.5, 0]}>
       <group position={[0, 0, -LD / 2]}>
         <mesh position={[0, 0, -BD / 2 + T / 2]} castShadow receiveShadow>
           <boxGeometry args={[W, H, T]} />
@@ -225,6 +325,24 @@ function Coffret3D({
           <mesh position={[W / 2, 0, LD / 2]} castShadow>
             <boxGeometry args={[W, H, LD]} />
             <meshStandardMaterial {...woodMaterialProps} />
+            {isMagnetic && (
+              <mesh position={[0.12 * W, -0.12 * H, LD / 2 + 0.012]}>
+                <boxGeometry args={[0.02, 0.02, 0.015]} />
+                <meshStandardMaterial color="#d7d7d7" metalness={0.9} roughness={0.2} />
+              </mesh>
+            )}
+            {isLatch && (
+              <>
+                <mesh position={[0.08 * W, 0.08 * H, LD / 2 + 0.012]}>
+                  <boxGeometry args={[0.06, 0.12, 0.025]} />
+                  <meshStandardMaterial color="#b08b2d" metalness={0.8} roughness={0.2} />
+                </mesh>
+                <mesh position={[0.18 * W, 0.02 * H, LD / 2 + 0.012]}>
+                  <boxGeometry args={[0.04, 0.08, 0.022]} />
+                  <meshStandardMaterial color="#b08b2d" metalness={0.8} roughness={0.2} />
+                </mesh>
+              </>
+            )}
 
             {/* LE TEXTE 3D */}
             {/* LE TEXTE 3D AVEC SECURITE DE CHARGEMENT */}
@@ -233,7 +351,7 @@ function Coffret3D({
               texteGravure && (
                 <Suspense fallback={null}>
                   <Text
-                    // font={fonts[fontStyle]}
+                    font={fonts[fontStyle]}
                     position={[textPosX, textPosY, LD / 2 + 0.001]}
                     fontSize={actualFontSize}
                     color={colorGravure}
@@ -276,30 +394,86 @@ function Coffret3D({
 }
 
 // --- LA PAGE D'INTERFACE ---
-export default function ConfiguratorPage({ onStart, univers }) {
-  const [taille, setTaille] = useState('bouteille');
-  const [mesures, setMesures] = useState({ L: '', l: '', h: '' });
-  const [essence, setEssence] = useState(vinsConfig.essences[0]);
-  const [finition, setFinition] = useState(vinsConfig.finitions[0]);
-  const [couleurLaque, setCouleurLaque] = useState('#800020');
-  const [cales, setCales] = useState(vinsConfig.cales[0]);
-  const [couleurVelours, setCouleurVelours] = useState(
-    vinsConfig.veloursColors[0]
+export default function ConfiguratorPage({ univers }) {
+  const { t } = useTranslation('univers');
+  const params = useParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const { user, profile } = useAuth();
+  const resolvedUnivers = univers || params.universId || 'vins-spiritueux';
+  const incomingDraft = location.state?.draft;
+
+  const initialConfiguration = React.useMemo(() => {
+    if (incomingDraft) {
+      return {
+        ...incomingDraft,
+        values: {
+          ...incomingDraft.values,
+          mesures: incomingDraft.values?.mesures || { L: '', l: '', h: '' },
+        },
+      };
+    }
+
+    return createDraftConfiguration(
+      resolvedUnivers,
+      configurationService.getTitle(resolvedUnivers)
+    );
+  }, [incomingDraft, resolvedUnivers]);
+
+  const [taille, setTaille] = useState(initialConfiguration.values.taille);
+  const [mesures, setMesures] = useState(initialConfiguration.values.mesures);
+  const [essence, setEssence] = useState(initialConfiguration.values.essence);
+  const [finition, setFinition] = useState(initialConfiguration.values.finition);
+  const [couleurLaque, setCouleurLaque] = useState(
+    initialConfiguration.values.couleurLaque
   );
-  const [fermeture, setFermeture] = useState(vinsConfig.fermetures[0]);
-  const [gravureType, setGravureType] = useState(vinsConfig.gravureTypes[0]);
+  const [cales, setCales] = useState(initialConfiguration.values.cales);
+  const [couleurVelours, setCouleurVelours] = useState(
+    initialConfiguration.values.couleurVelours
+  );
+  const [fermeture, setFermeture] = useState(initialConfiguration.values.fermeture);
+  const [gravureType, setGravureType] = useState(
+    initialConfiguration.values.gravureType
+  );
 
-  const [fontStyle, setFontStyle] = useState('Serif');
-  const [tailleTexte, setTailleTexte] = useState(100);
-  const [tailleImage, setTailleImage] = useState(100);
-  const [posX, setPosX] = useState(50);
-  const [posY, setPosY] = useState(50);
-  const [quantite, setQuantite] = useState(1);
-  const [isOpen, setIsOpen] = useState(false);
+  const [fontStyle, setFontStyle] = useState(initialConfiguration.values.fontStyle);
+  const [tailleTexte, setTailleTexte] = useState(initialConfiguration.values.tailleTexte);
+  const [tailleImage, setTailleImage] = useState(initialConfiguration.values.tailleImage);
+  const [posX, setPosX] = useState(initialConfiguration.values.posX);
+  const [posY, setPosY] = useState(initialConfiguration.values.posY);
+  const [quantite, setQuantite] = useState(initialConfiguration.values.quantite);
+  const [isOpen, setIsOpen] = useState(initialConfiguration.values.isOpen);
+  const [viewSize, setViewSize] = useState('moyen');
 
-  const [texteGravure, setTexteGravure] = useState('');
-  const [modeGravure, setModeGravure] = useState('texte');
-  const [imageGravure, setImageGravure] = useState(null);
+  const [texteGravure, setTexteGravure] = useState(
+    initialConfiguration.values.texteGravure
+  );
+  const [modeGravure, setModeGravure] = useState(initialConfiguration.values.modeGravure);
+  const [imageGravure, setImageGravure] = useState(initialConfiguration.values.imageGravure);
+
+  const configuration = React.useMemo(
+    () =>
+      buildConfigurationSnapshot(initialConfiguration, {
+        taille,
+        mesures,
+        essence,
+        finition,
+        quantite,
+      }),
+    [initialConfiguration, taille, mesures, essence, finition, quantite]
+  );
+  const quote = React.useMemo(
+    () => calculateConfigurationQuote(configuration),
+    [configuration]
+  );
+
+  useEffect(() => {
+    const timer = window.setTimeout(() => {
+      saveConfigurationDraft(configuration, user?.uid || 'anonymous').catch(() => {});
+    }, 800);
+
+    return () => window.clearTimeout(timer);
+  }, [configuration, user]);
 
   const handleUploadImage = (e) => {
     const file = e.target.files[0];
@@ -308,455 +482,89 @@ export default function ConfiguratorPage({ onStart, univers }) {
     }
   };
 
+  const [isOrdering, setIsOrdering] = useState(false);
+
+  const handleOrder = async () => {
+    if (isOrdering) return;
+    setIsOrdering(true);
+    const orderDraft = createOrderDraft(configuration, quote, profile || {});
+    const result = await ClientManager.sauvegarderCommande(orderDraft);
+    setIsOrdering(false);
+    navigate('/commande', {
+      state: { orderDraft: { ...orderDraft, id: result.id, persisted: result.success } },
+    });
+  };
+
   return (
     <div style={styles.pageContainer}>
-      <div style={styles.leftPanel}>
-        <div style={styles.header}>
-          <button onClick={onStart} style={styles.backButton}>
-            ← Retour
-          </button>
-          <div style={styles.logoContainer}>
-            <span style={styles.logoText}>L'ÉCRIN FRANÇAIS</span>
-          </div>
-          <div style={{ width: '60px' }}></div>
-        </div>
+      <ConfigurationPanel
+        styles={styles}
+        taille={taille}
+        setTaille={setTaille}
+        mesures={mesures}
+        setMesures={setMesures}
+        essence={essence}
+        setEssence={setEssence}
+        finition={finition}
+        setFinition={setFinition}
+        couleurLaque={couleurLaque}
+        setCouleurLaque={setCouleurLaque}
+        cales={cales}
+        setCales={setCales}
+        couleurVelours={couleurVelours}
+        setCouleurVelours={setCouleurVelours}
+        fermeture={fermeture}
+        setFermeture={setFermeture}
+        gravureType={gravureType}
+        setGravureType={setGravureType}
+        fontStyle={fontStyle}
+        setFontStyle={setFontStyle}
+        tailleTexte={tailleTexte}
+        setTailleTexte={setTailleTexte}
+        tailleImage={tailleImage}
+        setTailleImage={setTailleImage}
+        posX={posX}
+        setPosX={setPosX}
+        posY={posY}
+        setPosY={setPosY}
+        quantite={quantite}
+        setQuantite={setQuantite}
+        viewSize={viewSize}
+        setViewSize={setViewSize}
+        texteGravure={texteGravure}
+        setTexteGravure={setTexteGravure}
+        modeGravure={modeGravure}
+        setModeGravure={setModeGravure}
+        handleUploadImage={handleUploadImage}
+        quote={quote}
+        vinsConfig={vinsConfig}
+        onOrder={handleOrder}
+        orderPending={isOrdering}
+        title={t(`titles.${resolvedUnivers}`, configurationService.getTitle(resolvedUnivers))}
+      />
 
-        <div style={styles.configContainer}>
-          <h1 style={styles.title}>Vins & Spiritueux</h1>
-
-          <div style={styles.cleanGrid}>
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Taille du coffret</label>
-              <select
-                value={taille}
-                onChange={(e) => setTaille(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.tailles.map((t) => (
-                  <option key={t.id} value={t.id}>
-                    {t.label}
-                  </option>
-                ))}
-              </select>
-              {taille === 'sur_mesure' && (
-                <div style={styles.inlineInputs}>
-                  <input
-                    type="number"
-                    placeholder="L(cm)"
-                    onChange={(e) =>
-                      setMesures({ ...mesures, L: e.target.value })
-                    }
-                    style={styles.minimalInput}
-                  />
-                  <input
-                    type="number"
-                    placeholder="l(cm)"
-                    onChange={(e) =>
-                      setMesures({ ...mesures, l: e.target.value })
-                    }
-                    style={styles.minimalInput}
-                  />
-                  <input
-                    type="number"
-                    placeholder="H(cm)"
-                    onChange={(e) =>
-                      setMesures({ ...mesures, h: e.target.value })
-                    }
-                    style={styles.minimalInput}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Essence de bois</label>
-              <select
-                value={essence}
-                onChange={(e) => setEssence(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.essences.map((b) => (
-                  <option key={b} value={b}>
-                    {b}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Finition</label>
-              <select
-                value={finition}
-                onChange={(e) => setFinition(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.finitions.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-              {finition === 'Laque' && (
-                <div
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '15px',
-                    marginTop: '10px',
-                  }}
-                >
-                  <label style={styles.label}>Couleur :</label>
-                  <div style={{ display: 'flex', gap: '8px' }}>
-                    {[
-                      '#800020',
-                      '#000000',
-                      '#ffffff',
-                      '#003366',
-                      '#214e34',
-                    ].map((color) => (
-                      <button
-                        key={color}
-                        onClick={() => setCouleurLaque(color)}
-                        style={{
-                          width: '22px',
-                          height: '22px',
-                          borderRadius: '50%',
-                          backgroundColor: color,
-                          border:
-                            couleurLaque === color
-                              ? '2px solid #d4af37'
-                              : '1px solid #333',
-                          cursor: 'pointer',
-                          padding: 0,
-                        }}
-                      />
-                    ))}
-                  </div>
-                  <input
-                    type="color"
-                    value={couleurLaque}
-                    onChange={(e) => setCouleurLaque(e.target.value)}
-                    style={styles.colorPicker}
-                  />
-                </div>
-              )}
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Aménagement</label>
-              <select
-                value={cales}
-                onChange={(e) => setCales(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.cales.map((c) => (
-                  <option key={c} value={c}>
-                    {c}
-                  </option>
-                ))}
-              </select>
-              {cales === 'Velours' && (
-                <select
-                  value={couleurVelours}
-                  onChange={(e) => setCouleurVelours(e.target.value)}
-                  style={{ ...styles.minimalSelect, marginTop: '10px' }}
-                >
-                  {vinsConfig.veloursColors.map((c) => (
-                    <option key={c} value={c}>
-                      {c}
-                    </option>
-                  ))}
-                </select>
-              )}
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Fermeture</label>
-              <select
-                value={fermeture}
-                onChange={(e) => setFermeture(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.fermetures.map((f) => (
-                  <option key={f} value={f}>
-                    {f}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            <div style={styles.fieldGroup}>
-              <label style={styles.label}>Gravure</label>
-              <select
-                value={gravureType}
-                onChange={(e) => setGravureType(e.target.value)}
-                style={styles.minimalSelect}
-              >
-                {vinsConfig.gravureTypes.map((g) => (
-                  <option key={g} value={g}>
-                    {g}
-                  </option>
-                ))}
-              </select>
-            </div>
-
-            {/* LE PANNEAU DE CONTRÔLE (Remis à sa bonne place dans l'interface HTML) */}
-            {gravureType !== 'Aucune' && (
-              <div
-                style={{
-                  ...styles.fieldGroup,
-                  gridColumn: '1 / -1',
-                  padding: '15px',
-                  border: '1px solid #333',
-                  borderRadius: '5px',
-                }}
-              >
-                <label style={styles.label}>
-                  Personnalisation de la Gravure
-                </label>
-
-                <div
-                  style={{
-                    display: 'flex',
-                    gap: '10px',
-                    marginTop: '10px',
-                    marginBottom: '15px',
-                  }}
-                >
-                  <button
-                    onClick={() => setModeGravure('texte')}
-                    style={{
-                      ...styles.minimalSelect,
-                      width: '50%',
-                      padding: '5px',
-                      border:
-                        modeGravure === 'texte'
-                          ? '1px solid #d4af37'
-                          : '1px solid #333',
-                    }}
-                  >
-                    Texte
-                  </button>
-                  <button
-                    onClick={() => setModeGravure('image')}
-                    style={{
-                      ...styles.minimalSelect,
-                      width: '50%',
-                      padding: '5px',
-                      border:
-                        modeGravure === 'image'
-                          ? '1px solid #d4af37'
-                          : '1px solid #333',
-                    }}
-                  >
-                    Image / Logo
-                  </button>
-                </div>
-
-                {modeGravure === 'texte' ? (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '15px',
-                    }}
-                  >
-                    <input
-                      type="text"
-                      value={texteGravure}
-                      onChange={(e) => setTexteGravure(e.target.value)}
-                      placeholder="Saisir le texte..."
-                      style={styles.minimalInput}
-                    />
-
-                    <div style={{ display: 'flex', gap: '20px' }}>
-                      <div style={{ width: '50%' }}>
-                        <label style={{ ...styles.label, fontSize: '0.6rem' }}>
-                          Police
-                        </label>
-                        <select
-                          value={fontStyle}
-                          onChange={(e) => setFontStyle(e.target.value)}
-                          style={styles.minimalSelect}
-                        >
-                          <option value="Serif">Classique</option>
-                          <option value="SansSerif">Moderne</option>
-                          <option value="Script">Manuscrite</option>
-                        </select>
-                      </div>
-                      <div style={{ width: '50%' }}>
-                        <label style={{ ...styles.label, fontSize: '0.6rem' }}>
-                          Taille : {tailleTexte}%
-                        </label>
-                        <input
-                          type="range"
-                          min="30"
-                          max="200"
-                          value={tailleTexte}
-                          onChange={(e) => setTailleTexte(e.target.value)}
-                          style={{ width: '100%' }}
-                        />
-                      </div>
-                    </div>
-                  </div>
-                ) : (
-                  <div
-                    style={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '15px',
-                    }}
-                  >
-                    <input
-                      type="file"
-                      accept="image/png, image/jpeg"
-                      onChange={handleUploadImage}
-                      style={{
-                        ...styles.minimalInput,
-                        fontSize: '0.8rem',
-                        color: '#888',
-                      }}
-                    />
-                    <div>
-                      <label style={{ ...styles.label, fontSize: '0.6rem' }}>
-                        Zoom Image : {tailleImage}%
-                      </label>
-                      <input
-                        type="range"
-                        min="10"
-                        max="300"
-                        value={tailleImage}
-                        onChange={(e) => setTailleImage(e.target.value)}
-                        style={{ width: '100%' }}
-                      />
-                    </div>
-                  </div>
-                )}
-
-                <div
-                  style={{
-                    marginTop: '20px',
-                    borderTop: '1px solid #333',
-                    paddingTop: '15px',
-                  }}
-                >
-                  <label style={{ ...styles.label, fontSize: '0.6rem' }}>
-                    Position Horizontale (Gauche/Droite)
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={posX}
-                    onChange={(e) => setPosX(e.target.value)}
-                    style={{ width: '100%', marginBottom: '10px' }}
-                  />
-
-                  <label style={{ ...styles.label, fontSize: '0.6rem' }}>
-                    Position Verticale (Haut/Bas)
-                  </label>
-                  <input
-                    type="range"
-                    min="0"
-                    max="100"
-                    value={posY}
-                    onChange={(e) => setPosY(e.target.value)}
-                    style={{ width: '100%' }}
-                  />
-                </div>
-              </div>
-            )}
-          </div>
-
-          <div style={styles.footer}>
-            <div style={{ display: 'flex', alignItems: 'center', gap: '15px' }}>
-              <label style={styles.label}>Quantité :</label>
-              <input
-                type="number"
-                min="1"
-                value={quantite}
-                onChange={(e) => setQuantite(e.target.value)}
-                style={{
-                  ...styles.minimalInput,
-                  width: '60px',
-                  textAlign: 'center',
-                }}
-              />
-            </div>
-            <button style={styles.orderButton}>Ajouter au panier</button>
-          </div>
-        </div>
-      </div>
-
-      <div style={styles.rightPanel3D}>
-        <button onClick={() => setIsOpen(!isOpen)} style={styles.openButton}>
-          {isOpen ? 'Fermer le coffret' : 'Ouvrir le coffret'}
-        </button>
-
-        <div
-          style={{
-            position: 'absolute',
-            top: 0,
-            left: 0,
-            width: '100%',
-            height: '100%',
-            cursor: 'grab',
-          }}
-        >
-          <Canvas shadows camera={{ position: [0, 2, 6], fov: 45 }}>
-            <ambientLight intensity={0.8} />
-            <directionalLight
-              position={[5, 5, 5]}
-              intensity={1.2}
-              castShadow
-              shadow-mapSize-width={2048}
-              shadow-mapSize-height={2048}
-            />{' '}
-            <pointLight position={[0, 2, 3]} intensity={0.5} />
-            <Suspense
-              fallback={
-                <group>
-                  <mesh>
-                    <boxGeometry args={[1, 3, 1]} />
-                    <meshStandardMaterial color="#a67b5b" />
-                  </mesh>
-                </group>
-              }
-            >
-              <Coffret3D
-                taille={taille}
-                mesures={mesures}
-                essence={essence}
-                finition={finition}
-                couleurLaque={couleurLaque}
-                couleurVelours={couleurVelours}
-                isOpen={isOpen}
-                gravureType={gravureType}
-                texteGravure={texteGravure}
-                modeGravure={modeGravure}
-                imageGravure={imageGravure}
-                fontStyle={fontStyle}
-                tailleTexte={tailleTexte}
-                tailleImage={tailleImage}
-                posX={posX}
-                posY={posY}
-              />
-              <ContactShadows
-                position={[0, -2, 0]}
-                opacity={0.5}
-                scale={15}
-                blur={2.5}
-                far={4}
-              />
-            </Suspense>
-            <OrbitControls
-              makeDefault
-              minPolarAngle={0}
-              maxPolarAngle={Math.PI / 2 + 0.1}
-            />
-          </Canvas>
-        </div>
-      </div>
+      <Preview3DPanel
+        styles={styles}
+        taille={taille}
+        mesures={mesures}
+        essence={essence}
+        finition={finition}
+        couleurLaque={couleurLaque}
+        couleurVelours={couleurVelours}
+        isOpen={isOpen}
+        fermeture={fermeture}
+        gravureType={gravureType}
+        texteGravure={texteGravure}
+        modeGravure={modeGravure}
+        imageGravure={imageGravure}
+        fontStyle={fontStyle}
+        tailleTexte={tailleTexte}
+        tailleImage={tailleImage}
+        posX={posX}
+        posY={posY}
+        viewSize={viewSize}
+        setIsOpen={setIsOpen}
+      />
     </div>
   );
 }
@@ -764,53 +572,34 @@ export default function ConfiguratorPage({ onStart, univers }) {
 const styles = {
   pageContainer: {
     display: 'flex',
-    height: '100vh',
+    height: `calc(100vh - ${HEADER_HEIGHT}px)`,
     width: '100vw',
-    backgroundColor: '#050505',
-    color: '#eaeaea',
+    background: 'linear-gradient(135deg, #050505 0%, #111 45%, #0d0d0d 100%)',
+    color: '#f6f1e8',
     fontFamily: '"Optima", "Didot", "Helvetica Neue", sans-serif',
     overflow: 'hidden',
   },
   leftPanel: {
-    width: '65%',
+    width: 'min(60%, 900px)',
+    minWidth: '320px',
     display: 'flex',
     flexDirection: 'column',
-    alignItems: 'center',
-    padding: '30px',
+    padding: '24px 28px 28px',
     overflowY: 'auto',
+    background: 'linear-gradient(145deg, #0f0f0f 0%, #161616 100%)',
+    borderRight: '1px solid rgba(212, 175, 55, 0.16)',
   },
   rightPanel3D: {
-    width: '35%',
-    backgroundColor: '#0a0a0a',
-    borderLeft: '1px solid #1a1a1a',
+    flex: 1,
+    minWidth: '320px',
+    background: 'radial-gradient(circle at top, #2d2418 0%, #030303 60%, #000 100%)',
+    borderLeft: '1px solid rgba(212, 175, 55, 0.18)',
     position: 'relative',
-  },
-  header: {
-    width: '100%',
-    display: 'flex',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: '20px',
-  },
-  logoText: {
-    fontFamily: '"Didot", "Times New Roman", serif',
-    fontSize: '1.5rem',
-    letterSpacing: '5px',
-    color: '#fff',
-    textTransform: 'uppercase',
-  },
-  backButton: {
-    background: 'none',
-    border: 'none',
-    color: '#666',
-    cursor: 'pointer',
-    fontSize: '0.8rem',
-    textTransform: 'uppercase',
-    letterSpacing: '1px',
+    overflow: 'hidden',
   },
   configContainer: {
     width: '100%',
-    maxWidth: '700px',
+    maxWidth: '760px',
     display: 'flex',
     flexDirection: 'column',
     flex: 1,
@@ -821,47 +610,87 @@ const styles = {
     fontWeight: 'normal',
     letterSpacing: '2px',
     color: '#d4af37',
-    marginBottom: '30px',
-    borderBottom: '1px solid #1a1a1a',
-    paddingBottom: '15px',
+    marginBottom: '24px',
+    borderBottom: '1px solid rgba(212, 175, 55, 0.2)',
+    paddingBottom: '14px',
   },
-  cleanGrid: {
+  sectionCard: {
+    background: 'rgba(255, 255, 255, 0.03)',
+    border: '1px solid rgba(255, 255, 255, 0.08)',
+    borderRadius: '16px',
+    padding: '18px',
+    marginBottom: '16px',
+    boxShadow: '0 10px 30px rgba(0, 0, 0, 0.18)',
+  },
+  sectionHeader: {
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: '14px',
+  },
+  sectionEyebrow: {
+    color: '#d4af37',
+    fontSize: '0.68rem',
+    letterSpacing: '2px',
+    textTransform: 'uppercase',
+    marginBottom: '4px',
+  },
+  sectionTitle: {
+    fontSize: '1rem',
+    color: '#f7efe3',
+    margin: 0,
+    fontWeight: 600,
+  },
+  sectionBadge: {
+    color: '#c7a75b',
+    fontSize: '0.72rem',
+    border: '1px solid rgba(212, 175, 55, 0.25)',
+    borderRadius: '999px',
+    padding: '4px 10px',
+  },
+  sectionGrid: {
     display: 'grid',
-    gridTemplateColumns: '1fr 1fr',
-    columnGap: '60px',
-    rowGap: '25px',
+    gridTemplateColumns: 'repeat(2, minmax(0, 1fr))',
+    columnGap: '16px',
+    rowGap: '14px',
   },
-  fieldGroup: { display: 'flex', flexDirection: 'column' },
+  fieldGroup: {
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '8px',
+  },
   label: {
-    fontSize: '0.7rem',
+    fontSize: '0.68rem',
     textTransform: 'uppercase',
     letterSpacing: '2px',
-    color: '#888',
-    marginBottom: '10px',
+    color: '#b6ab95',
+    marginBottom: '2px',
   },
   minimalSelect: {
     width: '100%',
-    backgroundColor: 'transparent',
-    color: '#fff',
-    border: 'none',
-    borderBottom: '1px solid #333',
-    padding: '5px 0 10px 0',
+    backgroundColor: '#121212',
+    color: '#f8f1e2',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '10px',
+    padding: '10px 12px',
     fontSize: '0.95rem',
     outline: 'none',
     cursor: 'pointer',
     appearance: 'none',
+    boxSizing: 'border-box',
   },
   minimalInput: {
     width: '100%',
-    backgroundColor: 'transparent',
-    color: '#fff',
-    border: 'none',
-    borderBottom: '1px solid #333',
-    padding: '5px 0 10px 0',
+    backgroundColor: '#121212',
+    color: '#f8f1e2',
+    border: '1px solid rgba(255,255,255,0.12)',
+    borderRadius: '10px',
+    padding: '10px 12px',
     fontSize: '0.95rem',
     outline: 'none',
+    boxSizing: 'border-box',
   },
-  inlineInputs: { display: 'flex', gap: '10px', marginTop: '10px' },
+  inlineInputs: { display: 'flex', gap: '10px', marginTop: '8px' },
   colorPicker: {
     background: 'none',
     border: 'none',
@@ -870,25 +699,60 @@ const styles = {
     width: '25px',
     padding: 0,
   },
-  footer: {
-    marginTop: '30px',
-    paddingTop: '20px',
-    borderTop: '1px solid #1a1a1a',
+  engravingCard: {
+    gridColumn: '1 / -1',
+    background: 'rgba(212, 175, 55, 0.08)',
+    border: '1px solid rgba(212, 175, 55, 0.18)',
+    borderRadius: '12px',
+    padding: '14px',
+    display: 'flex',
+    flexDirection: 'column',
+    gap: '12px',
+  },
+  summaryCard: {
+    background: 'rgba(212, 175, 55, 0.08)',
+    border: '1px solid rgba(212, 175, 55, 0.2)',
+    borderRadius: '16px',
+    padding: '16px 18px',
+    marginBottom: '16px',
     display: 'flex',
     justifyContent: 'space-between',
     alignItems: 'center',
-    paddingBottom: '20px',
+    gap: '16px',
+    flexWrap: 'wrap',
+  },
+  summaryLabel: {
+    color: '#b6ab95',
+    fontSize: '0.7rem',
+    letterSpacing: '2px',
+    textTransform: 'uppercase',
+  },
+  summaryValue: {
+    color: '#f7efe3',
+    fontSize: '1rem',
+    marginTop: '4px',
+    fontWeight: 600,
+  },
+  footer: {
+    marginTop: '8px',
+    paddingTop: '18px',
+    borderTop: '1px solid rgba(255,255,255,0.08)',
+    display: 'flex',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    paddingBottom: '12px',
   },
   orderButton: {
     backgroundColor: '#d4af37',
     color: '#000',
     border: 'none',
-    padding: '15px 40px',
+    padding: '14px 34px',
     fontSize: '0.8rem',
     textTransform: 'uppercase',
     letterSpacing: '2px',
     cursor: 'pointer',
     fontWeight: 'bold',
+    borderRadius: '999px',
   },
   openButton: {
     position: 'absolute',
@@ -896,12 +760,13 @@ const styles = {
     right: '20px',
     zIndex: 10,
     padding: '10px 20px',
-    backgroundColor: '#1a1a1a',
+    backgroundColor: 'rgba(10, 10, 10, 0.82)',
     color: '#d4af37',
-    border: '1px solid #d4af37',
+    border: '1px solid rgba(212, 175, 55, 0.4)',
     cursor: 'pointer',
     textTransform: 'uppercase',
     fontSize: '0.7rem',
     letterSpacing: '1px',
+    borderRadius: '999px',
   },
 };

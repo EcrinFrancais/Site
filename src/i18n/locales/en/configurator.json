@@ -1,0 +1,93 @@
+{
+  "sections": {
+    "sizeFinish": "Case Size & Finish",
+    "layout": "Interior Fittings",
+    "closure": "Closure",
+    "engraving": "Engraving & Personalisation"
+  },
+  "labels": {
+    "boxSize": "Case size",
+    "lengthPlaceholder": "L(cm)",
+    "widthPlaceholder": "W(cm)",
+    "heightPlaceholder": "H(cm)",
+    "wood": "Wood essence",
+    "finish": "Finish",
+    "color": "Colour:",
+    "padding": "Padding & lining",
+    "closureType": "Closure type",
+    "engravingType": "Engraving",
+    "engravingCustomization": "Engraving personalisation",
+    "modeText": "Text",
+    "modeImage": "Image / Logo",
+    "textPlaceholder": "Enter text...",
+    "font": "Typeface",
+    "fontSerif": "Classic",
+    "fontSansSerif": "Modern",
+    "fontScript": "Handwritten",
+    "textSize": "Size: {{value}}%",
+    "imageZoom": "Image zoom: {{value}}%",
+    "positionHorizontal": "Horizontal Position (Left/Right)",
+    "positionVertical": "Vertical Position (Top/Bottom)",
+    "quantity": "Quantity",
+    "estimate": "Estimate",
+    "preview3d": "3D Preview",
+    "qty": "Qty"
+  },
+  "viewSize": {
+    "petit": "small",
+    "moyen": "medium",
+    "grand": "large"
+  },
+  "footerHint": "Select your materials, finishes and engraving to create your bespoke case.",
+  "addToCart": "Add to Cart",
+  "sending": "Sending...",
+  "openBox": "Open the case",
+  "closeBox": "Close the case",
+  "tailles": {
+    "bouteille": "Standard bottle (33x9x9 cm)",
+    "magnum": "Magnum (38x12x12 cm)",
+    "jeroboam": "Jeroboam (48x16x16 cm)",
+    "rehoboam": "Rehoboam (53x18x18 cm)",
+    "sur_mesure": "Made to measure..."
+  },
+  "essences": {
+    "Pin": "Pine",
+    "Peuplier": "Poplar",
+    "Noyer": "Walnut",
+    "Érable": "Maple",
+    "Chêne": "Oak",
+    "Ébène": "Ebony",
+    "Palissandre": "Rosewood",
+    "Merisier": "Cherry"
+  },
+  "finitions": {
+    "Brut": "Raw",
+    "Vernis mat": "Matte varnish",
+    "Vernis brillant": "Gloss varnish",
+    "Laque": "Lacquer"
+  },
+  "cales": {
+    "Bois": "Wood",
+    "Velours": "Velvet"
+  },
+  "veloursColors": {
+    "Grenat": "Garnet",
+    "Émeraude": "Emerald",
+    "Bleu royal": "Royal blue",
+    "Anthracite": "Anthracite",
+    "Ivoire": "Ivory"
+  },
+  "fermetures": {
+    "Charnières + fermeture magnétique invisible": "Hinges + invisible magnetic closure",
+    "Charnières + loquet en laiton": "Hinges + brass latch",
+    "Couvercle coulissant": "Sliding lid",
+    "Tiroir coulissant": "Sliding drawer",
+    "Couvercle amovible par emboîtement": "Removable interlocking lid"
+  },
+  "gravureTypes": {
+    "Aucune": "None",
+    "Gravure laser": "Laser engraving",
+    "Gravure mécanique": "Mechanical engraving",
+    "Sérigraphie": "Screen printing"
+  }
+}

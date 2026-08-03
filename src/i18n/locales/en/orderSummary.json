@@ -1,0 +1,9 @@
+{
+  "title": "Order Summary",
+  "orderId": "Order number: {{id}}",
+  "confirmationSent": "A confirmation email has been sent to you.",
+  "univers": "Universe: {{univers}}",
+  "quantity": "Quantity: {{quantity}}",
+  "status": "Status: {{status}}",
+  "total": "Estimated total: {{total}} €"
+}

@@ -1,0 +1,93 @@
+{
+  "sections": {
+    "sizeFinish": "Taille & finition du coffret",
+    "layout": "Aménagement",
+    "closure": "Fermeture",
+    "engraving": "Gravure & personnalisation"
+  },
+  "labels": {
+    "boxSize": "Taille du coffret",
+    "lengthPlaceholder": "L(cm)",
+    "widthPlaceholder": "l(cm)",
+    "heightPlaceholder": "H(cm)",
+    "wood": "Essence de bois",
+    "finish": "Finition",
+    "color": "Couleur :",
+    "padding": "Cales & doublure",
+    "closureType": "Type de fermeture",
+    "engravingType": "Gravure",
+    "engravingCustomization": "Personnalisation de la gravure",
+    "modeText": "Texte",
+    "modeImage": "Image / Logo",
+    "textPlaceholder": "Saisir le texte...",
+    "font": "Police",
+    "fontSerif": "Classique",
+    "fontSansSerif": "Moderne",
+    "fontScript": "Manuscrite",
+    "textSize": "Taille : {{value}}%",
+    "imageZoom": "Zoom Image : {{value}}%",
+    "positionHorizontal": "Position Horizontale (Gauche/Droite)",
+    "positionVertical": "Position Verticale (Haut/Bas)",
+    "quantity": "Quantité",
+    "estimate": "Estimation",
+    "preview3d": "Aperçu 3D",
+    "qty": "Qté"
+  },
+  "viewSize": {
+    "petit": "petit",
+    "moyen": "moyen",
+    "grand": "grand"
+  },
+  "footerHint": "Sélectionnez vos matières, finitions et gravure pour créer votre coffret sur mesure.",
+  "addToCart": "Ajouter au panier",
+  "sending": "Envoi en cours...",
+  "openBox": "Ouvrir le coffret",
+  "closeBox": "Fermer le coffret",
+  "tailles": {
+    "bouteille": "Bouteille standard (33x9x9 cm)",
+    "magnum": "Magnum (38x12x12 cm)",
+    "jeroboam": "Jéroboam (48x16x16 cm)",
+    "rehoboam": "Réhoboam (53x18x18 cm)",
+    "sur_mesure": "Sur mesure..."
+  },
+  "essences": {
+    "Pin": "Pin",
+    "Peuplier": "Peuplier",
+    "Noyer": "Noyer",
+    "Érable": "Érable",
+    "Chêne": "Chêne",
+    "Ébène": "Ébène",
+    "Palissandre": "Palissandre",
+    "Merisier": "Merisier"
+  },
+  "finitions": {
+    "Brut": "Brut",
+    "Vernis mat": "Vernis mat",
+    "Vernis brillant": "Vernis brillant",
+    "Laque": "Laque"
+  },
+  "cales": {
+    "Bois": "Bois",
+    "Velours": "Velours"
+  },
+  "veloursColors": {
+    "Grenat": "Grenat",
+    "Émeraude": "Émeraude",
+    "Bleu royal": "Bleu royal",
+    "Anthracite": "Anthracite",
+    "Ivoire": "Ivoire"
+  },
+  "fermetures": {
+    "Charnières + fermeture magnétique invisible": "Charnières + fermeture magnétique invisible",
+    "Charnières + loquet en laiton": "Charnières + loquet en laiton",
+    "Couvercle coulissant": "Couvercle coulissant",
+    "Tiroir coulissant": "Tiroir coulissant",
+    "Couvercle amovible par emboîtement": "Couvercle amovible par emboîtement"
+  },
+  "gravureTypes": {
+    "Aucune": "Aucune",
+    "Gravure laser": "Gravure laser",
+    "Gravure mécanique": "Gravure mécanique",
+    "Sérigraphie": "Sérigraphie"
+  }
+}

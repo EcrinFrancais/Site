@@ -1,4 +1,5 @@
 import React from 'react';
+import { useTranslation } from 'react-i18next';
 
 // --- LE LOGO (Code SVG vectoriel) ---
 // Ce composant dessine le logo directement à l'écran
@@ -43,6 +44,7 @@ const BrandLogo = ({ size = 60, color = '#C5A059' }) => (
 );
 
 const HomePage = ({ onStart }) => {
+  const { t } = useTranslation('home');
   // --- STYLES ---
   const styles = {
     container: {
@@ -53,32 +55,6 @@ const HomePage = ({ onStart }) => {
       display: 'flex',
       flexDirection: 'column',
     },
-
-    // NAVIGATION AVEC LOGO
-    nav: {
-      padding: '15px 40px',
-      display: 'flex',
-      justifyContent: 'space-between',
-      alignItems: 'center',
-      borderBottom: '1px solid rgba(197, 160, 89, 0.2)',
-      background: 'rgba(11, 11, 11, 0.95)',
-      position: 'fixed',
-      width: '100%',
-      zIndex: 100,
-      boxSizing: 'border-box',
-      backdropFilter: 'blur(5px)',
-    },
-    brandBlock: { display: 'flex', alignItems: 'center', gap: '15px' },
-    brandName: {
-      fontFamily: "'Playfair Display', serif",
-      fontSize: '1.2rem',
-      color: '#C5A059',
-      fontWeight: 'bold',
-      textTransform: 'uppercase',
-      letterSpacing: '2px',
-      lineHeight: '1.2',
-    },
-    navSpacer: { height: '90px' },
 
     // HERO
     hero: {
@@ -98,34 +74,39 @@ const HomePage = ({ onStart }) => {
     },
     heroTitle: {
       fontFamily: "'Playfair Display', serif",
-      fontSize: '4rem',
-      color: '#C5A059',
-      marginBottom: '25px',
-      maxWidth: '1000px',
-      lineHeight: '1.1',
+      fontSize: 'clamp(2.6rem, 5vw, 4.3rem)',
+      color: '#F2E0B4',
+      marginBottom: '18px',
+      maxWidth: '980px',
+      lineHeight: '1.05',
       textTransform: 'uppercase',
-      letterSpacing: '2px',
+      letterSpacing: '0.14em',
+      textShadow: '0 8px 24px rgba(0,0,0,0.25)',
     },
     heroSubtitle: {
       fontFamily: "'Playfair Display', serif",
       fontStyle: 'italic',
-      fontSize: '1.5rem',
-      maxWidth: '800px',
-      marginBottom: '50px',
-      color: '#FFF',
+      fontSize: '1.2rem',
+      maxWidth: '780px',
+      marginBottom: '42px',
+      color: '#F6EFD8',
       fontWeight: '400',
+      lineHeight: '1.7',
+      opacity: 0.95,
     },
     ctaButton: {
-      padding: '20px 60px',
-      backgroundColor: 'transparent',
-      color: '#C5A059',
-      border: '2px solid #C5A059',
-      fontSize: '1rem',
-      fontWeight: 'bold',
+      padding: '16px 34px',
+      background: 'linear-gradient(135deg, rgba(197,160,89,0.16), rgba(197,160,89,0.3))',
+      color: '#F6EFD8',
+      border: '1px solid rgba(197,160,89,0.45)',
+      fontSize: '0.92rem',
+      fontWeight: '700',
       cursor: 'pointer',
       textTransform: 'uppercase',
-      letterSpacing: '3px',
+      letterSpacing: '0.2em',
       transition: '0.3s',
+      borderRadius: '999px',
+      backdropFilter: 'blur(6px)',
     },
 
     // RESTE DU SITE...
@@ -153,98 +134,128 @@ const HomePage = ({ onStart }) => {
 
     sectionStory: {
       padding: '120px 40px',
-      backgroundColor: '#0B0B0B',
-      maxWidth: '1200px',
+      background: 'linear-gradient(135deg, #080808 0%, #101010 100%)',
+      maxWidth: '1320px',
       margin: '0 auto',
+      width: '100%',
     },
     storyTitle: {
       fontFamily: "'Playfair Display', serif",
       fontSize: '3rem',
       color: '#C5A059',
-      marginBottom: '50px',
+      marginBottom: '16px',
       textAlign: 'center',
     },
+    storyIntro: {
+      textAlign: 'center',
+      color: '#b8af96',
+      maxWidth: '720px',
+      margin: '0 auto 48px',
+      lineHeight: '1.8',
+      fontSize: '1rem',
+    },
     storyLayout: {
-      display: 'flex',
-      gap: '80px',
+      display: 'grid',
+      gridTemplateColumns: '1.05fr 0.95fr',
+      gap: '44px',
       alignItems: 'center',
-      flexWrap: 'wrap',
     },
-    storyText: { flex: '1 1 500px' },
-    dropCap: {
-      float: 'left',
-      fontSize: '4rem',
-      lineHeight: '0.8',
-      marginRight: '15px',
-      color: '#C5A059',
-      fontFamily: "'Playfair Display', serif'",
-    },
+    storyText: { display: 'grid', gap: '18px' },
     paragraph: {
-      lineHeight: '2',
-      color: '#CCC',
-      marginBottom: '30px',
-      fontSize: '1.05rem',
-      textAlign: 'justify',
+      lineHeight: '1.9',
+      color: '#D9D1C2',
+      margin: 0,
+      fontSize: '1.02rem',
+    },
+    highlightBox: {
+      border: '1px solid rgba(197, 160, 89, 0.24)',
+      borderRadius: '18px',
+      padding: '18px 20px',
+      background: 'rgba(255,255,255,0.04)',
+      color: '#EEDBB5',
+      letterSpacing: '0.04em',
+      textTransform: 'uppercase',
+      fontSize: '0.82rem',
     },
     imageComposition: {
-      flex: '1 1 500px',
       position: 'relative',
-      height: '500px',
+      minHeight: '480px',
+      borderRadius: '24px',
+      overflow: 'hidden',
+      boxShadow: '0 25px 60px rgba(0,0,0,0.35)',
+      border: '1px solid rgba(197, 160, 89, 0.18)',
+      background: 'linear-gradient(140deg, rgba(197,160,89,0.12), rgba(0,0,0,0.2))',
     },
     imgBack: {
       position: 'absolute',
-      top: 0,
-      right: 0,
-      width: '80%',
-      height: '80%',
+      inset: 0,
+      width: '100%',
+      height: '100%',
       objectFit: 'cover',
-      filter: 'sepia(20%) brightness(0.6)',
+      objectPosition: 'center',
+      filter: 'saturate(0.8) contrast(1.05)',
     },
-    imgFront: {
+    imgOverlay: {
       position: 'absolute',
-      bottom: 0,
-      left: 0,
-      width: '60%',
-      height: '60%',
-      objectFit: 'cover',
-      border: '5px solid #0B0B0B',
-      boxShadow: '0 20px 50px rgba(0,0,0,0.8)',
+      inset: '0',
+      background: 'linear-gradient(120deg, rgba(0,0,0,0.2) 0%, rgba(0,0,0,0.7) 100%)',
+    },
+    imageCaption: {
+      position: 'absolute',
+      bottom: '20px',
+      left: '20px',
+      right: '20px',
+      padding: '16px 18px',
+      background: 'rgba(8,8,8,0.72)',
+      border: '1px solid rgba(197, 160, 89, 0.25)',
+      borderRadius: '14px',
+      color: '#F2E2B4',
+      backdropFilter: 'blur(8px)',
+      lineHeight: '1.6',
     },
 
-    sectionSavoirFaire: { padding: '120px 40px', backgroundColor: '#101010' },
+    sectionSavoirFaire: {
+      padding: '120px 40px',
+      background: 'linear-gradient(180deg, #101010 0%, #0a0a0a 100%)',
+    },
     gridSavoirFaire: {
       display: 'grid',
-      gridTemplateColumns: 'repeat(auto-fit, minmax(350px, 1fr))',
-      gap: '50px',
-      maxWidth: '1300px',
+      gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))',
+      gap: '28px',
+      maxWidth: '1280px',
       margin: '0 auto',
     },
     cardSF: {
       textAlign: 'center',
-      padding: '40px 20px',
-      border: '1px solid #222',
+      padding: '36px 24px',
+      border: '1px solid rgba(197,160,89,0.18)',
+      borderRadius: '20px',
+      background: 'linear-gradient(145deg, rgba(255,255,255,0.05), rgba(197,160,89,0.08))',
       transition: '0.3s',
+      boxShadow: '0 12px 32px rgba(0,0,0,0.18)',
+      position: 'relative',
+      overflow: 'hidden',
     },
     iconSF: {
-      fontSize: '2.5rem',
-      marginBottom: '20px',
-      color: '#C5A059',
+      fontSize: '2.2rem',
+      marginBottom: '16px',
+      color: '#EFD8A3',
       display: 'block',
     },
     titleSF: {
       fontFamily: "'Playfair Display', serif",
-      fontSize: '1.8rem',
-      color: '#EAEAEA',
-      marginBottom: '20px',
+      fontSize: '1.45rem',
+      color: '#F3E7C4',
+      marginBottom: '14px',
     },
-    textSF: { color: '#999', lineHeight: '1.8' },
+    textSF: { color: '#b9b2a3', lineHeight: '1.8', fontSize: '0.96rem' },
 
     footer: {
       padding: '80px 40px',
       textAlign: 'center',
-      borderTop: '1px solid #222',
+      borderTop: '1px solid rgba(197,160,89,0.16)',
       backgroundColor: '#080808',
-      color: '#555',
+      color: '#7d7569',
       fontSize: '0.85rem',
       letterSpacing: '1px',
     },
@@ -252,105 +263,68 @@ const HomePage = ({ onStart }) => {
 
   return (
     <div style={styles.container}>
-      {/* NAVIGATION AVEC LOGO */}
-      <nav style={styles.nav}>
-        {/* BLOC LOGO + TITRE */}
-        <div style={styles.brandBlock}>
-          <BrandLogo size={50} />
-          <div style={styles.brandName}>
-            L'ÉCRIN
-            <br />
-            FRANÇAIS
-          </div>
-        </div>
-
-        <button
-          onClick={onStart}
-          style={{
-            background: 'none',
-            border: 'none',
-            color: '#C5A059',
-            cursor: 'pointer',
-            fontSize: '0.9rem',
-            letterSpacing: '2px',
-            textTransform: 'uppercase',
-          }}
-        >
-          Accéder à l'Atelier
-        </button>
-      </nav>
-      <div style={styles.navSpacer}></div>
-
       {/* HERO */}
       <header style={styles.hero}>
         <BrandLogo size={120} /> {/* Grand Logo au centre */}
         <div style={{ height: '30px' }}></div>
         <h1 style={styles.heroTitle}>
-          Haute Facture de
+          {t('hero.titleLine1')}
           <br />
-          Coffrets & Écrins
+          {t('hero.titleLine2')}
         </h1>
         <p style={styles.heroSubtitle}>
-          "Parce que protéger vos objets d'exception est un art qui traverse le
-          temps."
+          {t('hero.subtitle')}
         </p>
         <button style={styles.ctaButton} onClick={() => onStart('auth')}>
-          Concevoir votre Ouvrage
+          {t('hero.cta')}
         </button>
       </header>
 
       {/* BANDEAU */}
       <section style={styles.statsBar}>
         <div style={styles.statItem}>
-          <div style={styles.statTitle}>Héritage</div>
-          <div style={styles.statSub}>15 Ans d'Excellence</div>
+          <div style={styles.statTitle}>{t('stats.heritage.title')}</div>
+          <div style={styles.statSub}>{t('stats.heritage.sub')}</div>
         </div>
         <div style={styles.statItem}>
-          <div style={styles.statTitle}>Manufacture</div>
-          <div style={styles.statSub}>Propriétaire au Portugal</div>
+          <div style={styles.statTitle}>{t('stats.manufacture.title')}</div>
+          <div style={styles.statSub}>{t('stats.manufacture.sub')}</div>
         </div>
         <div style={styles.statItem}>
-          <div style={styles.statTitle}>Pièce Unique</div>
-          <div style={styles.statSub}>Design Sur-Mesure</div>
+          <div style={styles.statTitle}>{t('stats.piece.title')}</div>
+          <div style={styles.statSub}>{t('stats.piece.sub')}</div>
         </div>
       </section>
 
       {/* HISTOIRE */}
       <section style={styles.sectionStory}>
-        <h2 style={styles.storyTitle}>L'Esprit de la Manufacture</h2>
+        <h2 style={styles.storyTitle}>{t('story.title')}</h2>
+        <p style={styles.storyIntro}>
+          {t('story.intro')}
+        </p>
         <div style={styles.storyLayout}>
           <div style={styles.storyText}>
+            <div style={styles.highlightBox}>{t('story.highlight')}</div>
             <p style={styles.paragraph}>
-              <span style={styles.dropCap}>D</span>
-              epuis quinze ans, L'Écrin Français perpétue la tradition du bel
-              ouvrage. Dans le secret de nos ateliers, nous façonnons pour les
-              grandes Maisons des gardiens de bois et de velours, destinés à
-              traverser les époques.
+              {t('story.paragraph1')}
             </p>
             <p style={styles.paragraph}>
-              Notre singularité réside dans cette double identité : l'âme de
-              l'artisanat bourguignon alliée à la puissance de{' '}
-              <strong>notre propre manufacture au Portugal</strong>. Cette
-              maîtrise intégrale nous permet de travailler les essences les plus
-              nobles avec une précision chirurgicale.
+              {t('story.paragraph2')}
             </p>
             <p style={styles.paragraph}>
-              Aujourd'hui, nous mettons ce savoir-faire confidentiel à la portée
-              des esthètes. Pour que chaque objet précieux trouve enfin l'écrin
-              qu'il mérite.
+              {t('story.paragraph3')}
             </p>
           </div>
           <div style={styles.imageComposition}>
             <img
-              src="https://images.unsplash.com/photo-1605722557346-6014e767425e?auto=format&fit=crop&w=800"
+              src="https://images.unsplash.com/photo-1780745167657-9144974347c4?auto=format&fit=crop&w=1400"
               style={styles.imgBack}
-              alt="Atelier"
+              alt={t('story.imageAlt')}
             />
-            <img
-              src="https://images.unsplash.com/photo-1533090161767-e6ffed986c88?auto=format&fit=crop&w=800"
-              style={styles.imgFront}
-              alt="Geste de l'artisan"
-            />
+            <div style={styles.imgOverlay}></div>
+            <div style={styles.imageCaption}>
+              {t('story.imageCaption')}
+            </div>
           </div>
         </div>
       </section>
@@ -360,34 +334,29 @@ const HomePage = ({ onStart }) => {
         <div style={styles.gridSavoirFaire}>
           <div style={styles.cardSF}>
             <span style={styles.iconSF}>✦</span>
-            <h3 style={styles.titleSF}>Maîtrise d'Œuvre</h3>
+            <h3 style={styles.titleSF}>{t('savoirFaire.card1.title')}</h3>
             <p style={styles.textSF}>
-              Sans intermédiaire. De la sélection de l'arbre à la pose de la
-              dernière charnière, tout est réalisé au sein de notre manufacture.
+              {t('savoirFaire.card1.text')}
             </p>
           </div>
           <div style={styles.cardSF}>
             <span style={styles.iconSF}>✎</span>
-            <h3 style={styles.titleSF}>L'Art du Sur-Mesure</h3>
+            <h3 style={styles.titleSF}>{t('savoirFaire.card2.title')}</h3>
             <p style={styles.textSF}>
-              Chaque projet est une page blanche. Dimensions au millimètre,
-              marquage à chaud ou gravure laser : nous donnons corps à votre
-              imaginaire.
+              {t('savoirFaire.card2.text')}
             </p>
           </div>
           <div style={styles.cardSF}>
             <span style={styles.iconSF}>∞</span>
-            <h3 style={styles.titleSF}>De l'Unité à la Série</h3>
+            <h3 style={styles.titleSF}>{t('savoirFaire.card3.title')}</h3>
             <p style={styles.textSF}>
-              Que vous souhaitiez une pièce unique ou une série limitée pour
-              votre marque, notre outil industriel s'adapte avec la même
-              exigence.
+              {t('savoirFaire.card3.text')}
             </p>
           </div>
         </div>
         <div style={{ textAlign: 'center', marginTop: '100px' }}>
           <button style={styles.ctaButton} onClick={onStart}>
-            Débuter la Configuration
+            {t('savoirFaire.cta')}
           </button>
         </div>
       </section>
@@ -411,11 +380,13 @@ const HomePage = ({ onStart }) => {
             marginBottom: '30px',
           }}
         >
-          L'ÉCRIN FRANÇAIS
+          {t('footer.brand')}
         </div>
-        <p>MANUFACTURE AU PORTUGAL — DESIGN EN BOURGOGNE</p>
+        <p>{t('footer.tagline')}</p>
         <p style={{ marginTop: '20px', fontSize: '0.75rem', opacity: 0.7 }}>
-          MENTIONS LÉGALES & CGV — TOUS DROITS RÉSERVÉS 2024
+          <a href="/mentions-legales" style={{ color: 'inherit', textDecoration: 'none' }}>
+            {t('footer.legal')}
+          </a>
         </p>
       </footer>
     </div>

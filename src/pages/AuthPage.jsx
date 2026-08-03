@@ -1,8 +1,12 @@
 // src/pages/AuthPage.jsx
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { ClientManager } from '../logic/ClientManager';
+import { useAuth } from '../context/AuthContext';
 
 export default function AuthPage({ onStart }) {
+  const { t, i18n } = useTranslation('auth');
+  const { user, loading } = useAuth();
   const [isLogin, setIsLogin] = useState(true);
   const [type, setType] = useState('particulier');
 
@@ -36,16 +40,22 @@ export default function AuthPage({ onStart }) {
   const [passion, setPassion] = useState('');
   const [attente, setAttente] = useState('');
 
+  useEffect(() => {
+    if (!loading && user) {
+      onStart('config');
+    }
+  }, [loading, user, onStart]);
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
       const res = await ClientManager.connexion(email, password);
       if (res.success) onStart('config');
-      else alert('Identifiants incorrects.');
+      else alert(t('errors.invalidCredentials'));
     } else {
       // Vérification des mots de passe
       if (password !== confirmPassword) {
-        alert('Les mots de passe ne correspondent pas. Veuillez vérifier.');
+        alert(t('errors.passwordMismatch'));
         return; // On arrête tout si ce n'est pas identique
       }
 
@@ -66,24 +76,29 @@ export default function AuthPage({ onStart }) {
         pays,
         passion,
         attente,
+        langue: i18n.language,
       });
       if (res.success) onStart('config');
-      else alert('Erreur : ' + res.error);
+      else alert(t('errors.genericPrefix') + res.error);
     }
   };
+
+  if (loading || user) {
+    return null;
+  }
 
   return (
     <div className="auth-page-container">
       <div className="auth-overlay"></div>
 
       <div className="auth-luxury-card">
-        <h3 className="auth-brand">L'Écrin Français</h3>
+        <h3 className="auth-brand">{t('brand', { ns: 'common' })}</h3>
 
-        <h2>{isLogin ? 'Espace Privé' : 'Carnet Client'}</h2>
+        <h2>{isLogin ? t('titleLogin') : t('titleSignup')}</h2>
         <p className="auth-subtitle">
           {isLogin
-            ? 'Veuillez vous identifier pour accéder à votre atelier.'
-            : "Confiez-nous vos coordonnées pour un service d'exception."}
+            ? t('subtitleLogin')
+            : t('subtitleSignup')}
         </p>
 
         <div className={!isLogin ? 'scrollable-form' : ''}>
@@ -94,13 +109,13 @@ export default function AuthPage({ onStart }) {
                   className={type === 'particulier' ? 'active' : ''}
                   onClick={() => setType('particulier')}
                 >
-                  Particulier
+                  {t('toggle.particulier')}
                 </span>
                 <span
                   className={type === 'entreprise' ? 'active' : ''}
                   onClick={() => setType('entreprise')}
                 >
-                  Entreprise
+                  {t('toggle.entreprise')}
                 </span>
               </div>
             )}
@@ -115,7 +130,7 @@ export default function AuthPage({ onStart }) {
                 required
               />
               <label>
-                Adresse e-mail {!isLogin ? '(Votre identifiant)' : ''}
+                {t('email.label')} {!isLogin ? t('email.signupSuffix') : ''}
               </label>
             </div>
 
@@ -128,7 +143,7 @@ export default function AuthPage({ onStart }) {
                   onChange={(e) => setPassword(e.target.value)}
                   required
                 />
-                <label>Mot de passe</label>
+                <label>{t('password.login')}</label>
               </div>
             ) : (
               <div className="input-row">
@@ -140,7 +155,7 @@ export default function AuthPage({ onStart }) {
                     onChange={(e) => setPassword(e.target.value)}
                     required
                   />
-                  <label>Créer un mot de passe</label>
+                  <label>{t('password.create')}</label>
                 </div>
                 <div className="input-group" style={{ flex: 1 }}>
                   <input
@@ -150,7 +165,7 @@ export default function AuthPage({ onStart }) {
                     onChange={(e) => setConfirmPassword(e.target.value)}
                     required
                   />
-                  <label>Confirmer le mot de passe</label>
+                  <label>{t('password.confirm')}</label>
                 </div>
               </div>
             )}
@@ -166,11 +181,11 @@ export default function AuthPage({ onStart }) {
                       required
                     >
                       <option value="" disabled>
-                        Civilité
+                        {t('civility.placeholder')}
                       </option>
-                      <option value="Monsieur">M.</option>
-                      <option value="Madame">Mme</option>
-                      <option value="Non défini">Autre</option>
+                      <option value="Monsieur">{t('civility.monsieur')}</option>
+                      <option value="Madame">{t('civility.madame')}</option>
+                      <option value="Non défini">{t('civility.autre')}</option>
                     </select>
                   </div>
                   <div className="input-group" style={{ flex: 1 }}>
@@ -181,7 +196,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setPrenom(e.target.value)}
                       required
                     />
-                    <label>Prénom</label>
+                    <label>{t('firstName')}</label>
                   </div>
                   <div className="input-group" style={{ flex: 1 }}>
                     <input
@@ -191,7 +206,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setNomFamille(e.target.value)}
                       required
                     />
-                    <label>Nom</label>
+                    <label>{t('lastName')}</label>
                   </div>
                 </div>
 
@@ -205,7 +220,7 @@ export default function AuthPage({ onStart }) {
                         onChange={(e) => setEntreprise(e.target.value)}
                         required
                       />
-                      <label>Nom de l'entreprise</label>
+                      <label>{t('company')}</label>
                     </div>
                     <div className="input-group" style={{ flex: 1 }}>
                       <input
@@ -215,7 +230,7 @@ export default function AuthPage({ onStart }) {
                         onChange={(e) => setSiret(e.target.value)}
                         required
                       />
-                      <label>N° SIRET / TVA</label>
+                      <label>{t('siret')}</label>
                     </div>
                   </div>
                 )}
@@ -244,7 +259,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setTelephone(e.target.value)}
                       required
                     />
-                    <label>Numéro de téléphone</label>
+                    <label>{t('phone')}</label>
                   </div>
                 </div>
 
@@ -258,7 +273,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setNumeroVoie(e.target.value)}
                       required
                     />
-                    <label>N°</label>
+                    <label>{t('address.number')}</label>
                   </div>
                   <div className="input-group" style={{ flex: 1.6 }}>
                     <input
@@ -268,7 +283,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setVoie(e.target.value)}
                       required
                     />
-                    <label>Voie (Rue, Avenue...)</label>
+                    <label>{t('address.street')}</label>
                   </div>
                 </div>
 
@@ -279,7 +294,7 @@ export default function AuthPage({ onStart }) {
                     value={complementVoie}
                     onChange={(e) => setComplementVoie(e.target.value)}
                   />
-                  <label>Complément (Bâtiment, Étage...) - Option</label>
+                  <label>{t('address.complement')}</label>
                 </div>
 
                 <div className="input-row">
@@ -291,7 +306,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setCodePostal(e.target.value)}
                       required
                     />
-                    <label>Code Postal</label>
+                    <label>{t('address.postalCode')}</label>
                   </div>
                   <div className="input-group" style={{ flex: 1.3 }}>
                     <input
@@ -301,7 +316,7 @@ export default function AuthPage({ onStart }) {
                       onChange={(e) => setVille(e.target.value)}
                       required
                     />
-                    <label>Ville</label>
+                    <label>{t('address.city')}</label>
                   </div>
                 </div>
 
@@ -313,7 +328,7 @@ export default function AuthPage({ onStart }) {
                     onChange={(e) => setPays(e.target.value)}
                     required
                   />
-                  <label>Pays</label>
+                  <label>{t('address.country')}</label>
                 </div>
 
                 {/* --- 5. PRÉFÉRENCES --- */}
@@ -324,13 +339,13 @@ export default function AuthPage({ onStart }) {
                     required
                   >
                     <option value="" disabled>
-                      Que souhaitez-vous conserver ?
+                      {t('passion.placeholder')}
                     </option>
-                    <option value="vins">Grands Crus & Spiritueux</option>
-                    <option value="horlogerie">Horlogerie de collection</option>
-                    <option value="joaillerie">Joaillerie</option>
-                    <option value="cigares">Cigares</option>
-                    <option value="autre">Autre objet précieux</option>
+                    <option value="vins">{t('passion.vins')}</option>
+                    <option value="horlogerie">{t('passion.horlogerie')}</option>
+                    <option value="joaillerie">{t('passion.joaillerie')}</option>
+                    <option value="cigares">{t('passion.cigares')}</option>
+                    <option value="autre">{t('passion.autre')}</option>
                   </select>
                 </div>
 
@@ -341,15 +356,15 @@ export default function AuthPage({ onStart }) {
                     onChange={(e) => setAttente(e.target.value)}
                     rows="2"
                   ></textarea>
-                  <label>Une attente particulière ? (Optionnel)</label>
+                  <label>{t('expectation')}</label>
                 </div>
               </>
             )}
 
             <button className="btn-gold-solid" type="submit">
               {isLogin
-                ? "Accéder à l'atelier"
-                : 'Créer mon dossier et configurer'}
+                ? t('submitLogin')
+                : t('submitSignup')}
             </button>
           </form>
         </div>
@@ -357,8 +372,8 @@ export default function AuthPage({ onStart }) {
         <div className="auth-footer">
           <span onClick={() => setIsLogin(!isLogin)}>
             {isLogin
-              ? 'Nouveau client ? Créer un compte'
-              : "Déjà client ? S'identifier"}
+              ? t('switchToSignup')
+              : t('switchToLogin')}
           </span>
         </div>
       </div>

@@ -1,0 +1,26 @@
+{
+  "title": "Mentions légales & conditions générales de vente",
+  "lastUpdated": "Dernière mise à jour : 30 juillet 2026.",
+  "sections": {
+    "editor": {
+      "title": "Éditeur du site",
+      "text": "L’Écrin Français est une marque de création et de personnalisation de coffrets et écrins sur mesure. Le site est édité par L’Écrin Français, société ou structure opérant sous cette marque, avec siège social en France."
+    },
+    "ip": {
+      "title": "Propriété intellectuelle",
+      "text": "Tous les contenus du site, textes, images, logos, visuels, modèles et éléments de présentation sont la propriété de L’Écrin Français ou de ses partenaires et sont protégés par les droits de la propriété intellectuelle. Toute reproduction ou exploitation non autorisée est interdite."
+    },
+    "data": {
+      "title": "Protection des données",
+      "text": "Les données personnelles collectées via le site sont utilisées uniquement pour la gestion de votre commande, votre compte client et l’amélioration du service. Elles ne sont pas transmises à des tiers sans consentement, sauf obligation légale."
+    },
+    "terms": {
+      "title": "Conditions générales de vente",
+      "text": "Les devis et propositions de prix sont donnés à titre indicatif et peuvent être ajustés selon les spécifications finales, le délai de fabrication, les matières sélectionnées et la complexité technique du projet. Les commandes sont confirmées après validation écrite du client et règlement des acomptes éventuels. Les délais de fabrication sont donnés à titre indicatif et peuvent évoluer selon la charge de production."
+    },
+    "returns": {
+      "title": "Retours et résiliation",
+      "text": "Les produits sur mesure ne sont ni repris ni remboursés, sauf en cas de défaut manifeste ou d’erreur de fabrication. Toute demande d’annulation doit être formulée dans les meilleurs délais et sera examinée selon l’avancement du projet."
+    }
+  }
+}

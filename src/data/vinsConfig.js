@@ -15,7 +15,13 @@ export const vinsConfig = {
   finitions: ['Brut', 'Vernis mat', 'Vernis brillant', 'Laque'],
   cales: ['Bois', 'Velours'],
   veloursColors: ['Grenat', 'Émeraude', 'Bleu royal', 'Anthracite', 'Ivoire'],
-  fermetures: ['Charnière', 'Magnétique', 'Loquets', 'Coulissante'],
+  fermetures: [
+    'Charnières + fermeture magnétique invisible',
+    'Charnières + loquet en laiton',
+    'Couvercle coulissant',
+    'Tiroir coulissant',
+    'Couvercle amovible par emboîtement'
+  ],
   gravureTypes: ['Aucune', 'Gravure laser', 'Gravure mécanique', 'Sérigraphie'],
   gravureLocalisations: ['Intérieure', 'Extérieure', 'Les deux']
 };

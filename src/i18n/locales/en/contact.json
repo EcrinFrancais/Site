@@ -1,0 +1,18 @@
+{
+  "eyebrow": "Contact",
+  "title": "Let's Talk About Your Project",
+  "lead": "A question, a bespoke project, a request about timing or pricing: our workshop replies to you personally, with no automation and no ready-made script.",
+  "fields": {
+    "name": "Full name",
+    "email": "Email",
+    "phone": "Phone (optional)",
+    "message": "Your message"
+  },
+  "error": "An error occurred while sending. Please try again or write to us directly at ecrinfrancais@gmail.com.",
+  "sending": "Sending…",
+  "submit": "Send Message",
+  "confirm": {
+    "title": "Message Sent",
+    "text": "Thank you, your message has been passed on to our workshop. We will personally get back to you within 24 to 48 business hours."
+  }
+}

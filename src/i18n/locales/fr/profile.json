@@ -1,0 +1,51 @@
+{
+  "title": "Votre profil",
+  "intro": "Gérez vos informations, suivez vos projets et envoyez vos questions à l’équipe L’Écrin Français.",
+  "personalInfo": "Informations personnelles",
+  "fields": {
+    "type": "Type",
+    "typeParticulier": "Particulier",
+    "typeEntreprise": "Entreprise",
+    "civility": "Civilité",
+    "civilityMonsieur": "Monsieur",
+    "civilityMadame": "Madame",
+    "civilityAutre": "Autre",
+    "firstName": "Prénom",
+    "lastName": "Nom",
+    "email": "Email",
+    "phone": "Téléphone",
+    "company": "Entreprise",
+    "siret": "SIRET / TVA",
+    "addressNumber": "N° de voie",
+    "addressStreet": "Voie",
+    "addressComplement": "Complément",
+    "postalCode": "Code postal",
+    "city": "Ville",
+    "country": "Pays",
+    "language": "Langue de correspondance",
+    "languageFr": "Français",
+    "languageEn": "English",
+    "passion": "Vos goûts ou objets à protéger",
+    "expectation": "Votre attente"
+  },
+  "save": "Enregistrer",
+  "savedProfile": "Profil mis à jour",
+  "projects": {
+    "title": "Projets en cours",
+    "empty": "Aucun projet en cours pour le moment.",
+    "line": "Version {{version}} • {{essence}} • {{finition}}"
+  },
+  "orders": {
+    "title": "Commandes passées",
+    "empty": "Aucune commande passée n’a encore été enregistrée.",
+    "fallbackReference": "Commande",
+    "line": "{{status}} • {{date}}"
+  },
+  "question": {
+    "title": "Une question ?",
+    "intro": "Envoyez un message à notre équipe pour obtenir un conseil, une précision sur un projet ou une aide à la personnalisation.",
+    "placeholder": "Décrivez votre demande…",
+    "send": "Envoyer",
+    "sent": "Message envoyé"
+  }
+}

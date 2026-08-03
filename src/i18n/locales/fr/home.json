@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "titleLine1": "Haute Facture de",
+    "titleLine2": "Coffrets & Écrins",
+    "subtitle": "\"Parce que protéger vos objets d'exception est un art qui traverse le temps.\"",
+    "cta": "Concevoir votre Ouvrage"
+  },
+  "stats": {
+    "heritage": { "title": "Héritage", "sub": "15 Ans d'Excellence" },
+    "manufacture": { "title": "Manufacture", "sub": "Propriétaire au Portugal" },
+    "piece": { "title": "Pièce Unique", "sub": "Design Sur-Mesure" }
+  },
+  "story": {
+    "title": "L'Esprit de la Manufacture",
+    "intro": "Chaque création est pensée comme une rencontre entre héritage artisanal, matière noble et exigence contemporaine.",
+    "highlight": "Sur mesure • artisanat • excellence",
+    "paragraph1": "Depuis quinze ans, L'Écrin Français accompagne les plus belles pièces de collection dans une approche discrète et précise. Chaque coffret est conçu pour révéler la valeur de ce qu’il contient.",
+    "paragraph2": "Notre savoir-faire réunit l’âme de l’artisanat bourguignon et la rigueur d’une manufacture au Portugal, avec un contrôle total sur la matière, la finition et le détail.",
+    "paragraph3": "Aujourd’hui, nous mettons cette élégance cachée au service d’une expérience plus intime, plus fluide et plus singulière.",
+    "imageAlt": "Coffret de luxe sur mesure",
+    "imageCaption": "Des matières nobles, une finition soignée et une attention constante au détail."
+  },
+  "savoirFaire": {
+    "card1": {
+      "title": "Maîtrise d'Œuvre",
+      "text": "Sans intermédiaire. De la sélection de l’arbre à la pose de la dernière charnière, chaque détail est pensé pour durer et séduire."
+    },
+    "card2": {
+      "title": "L'Art du Sur-Mesure",
+      "text": "Dimensions au millimètre, marquage à chaud ou gravure laser : nous donnons forme à vos idées les plus précises."
+    },
+    "card3": {
+      "title": "De l'Unité à la Série",
+      "text": "Une pièce unique ou une série limitée, chaque commande suit la même exigence de beauté et de rigueur."
+    },
+    "cta": "Débuter la Configuration"
+  },
+  "footer": {
+    "brand": "L'ÉCRIN FRANÇAIS",
+    "tagline": "MANUFACTURE AU PORTUGAL — DESIGN EN BOURGOGNE",
+    "legal": "MENTIONS LÉGALES & CGV — TOUS DROITS RÉSERVÉS 2026"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "eyebrow": "Qui sommes-nous",
+  "heroTitle": "Une manufacture discrète, au service du geste juste",
+  "heroSubtitle": "\"Nous ne fabriquons pas des boîtes. Nous donnons un écrin à ce qui compte.\"",
+  "storyImageAlt": "Grain de bois noble travaillé en atelier",
+  "story": {
+    "title": "Notre histoire",
+    "lead1": "Depuis quinze ans, L'Écrin Français conçoit des coffrets et écrins pour celles et ceux qui n'achètent pas un objet précieux sans penser à la façon dont il sera protégé, transporté et transmis.",
+    "lead2": "Le dessin de chaque pièce naît en Bourgogne, dans un dialogue étroit avec nos clients et nos partenaires. Sa fabrication est confiée à notre manufacture propriétaire au Portugal, où des artisans du bois, du cuir et de la laque travaillent chaque commande comme une pièce unique — même lorsqu'il s'agit d'une série.",
+    "lead3": "Nous n'avons pas de collection figée. Nous avons un métier : écouter un besoin, choisir la bonne matière, et construire un objet qui durera plus longtemps que la mode qui l'entoure."
+  },
+  "cards": {
+    "card1": {
+      "title": "Maîtrise d'œuvre intégrale",
+      "text": "De la sélection de l'essence de bois à la pose de la dernière charnière, aucune étape n'est sous-traitée à l'aveugle : nous restons responsables de chaque geste."
+    },
+    "card2": {
+      "title": "Sur-mesure exigeant",
+      "text": "Dimensions au millimètre, gravure à chaud ou laser, choix des matières : chaque écrin est redessiné pour l'objet qu'il accueillera, jamais l'inverse."
+    },
+    "card3": {
+      "title": "De la pièce unique à la série",
+      "text": "Un cadeau d'exception ou une collection destinée à un réseau de distribution : la même exigence de finition s'applique, quelle que soit la quantité."
+    }
+  },
+  "process": {
+    "title": "Le parcours de fabrication",
+    "intro": "Chaque commande suit le même chemin, du premier échange à la livraison.",
+    "steps": {
+      "step1": { "title": "Écoute & mesure", "text": "Nous prenons le temps de comprendre l'objet à protéger et l'usage de l'écrin." },
+      "step2": { "title": "Choix des matières", "text": "Essence de bois, doublure, teinte : chaque matériau est sélectionné pour sa tenue dans le temps." },
+      "step3": { "title": "Façonnage en atelier", "text": "Découpe, assemblage et ajustage sont réalisés à la main par nos artisans, au Portugal." },
+      "step4": { "title": "Finitions & gravure", "text": "Laquage, velours, gravure personnalisée : la touche finale qui rend chaque pièce unique." },
+      "step5": { "title": "Contrôle & livraison", "text": "Chaque écrin est vérifié pièce par pièce avant d'être emballé avec le même soin que son contenu." }
+    }
+  },
+  "values": {
+    "title": "Nos valeurs",
+    "excellence": { "title": "Excellence", "text": "Aucune pièce ne quitte l'atelier sans avoir passé notre contrôle qualité." },
+    "discretion": { "title": "Discrétion", "text": "Nous travaillons souvent en coulisses, au service de marques et de collectionneurs exigeants." },
+    "surMesure": { "title": "Sur-mesure", "text": "Aucun catalogue figé : chaque projet part d'une feuille blanche." },
+    "durabilite": { "title": "Durabilité", "text": "Des matières nobles et des assemblages pensés pour traverser les générations." }
+  },
+  "cta": {
+    "title": "Envie de nous confier votre projet ?",
+    "lead": "Commencez la configuration de votre écrin en ligne, ou écrivez-nous directement pour un projet particulier.",
+    "primary": "Concevoir votre écrin",
+    "secondary": "Nous écrire"
+  }
+}

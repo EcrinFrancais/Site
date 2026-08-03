@@ -1,35 +1,12 @@
 import React from 'react';
-
-// Liste de vos univers (à adapter selon vos vrais produits)
-// Liste de vos univers Luxe
-const universData = [
-  {
-    id: 'vins-spiritueux',
-    titre: 'Vins & Spiritueux',
-    // Ambiance tamisée, spiritueux d'exception
-    image:
-      'https://images.unsplash.com/photo-1568213816046-0ee1c42bd559?q=80&w=1000&auto=format&fit=crop',
-  },
-  {
-    id: 'joaillerie-horlogerie',
-    titre: 'Joaillerie & Horlogerie',
-    // Macro sur une montre de luxe
-    image:
-      'https://images.unsplash.com/photo-1523170335258-f5ed11844a49?q=80&w=1000&auto=format&fit=crop',
-  },
-  {
-    id: 'coffret-cadeau',
-    titre: 'Coffret Cadeau',
-    // Emballage premium et ruban soyeux
-    image:
-      'https://images.unsplash.com/photo-1608755728617-aefab37d2edd?q=80&w=1000&auto=format&fit=crop',
-  },
-];
+import { useTranslation } from 'react-i18next';
+import { universData } from '../config/univers';
 
 export default function ChoixUnivers({ onSelectUnivers }) {
+  const { t } = useTranslation('univers');
   return (
     <div style={styles.container}>
-      <h1 style={styles.titre}>Choisissez votre Univers</h1>
+      <h1 style={styles.titre}>{t('pageTitle')}</h1>
 
       <div style={styles.grille}>
         {universData.map((univers) => (
@@ -40,7 +17,7 @@ export default function ChoixUnivers({ onSelectUnivers }) {
             className="univers-card" // Pratique si vous voulez ajouter du CSS pour le survol (:hover)
           >
             <div style={styles.overlay}>
-              <h2 style={styles.paveTitre}>{univers.titre}</h2>
+              <h2 style={styles.paveTitre}>{t(`titles.${univers.id}`, univers.titre)}</h2>
             </div>
           </div>
         ))}

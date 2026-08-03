@@ -1,0 +1,43 @@
+{
+  "hero": {
+    "titleLine1": "Fine Craftsmanship of",
+    "titleLine2": "Cases & Presentation Boxes",
+    "subtitle": "\"For protecting your exceptional objects is an art that transcends time.\"",
+    "cta": "Design Your Piece"
+  },
+  "stats": {
+    "heritage": { "title": "Heritage", "sub": "15 Years of Excellence" },
+    "manufacture": { "title": "Manufacture", "sub": "Own Workshop in Portugal" },
+    "piece": { "title": "One of a Kind", "sub": "Bespoke Design" }
+  },
+  "story": {
+    "title": "The Spirit of the Manufacture",
+    "intro": "Every creation is conceived as an encounter between artisanal heritage, noble materials and contemporary rigour.",
+    "highlight": "Bespoke • Craftsmanship • Excellence",
+    "paragraph1": "For fifteen years, L'Écrin Français has accompanied the finest collector's pieces with a discreet and precise approach. Every case is designed to reveal the value of what it holds.",
+    "paragraph2": "Our savoir-faire brings together the soul of Burgundian craftsmanship and the rigour of a manufacture in Portugal, with total control over material, finish and detail.",
+    "paragraph3": "Today, we place this hidden elegance at the service of a more intimate, more fluid and more singular experience.",
+    "imageAlt": "Bespoke luxury case",
+    "imageCaption": "Noble materials, meticulous finishing and constant attention to detail."
+  },
+  "savoirFaire": {
+    "card1": {
+      "title": "Full-Circle Craftsmanship",
+      "text": "No intermediaries. From selecting the tree to fitting the last hinge, every detail is considered to endure and to seduce."
+    },
+    "card2": {
+      "title": "The Art of Bespoke",
+      "text": "Millimetre-precise dimensions, hot stamping or laser engraving: we give shape to your most exacting ideas."
+    },
+    "card3": {
+      "title": "From a Single Piece to a Series",
+      "text": "A single piece or a limited series, every order follows the same exacting standard of beauty and rigour."
+    },
+    "cta": "Begin Your Configuration"
+  },
+  "footer": {
+    "brand": "L'ÉCRIN FRANÇAIS",
+    "tagline": "MANUFACTURED IN PORTUGAL — DESIGNED IN BURGUNDY",
+    "legal": "LEGAL NOTICE & TERMS — ALL RIGHTS RESERVED 2026"
+  }
+}

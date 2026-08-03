@@ -1,0 +1,18 @@
+{
+  "eyebrow": "Contact",
+  "title": "Parlons de votre projet",
+  "lead": "Une question, un projet sur-mesure, une demande de délai ou de tarif : notre atelier vous répond personnellement, sans automatisme ni script tout fait.",
+  "fields": {
+    "name": "Nom complet",
+    "email": "Email",
+    "phone": "Téléphone (optionnel)",
+    "message": "Votre message"
+  },
+  "error": "Une erreur est survenue lors de l'envoi. Merci de réessayer ou de nous écrire directement à ecrinfrancais@gmail.com.",
+  "sending": "Envoi en cours…",
+  "submit": "Envoyer le message",
+  "confirm": {
+    "title": "Message envoyé",
+    "text": "Merci, votre message a bien été transmis à notre atelier. Nous revenons vers vous personnellement sous 24 à 48 heures ouvrées."
+  }
+}

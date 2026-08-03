@@ -1,0 +1,1348 @@
+
+L'ÉCRIN FRANÇAIS
+Product Requirements Document (PRD)
+Version 2.0
+Document de référence du projet
+Ce document définit la vision, les objectifs, les exigences fonctionnelles et techniques ainsi que les principes d'architecture de la plateforme L'Écrin Français.
+Il constitue la référence unique pour le développement du produit, les évolutions futures et les outils d'intelligence artificielle (Claude Code notamment).
+
+CHAPITRE 1 — Vision
+1.1 Présentation
+L'Écrin Français est une plateforme numérique permettant de concevoir, visualiser, personnaliser et commander des écrins, coffrets et présentoirs haut de gamme fabriqués en France.
+L'objectif n'est pas uniquement de vendre des produits.
+L'objectif est de proposer une expérience de conception sur mesure, où chaque client devient le concepteur de son propre écrin, accompagné par un configurateur intelligent.
+Le site doit offrir une expérience digne des grandes maisons de luxe :
+* simple ;
+* élégante ;
+* immersive ;
+* rassurante ;
+* techniquement irréprochable.
+
+1.2 Vision long terme
+À long terme, L'Écrin Français ne sera pas un site spécialisé dans un produit particulier.
+Il deviendra une plateforme universelle de conception d'écrins haut de gamme.
+Le moteur de configuration sera capable de prendre en charge différents univers sans modification profonde de son architecture.
+Les premiers univers seront :
+* ?? Vin
+* ? Montres
+* ?? Bijoux
+L'architecture devra permettre d'ajouter ensuite :
+* Spiritueux
+* Stylos
+* Maroquinerie
+* Cadeaux d'entreprise
+* Médailles
+* Objets d'art
+* Packaging de luxe
+* Instruments de musique
+* Tout autre univers nécessitant un écrin ou un présentoir personnalisé.
+Le moteur de configuration restera identique.
+Seules les données métier propres à chaque univers évolueront.
+
+1.3 Les valeurs
+Chaque décision devra respecter les valeurs suivantes.
+Excellence
+Le moindre détail compte.
+Aucune fonctionnalité ne doit sembler "approximative".
+
+Artisanat
+Le configurateur doit mettre en valeur le savoir-faire humain.
+Il ne doit jamais donner l'impression de vendre un produit industriel.
+
+Élégance
+Le design privilégiera :
+* l'espace ;
+* la sobriété ;
+* la qualité des animations ;
+* les transitions fluides ;
+* des matériaux réalistes.
+
+Innovation
+L'Écrin Français doit devenir la référence du configurateur premium.
+Chaque nouvelle fonctionnalité devra apporter une réelle valeur.
+
+Pérennité
+Le projet devra rester évolutif pendant de nombreuses années.
+Aucune décision technique ne devra empêcher l'ajout de nouveaux univers.
+
+CHAPITRE 2 — Les objectifs
+Objectifs commerciaux
+* Valoriser le savoir-faire de l'entreprise.
+* Générer des demandes de devis qualifiées.
+* Transformer les devis en commandes.
+* Réduire les échanges répétitifs grâce à un configurateur complet.
+* Offrir un service premium qui renforce la confiance.
+
+Objectifs utilisateur
+Le client doit pouvoir :
+* découvrir les différents univers ;
+* configurer librement un produit ;
+* comprendre immédiatement les conséquences de chacun de ses choix ;
+* visualiser son projet en 3D ;
+* connaître son prix en temps réel ;
+* sauvegarder son travail ;
+* reprendre son projet depuis n'importe quel appareil après authentification ;
+* partager son projet ;
+* demander un devis ;
+* transformer un devis en commande.
+
+Objectifs techniques
+L'application devra être :
+* performante ;
+* modulaire ;
+* maintenable ;
+* testable ;
+* sécurisée ;
+* évolutive.
+
+CHAPITRE 3 — Les grands principes d'architecture
+Principe n°1
+Le projet est une plateforme.
+Il ne doit jamais être pensé comme un simple configurateur de coffrets à vin.
+
+Principe n°2
+Chaque univers est une spécialisation.
+Le moteur reste identique.
+
+Principe n°3
+Toutes les règles métier doivent être pilotées par les données.
+Le moteur ne doit jamais contenir de logique spécifique au vin, aux montres ou aux bijoux.
+
+Principe n°4
+Toute nouvelle fonctionnalité devra être compatible avec les futurs univers.
+
+Principe n°5
+Chaque choix utilisateur devra être immédiatement visible.
+Le configurateur doit fonctionner comme un dialogue permanent avec le client.
+
+CHAPITRE 4 — Concept central
+Le cœur de toute l'application est un objet unique :
+Configuration
+Une configuration représente un projet personnalisé créé par un client.
+Elle est indépendante de l'univers.
+Elle possède notamment :
+* un identifiant unique ;
+* un propriétaire ;
+* un univers ;
+* un produit ;
+* un ensemble d'options ;
+* un état d'avancement ;
+* un prix ;
+* un historique des versions.
+Toutes les fonctionnalités du système reposent sur cet objet.
+
+CHAPITRE 5 — Sauvegarde et synchronisation
+Chaque utilisateur authentifié possède un espace personnel.
+Les configurations sont enregistrées automatiquement dans le cloud.
+Chaque configuration doit pouvoir être :
+* reprise sur n'importe quel ordinateur ;
+* reprise sur tablette ;
+* reprise sur smartphone ;
+* renommée ;
+* dupliquée ;
+* supprimée ;
+* archivée ;
+* restaurée ;
+* partagée.
+Le client ne doit jamais perdre son travail.
+Le système effectue une sauvegarde automatique après chaque modification significative.
+Chaque sauvegarde crée une nouvelle version de la configuration.
+L'utilisateur peut revenir à une version antérieure si nécessaire.
+
+CHAPITRE 6 — Les personas
+Avant de développer la moindre fonctionnalité, il faut définir précisément les utilisateurs du système.
+L'Écrin Français devra répondre aux besoins de plusieurs catégories de clients ayant des attentes très différentes.
+
+Persona 1 — Le particulier
+Profil
+Le particulier souhaite offrir ou acquérir un écrin unique.
+Il n'a aucune connaissance technique.
+Il ne connaît pas les essences de bois, les techniques de fabrication ni les contraintes de conception.
+Attentes
+Il souhaite :
+* être guidé ;
+* comprendre facilement les choix proposés ;
+* obtenir un résultat esthétique ;
+* connaître immédiatement le prix ;
+* être rassuré sur la qualité.
+Le configurateur doit lui donner confiance.
+Il doit avoir l'impression d'être accompagné par un artisan.
+
+Persona 2 — Le collectionneur
+Ce client possède plusieurs montres, bouteilles ou bijoux.
+Il recherche :
+* une finition irréprochable ;
+* des matériaux nobles ;
+* une personnalisation poussée.
+Il est souvent prêt à investir davantage.
+Le configurateur devra lui proposer davantage d'options avancées.
+
+Persona 3 — Le professionnel
+Exemples :
+* domaine viticole ;
+* horloger ;
+* joaillier ;
+* entreprise.
+Ses attentes sont différentes.
+Il souhaite :
+* créer plusieurs projets ;
+* retrouver facilement ses anciens projets ;
+* partager un projet avec ses collaborateurs ;
+* obtenir rapidement un devis.
+
+Persona 4 — L'artisan
+Il utilise le back-office.
+Il doit pouvoir :
+* retrouver un client ;
+* ouvrir une configuration ;
+* comprendre immédiatement les choix du client ;
+* modifier certains paramètres ;
+* communiquer avec le client ;
+* transformer une demande en fabrication.
+
+Persona 5 — L'administrateur
+Il gère :
+* les univers ;
+* les matériaux ;
+* les essences ;
+* les tarifs ;
+* les promotions ;
+* les utilisateurs ;
+* les commandes.
+Il ne doit jamais intervenir directement dans la base de données.
+Toutes les opérations devront être réalisables depuis le back-office.
+
+CHAPITRE 7 — Parcours utilisateur
+Le parcours client constitue un élément essentiel de l'expérience.
+Il doit être fluide.
+À aucun moment le client ne doit avoir l'impression d'utiliser un logiciel complexe.
+
+Découverte
+Le visiteur arrive sur la page d'accueil.
+Le site présente :
+* les valeurs de L'Écrin Français ;
+* les différents univers ;
+* des réalisations ;
+* des témoignages ;
+* les avantages du sur-mesure.
+Objectif :
+Donner envie de créer son propre écrin.
+
+Choix de l'univers
+Le client sélectionne un univers :
+* Vin
+* Montres
+* Bijoux
+Chaque univers possède :
+* son identité visuelle ;
+* ses matériaux ;
+* ses options ;
+* ses contraintes.
+Le moteur de configuration reste identique.
+
+Création d'une configuration
+Une nouvelle configuration est créée.
+Elle reçoit immédiatement :
+* un identifiant unique ;
+* une date de création ;
+* un propriétaire (si connecté) ;
+* un statut.
+
+Configuration
+Le client personnalise progressivement son projet.
+Chaque modification :
+* met à jour le modèle 3D ;
+* recalcule le prix ;
+* vérifie les contraintes de fabrication ;
+* déclenche une sauvegarde automatique.
+Le configurateur ne doit jamais bloquer le client.
+En cas d'incompatibilité, il explique clairement le problème et propose des solutions.
+
+Sauvegarde automatique
+Cette fonctionnalité devient centrale.
+Le client ne doit jamais avoir à cliquer sur "Enregistrer".
+Le système enregistre automatiquement :
+* après une modification importante ;
+* avant une fermeture de session ;
+* avant un changement d'univers ;
+* avant une déconnexion.
+Chaque sauvegarde crée une nouvelle version.
+
+Synchronisation
+Le client peut commencer un projet :
+* au bureau ;
+le poursuivre :
+* chez lui ;
+puis le modifier :
+* sur une tablette.
+Il retrouve exactement :
+* les mêmes matériaux ;
+* les mêmes textures ;
+* les mêmes dimensions ;
+* les mêmes images ;
+* le même angle de caméra 3D (si cela a un intérêt) ;
+* les mêmes annotations.
+
+Demande de devis
+À tout moment :
+le client peut demander un devis.
+Le devis contient :
+* le résumé complet de la configuration ;
+* des vues 3D ;
+* les caractéristiques ;
+* le prix estimatif ;
+* les délais.
+
+Commande
+Une configuration peut être transformée directement en commande.
+Aucune ressaisie ne doit être nécessaire.
+
+CHAPITRE 8 — Le moteur de configuration
+À mon avis, c'est le cœur intellectuel du projet.
+Le moteur ne connaît ni le vin, ni les montres, ni les bijoux.
+Il ne connaît que des concepts génériques.
+
+Concept principal
+Configuration
+Une configuration contient :
+* un univers ;
+* un produit ;
+* des modules ;
+* des options ;
+* des contraintes ;
+* des règles de calcul.
+
+Les modules
+Un produit est constitué de modules.
+Exemple :
+Écrin
+
+??? Structure
+??? Intérieur
+??? Couvercle
+??? Fermeture
+??? Gravure
+??? Finition
+??? Accessoires
+Demain, pour les montres :
+Écrin
+
+??? Coussins
+??? Compartiments
+??? Vitrine
+??? Éclairage
+??? Gravure
+??? Serrure
+Le moteur manipule toujours des modules, jamais un univers spécifique.
+
+Les contraintes
+Chaque module définit :
+* ses dimensions minimales ;
+* ses dimensions maximales ;
+* ses dépendances ;
+* ses incompatibilités ;
+* son impact sur le prix ;
+* son impact sur le poids ;
+* son impact sur le rendu 3D.
+Le moteur applique ces règles automatiquement.
+
+Parfait. Nous allons maintenant écrire ce qui, selon moi, constituera la véritable valeur du projet : l'architecture. C'est cette partie qui permettra à Claude Code de prendre de bonnes décisions pendant les prochaines années.
+
+CHAPITRE 9 — Architecture générale de la plateforme
+9.1 Principes fondamentaux
+L'architecture de L'Écrin Français doit respecter les principes suivants :
+* Modularité : chaque fonctionnalité est indépendante.
+* Extensibilité : un nouvel univers s'ajoute sans modifier le moteur.
+* Maintenabilité : un développeur découvrant le projet doit comprendre rapidement son organisation.
+* Réutilisabilité : aucun code métier ne doit être dupliqué.
+* Testabilité : chaque règle métier doit pouvoir être testée indépendamment.
+* Évolutivité : la plateforme doit pouvoir accueillir de nouveaux services (IA, B2B, API, application mobile…).
+
+9.2 Architecture logique
+                    L'ÉCRIN FRANÇAIS
+
+                           ?
+            ???????????????????????????????
+            ?                             ?
+      Front Office                  Back Office
+            ?                             ?
+            ???????????????????????????????
+                           ?
+                  Moteur de Configuration
+                           ?
+        ?????????????????????????????????????
+        ?           ?           ?
+     Univers      Pricing     Contraintes
+        ?           ?           ?
+        ?????????????????????????
+                           ?
+                    Firebase
+      (Auth - Firestore - Storage)
+
+9.3 Les couches
+Je souhaite séparer clairement le projet.
+Couche Présentation
+Responsable uniquement de l'affichage.
+Elle ne contient :
+* aucun calcul de prix ;
+* aucune logique métier ;
+* aucune règle de fabrication.
+Elle affiche simplement l'état courant.
+
+Couche Métier
+Elle contient toute l'intelligence du configurateur.
+Par exemple :
+* calcul du prix ;
+* validation des dimensions ;
+* compatibilité des matériaux ;
+* calcul du poids ;
+* contraintes de fabrication.
+Cette couche ne connaît rien de React.
+Elle pourrait fonctionner dans une application mobile.
+
+Couche Données
+Responsable de :
+* Firebase Auth ;
+* Firestore ;
+* Storage.
+Aucun composant React ne doit appeler directement Firebase.
+Toutes les communications passent par des services.
+
+CHAPITRE 10 — Organisation du projet React
+Je voudrais que l'arborescence finale ressemble à ceci :
+src/
+
+ app/
+    App.tsx
+    routes.tsx
+
+ pages/
+    Home
+    Login
+    Dashboard
+    Configurator
+    Quote
+    Admin
+
+ components/
+
+    ui/
+        Button
+        Card
+        Modal
+        Tabs
+        Toast
+
+    layout/
+        Header
+        Footer
+        Sidebar
+
+    configurator/
+        Toolbar
+        PricePanel
+        DimensionsPanel
+        MaterialPanel
+        FinishPanel
+        AccessoriesPanel
+        Preview3D
+        SummaryPanel
+
+    forms/
+        LoginForm
+        RegisterForm
+        AddressForm
+
+ hooks/
+
+ services/
+
+ domain/
+
+ models/
+
+ firebase/
+
+ utils/
+
+ assets/
+
+ styles/
+Chaque dossier a une responsabilité unique.
+
+CHAPITRE 11 — Le moteur de configuration
+Le moteur constitue le cœur du produit.
+Il ne contient aucune référence au vin.
+Aucune référence aux montres.
+Aucune référence aux bijoux.
+Il manipule uniquement des objets génériques.
+
+Objet Configuration
+Configuration
+
+id
+ownerId
+universeId
+productId
+
+status
+
+modules[]
+
+price
+
+history
+
+createdAt
+
+updatedAt
+
+Objet Module
+Module
+
+id
+
+type
+
+options
+
+constraints
+
+price
+
+visibility
+Chaque univers définit ses propres modules.
+Le moteur ne fait que les assembler.
+
+CHAPITRE 12 — Les univers
+Chaque univers est décrit par des données.
+Exemple :
+Univers
+
+Nom
+
+Icône
+
+Couleurs
+
+Produits
+
+Matériaux
+
+Contraintes
+
+Modules disponibles
+
+Calcul du prix
+
+Règles de fabrication
+
+Textures
+
+Objets 3D
+Ainsi, ajouter un univers revient principalement à créer une nouvelle configuration de données, sans modifier le moteur.
+
+CHAPITRE 13 — Les produits
+Dans chaque univers :
+Vin
+
+??? Coffret 1 bouteille
+??? Coffret 2 bouteilles
+??? Coffret 3 bouteilles
+??? Coffret Magnum
+??? Présentoir
+
+Montres
+
+??? 1 montre
+
+??? 2 montres
+
+??? 4 montres
+
+??? Coffret collection
+
+??? Présentoir
+
+Le moteur ne fait aucune différence.
+Il charge simplement le produit demandé.
+
+CHAPITRE 14 — Gestion des configurations
+C'est probablement la fonctionnalité la plus importante.
+Une configuration possède un cycle de vie.
+Nouvelle
+
+?
+
+En cours
+
+?
+
+Sauvegardée
+
+?
+
+Partagée
+
+?
+
+Devis
+
+?
+
+Commande
+
+?
+
+Fabrication
+
+?
+
+Livrée
+
+?
+
+Archivée
+Chaque changement est historisé.
+
+Sauvegarde automatique
+Toutes les modifications importantes déclenchent une sauvegarde.
+Exemples :
+* changement de matériau ;
+* ajout d'un accessoire ;
+* gravure ;
+* import d'une image ;
+* changement de dimensions.
+Le client ne perd jamais son travail.
+
+Versionnement
+Chaque sauvegarde crée une version.
+Projet
+
+Version 1
+
+Version 2
+
+Version 3
+
+Version 4
+Le client peut restaurer n'importe quelle version.
+
+CHAPITRE 15 — Tableau de bord client
+Après connexion, le client dispose d'un véritable espace personnel.
+Je l'imagine ainsi :
+Bonjour Monsieur Dupont
+
+--------------------------------
+
+Mes projets
+
+?? Coffret Romanée-Conti
+
+Dernière modification :
+hier
+
+Prix :
+580 €
+
+Statut :
+En cours
+
+-------------------------------
+
+? Coffret Rolex
+
+Dernière modification :
+Aujourd'hui
+
+Prix :
+890 €
+
+Statut :
+Devis demandé
+Chaque projet permet :
+* reprendre la configuration ;
+* voir l'historique ;
+* télécharger le devis ;
+* partager ;
+* supprimer ;
+* dupliquer.
+
+Une proposition qui n'était pas dans le cahier des charges
+Je voudrais ajouter un concept de "favoris".
+Le client pourrait enregistrer :
+* une essence de bois favorite ;
+* une finition favorite ;
+* une gravure favorite ;
+* une palette de couleurs.
+Lorsqu'il crée un nouveau projet, ces préférences pourraient être proposées automatiquement.
+Cela renforcerait la personnalisation et améliorerait l'expérience des clients fidèles.
+
+Une autre proposition : le mode "artisan"
+Le back-office pourrait proposer un mode où l'artisan voit la configuration sous un angle totalement différent :
+* dimensions techniques ;
+* plans de fabrication ;
+* liste des matériaux ;
+* estimation du temps de fabrication ;
+* coût matière ;
+* marge estimée.
+Ainsi, la même configuration servirait à la fois à la vente et à la production.
+
+
+CHAPITRE 16 — Modèle de données (Firestore)
+16.1 Principes
+La base de données doit respecter les principes suivants :
+* une seule source de vérité ;
+* aucune duplication inutile ;
+* extensibilité ;
+* historique complet ;
+* possibilité de reconstruire une configuration à n'importe quel instant.
+Toutes les données critiques devront être persistées dans Firestore.
+Les fichiers volumineux (photos, textures, documents PDF...) seront stockés dans Firebase Storage.
+
+16.2 Collections principales
+users/
+Informations des utilisateurs.
+Exemple :
+id
+
+nom
+
+prénom
+
+email
+
+téléphone
+
+adresse
+
+typeClient
+
+dateCréation
+
+dernièreConnexion
+
+préférences
+
+univers/
+Chaque univers.
+Exemple :
+vin
+
+montres
+
+bijoux
+Chaque univers définit :
+* ses produits ;
+* ses matériaux ;
+* ses règles métier ;
+* ses paramètres graphiques.
+
+products/
+Liste des produits.
+Chaque produit décrit :
+* son univers ;
+* son modèle 3D ;
+* ses contraintes ;
+* ses modules disponibles.
+
+configurations/
+La collection la plus importante.
+Chaque document contient :
+id
+
+ownerId
+
+universId
+
+productId
+
+status
+
+currentVersion
+
+createdAt
+
+updatedAt
+
+configurationVersions/
+Une configuration possède plusieurs versions.
+Chaque version contient l'intégralité de l'état.
+Par exemple :
+dimensions
+
+matériaux
+
+gravures
+
+prix
+
+caméra
+
+images
+
+commentaires
+Ainsi, le client peut revenir à n'importe quel état précédent.
+
+quotes/
+Tous les devis.
+
+orders/
+Toutes les commandes.
+
+materials/
+Catalogue des matériaux.
+Exemple :
+Chêne
+
+Noyer
+
+Érable
+
+Acajou
+
+finishes/
+Toutes les finitions.
+
+textures/
+Textures PBR utilisées par Three.js.
+
+uploads/
+Toutes les images envoyées par les clients.
+
+notifications/
+Messages système.
+
+auditLogs/
+Historique complet.
+Qui a modifié quoi ?
+Quand ?
+Depuis quelle adresse IP ?
+
+CHAPITRE 17 — Le moteur de calcul des prix
+Pour moi, c'est LE point stratégique du projet.
+Je ne souhaite surtout pas que le prix soit calculé directement dans les composants React.
+Le calcul doit être totalement indépendant.
+
+Architecture
+Configuration
+
+?
+
+Validation
+
+?
+
+Contraintes
+
+?
+
+Calcul matière
+
+?
+
+Calcul accessoires
+
+?
+
+Calcul gravures
+
+?
+
+Calcul fabrication
+
+?
+
+Calcul emballage
+
+?
+
+Calcul livraison
+
+?
+
+Prix final
+
+Chaque étape est indépendante.
+Ainsi, demain, tu peux modifier uniquement le calcul de livraison.
+
+Exemple
+Prix
+
+=
+
+Prix de base
+
++
+
+Bois
+
++
+
+Vernis
+
++
+
+Charnières
+
++
+
+Gravure
+
++
+
+Temps de fabrication
+
++
+
+Emballage
+
++
+
+Transport
+
++
+
+TVA
+Chaque ligne est un module.
+
+CHAPITRE 18 — Le moteur de contraintes
+C'est une partie très importante.
+Le moteur vérifie automatiquement :
+* dimensions compatibles ;
+* poids maximal ;
+* stabilité ;
+* compatibilité des matériaux ;
+* compatibilité des accessoires ;
+* faisabilité industrielle.
+Le client ne doit jamais pouvoir créer un produit impossible à fabriquer.
+
+CHAPITRE 19 — Configurateur 3D
+Le configurateur constitue le cœur émotionnel du produit.
+Il doit fonctionner comme un configurateur automobile haut de gamme.
+
+Les objectifs
+Le client doit avoir envie de manipuler le produit.
+Chaque interaction doit être fluide.
+
+Fonctionnalités
+Rotation libre.
+Zoom.
+Déplacement.
+Éclairage réaliste.
+Ombres.
+Réflexions.
+Matériaux PBR.
+Animation du couvercle.
+Animation des tiroirs.
+Animation des charnières.
+Changement instantané des matériaux.
+
+Performances
+Le rendu doit rester fluide.
+Objectif :
+60 FPS.
+Même sur un ordinateur moyen.
+
+Niveaux de qualité
+Le moteur adapte automatiquement :
+* les ombres ;
+* les textures ;
+* les effets.
+En fonction des performances de la machine.
+
+CHAPITRE 20 — Back-office
+Le back-office ne doit pas être un simple outil d'administration.
+Il doit devenir le véritable poste de pilotage de l'entreprise.
+
+Tableau de bord
+Nombre de visiteurs.
+Demandes de devis.
+Commandes.
+Chiffre d'affaires.
+Taux de transformation.
+Panier moyen.
+Temps moyen de configuration.
+
+Gestion des clients
+Chaque client possède une fiche.
+Historique.
+Configurations.
+Devis.
+Commandes.
+Échanges.
+
+Gestion des configurations
+L'artisan peut :
+ouvrir une configuration,
+la modifier,
+ajouter un commentaire,
+envoyer un message,
+générer un nouveau devis,
+transformer en commande.
+
+Gestion de la production
+Je pense que c'est ici que L'Écrin Français peut vraiment se distinguer.
+Chaque commande pourrait avoir un véritable suivi de fabrication :
+Commande
+
+?
+
+Validation
+
+?
+
+Préparation
+
+?
+
+Découpe
+
+?
+
+Assemblage
+
+?
+
+Ponçage
+
+?
+
+Vernissage
+
+?
+
+Contrôle qualité
+
+?
+
+Expédition
+
+?
+
+Livraison
+Le client pourrait suivre ces étapes depuis son espace personnel, un peu comme le suivi d'une commande sur un site de e-commerce, mais adapté à un produit artisanal.
+
+CHAPITRE 21 — Intelligence artificielle
+Je pense qu'il faut prévoir cette partie dès aujourd'hui, même si toutes les fonctionnalités ne sont pas développées immédiatement.
+Assistant de configuration
+Le client peut décrire son besoin :
+« Je cherche un écrin pour une bouteille de champagne millésimée avec deux flûtes et une gravure pour un mariage. »
+L'IA propose une première configuration.
+
+Recommandations
+Pendant la configuration :
+« Ce noyer s'accorde particulièrement bien avec cette finition. »
+Ou :
+« Cette gravure est difficilement lisible avec cette police. »
+
+Analyse des images
+Le client télécharge une photo.
+L'IA peut :
+* détecter l'objet ;
+* estimer ses dimensions (avec validation de l'utilisateur) ;
+* proposer un compartiment adapté.
+
+Aide à la production
+L'IA peut également assister l'artisan :
+* vérification des incohérences ;
+* détection d'oublis ;
+* proposition d'optimisations de fabrication.
+
+Une proposition supplémentaire : le "jumeau numérique"
+Chaque configuration deviendrait un véritable jumeau numérique du produit fabriqué.
+Cela signifie que le modèle numérique reste associé à l'objet réel tout au long de son cycle de vie :
+* conception ;
+* devis ;
+* fabrication ;
+* contrôle qualité ;
+* livraison ;
+* service après-vente.
+Si un client revient trois ans plus tard pour commander un second écrin ou une variante, l'entreprise retrouve instantanément la configuration exacte, son historique, les matériaux utilisés et les éventuelles modifications.
+
+
+CHAPITRE 22 — Exigences non fonctionnelles
+Les exigences non fonctionnelles définissent la qualité attendue du produit. Elles sont aussi importantes que les fonctionnalités.
+22.1 Performance
+L'utilisateur ne doit jamais avoir l'impression que le site est lent.
+Objectifs
+* Chargement initial < 2 secondes sur une connexion fibre.
+* Affichage de la page d'accueil < 1 seconde (hors chargement des images lourdes).
+* Ouverture d'une configuration existante < 3 secondes.
+* Sauvegarde automatique < 500 ms (perçue comme instantanée).
+* Calcul du prix < 100 ms après une modification.
+* Rafraîchissement de la vue 3D < 16 ms (objectif 60 FPS).
+
+22.2 Disponibilité
+Le service doit être disponible en permanence.
+Objectif :
+* disponibilité annuelle ? 99,9 % ;
+* aucune perte de configuration en cas de coupure Internet ;
+* reprise automatique après reconnexion.
+
+22.3 Sécurité
+La sécurité n'est pas une fonctionnalité, c'est une exigence.
+Authentification
+* Firebase Authentication.
+* Connexion par e-mail.
+* Connexion Google.
+* Connexion Apple (à terme).
+* Double authentification pour les administrateurs.
+
+Autorisations
+Un client ne peut accéder qu'à :
+* ses configurations ;
+* ses devis ;
+* ses commandes.
+Un artisan ne peut accéder qu'aux données nécessaires à son activité.
+L'administrateur possède des droits étendus.
+Toutes les autorisations sont vérifiées côté serveur (règles Firestore), jamais uniquement côté client.
+
+22.4 Sauvegarde
+Toutes les données critiques doivent être sauvegardées.
+Une configuration ne doit jamais être perdue.
+Même si :
+* le navigateur plante ;
+* l'ordinateur s'éteint ;
+* Internet est coupé.
+
+22.5 Compatibilité
+Navigateurs supportés :
+* Chrome
+* Edge
+* Firefox
+* Safari
+Support mobile :
+* iPhone
+* Android
+* iPad
+
+22.6 Accessibilité
+Le site doit respecter les recommandations WCAG 2.2 niveau AA autant que possible.
+Par exemple :
+* navigation clavier ;
+* contrastes suffisants ;
+* textes alternatifs ;
+* annonces pour les lecteurs d'écran ;
+* tailles de police adaptables.
+
+22.7 Observabilité
+Chaque erreur importante doit être enregistrée.
+Le système devra permettre de répondre à des questions comme :
+* Pourquoi cette configuration ne s'est-elle pas sauvegardée ?
+* Combien d'erreurs JavaScript ont eu lieu aujourd'hui ?
+* Quel est le temps moyen de chargement ?
+
+CHAPITRE 23 — Architecture Three.js
+Le configurateur 3D constitue l'élément différenciant du produit.
+Je souhaite qu'il soit conçu comme un moteur indépendant.
+React
+
+?
+
+Configurateur
+
+?
+
+Scene Manager
+
+?
+
+Three.js
+
+?
+
+Renderer
+
+?
+
+Objets 3D
+
+Découpage
+Le moteur 3D sera organisé autour de composants spécialisés :
+Scene
+
+Camera
+
+Lights
+
+Environment
+
+Controls
+
+Materials
+
+Animations
+
+Measurements
+
+Labels
+Ainsi, remplacer ou améliorer une partie n'impactera pas les autres.
+
+Gestion des modèles
+Chaque modèle 3D devra être :
+* versionné ;
+* documenté ;
+* optimisé ;
+* indépendant du code React.
+Les modèles seront stockés dans Firebase Storage ou un CDN dédié.
+
+Gestion des matériaux
+Les matériaux ne seront pas codés en dur.
+Chaque matériau sera décrit par des données :
+* nom ;
+* texture ;
+* rugosité ;
+* métallicité ;
+* réflexion ;
+* couleur ;
+* coût.
+Ainsi, ajouter une nouvelle essence de bois ne nécessitera pas de modifier le code.
+
+CHAPITRE 24 — Architecture IA
+Je souhaite intégrer l'intelligence artificielle dès la conception de l'architecture, même si certaines fonctionnalités seront développées plus tard.
+Assistant de conception
+L'IA doit agir comme un conseiller.
+Elle ne remplace jamais le client.
+Elle l'accompagne.
+
+Cas d'usage
+Exemple :
+« Je souhaite offrir une bouteille de Bordeaux pour un départ en retraite. »
+L'IA propose :
+* un type de coffret ;
+* une essence de bois ;
+* une finition ;
+* une gravure ;
+* une couleur.
+Le client garde toujours le contrôle.
+
+Vérification
+L'IA peut analyser la configuration et signaler :
+* incohérences ;
+* incompatibilités ;
+* risques esthétiques ;
+* oublis.
+
+Génération de contenu
+Elle peut également proposer :
+* un texte de gravure ;
+* une dédicace ;
+* un message cadeau ;
+* une description produit.
+
+CHAPITRE 25 — API interne
+Toutes les communications entre le front-end et Firebase devront passer par des services clairement identifiés.
+Par exemple :
+ConfigurationService
+
+?
+
+PricingService
+
+?
+
+QuoteService
+
+?
+
+OrderService
+
+?
+
+NotificationService
+
+?
+
+UserService
+Ainsi, si un jour tu remplaces Firebase par un autre backend, l'impact sera limité.
+
+CHAPITRE 26 — Qualité logicielle
+Principes
+Chaque fonctionnalité doit être :
+* documentée ;
+* testée ;
+* relue ;
+* facilement compréhensible.
+
+Documentation
+Chaque composant important devra contenir :
+* sa responsabilité ;
+* ses dépendances ;
+* ses entrées ;
+* ses sorties.
+
+Dette technique
+Toute dette technique volontaire devra être documentée.
+Par exemple :
+TODO :
+
+Refactoriser le moteur de calcul lorsque les univers "Montres" seront intégrés.
+
+Justification :
+
+Éviter une complexité prématurée tant que le moteur n'est utilisé que pour le vin.
+
+CHAPITRE 27 — Feuille de route
+C'est un chapitre que je trouve essentiel, car il permet de guider le développement sans vouloir tout faire dès le début.
+Phase 1 — MVP
+Objectif : mettre en ligne un premier configurateur opérationnel.
+Contenu :
+* Univers Vin.
+* Authentification.
+* Sauvegarde cloud.
+* Configurateur 3D.
+* Calcul du prix.
+* Demande de devis.
+* Tableau de bord client.
+
+Phase 2 — Consolidation
+* Historique des versions.
+* Comparaison de configurations.
+* Partage.
+* Back-office.
+* Production.
+* Notifications.
+
+Phase 3 — Multi-univers
+Ajout :
+* Montres.
+* Bijoux.
+Sans modifier le moteur de configuration.
+
+Phase 4 — Intelligence artificielle
+* Assistant de conception.
+* Recommandations.
+* Génération de gravures.
+* Analyse des images.
+* Aide à la fabrication.
+
+Phase 5 — Plateforme
+Ouverture à de nouveaux univers :
+* Spiritueux.
+* Maroquinerie.
+* Cadeaux d'entreprise.
+* Packaging de luxe.
+* API partenaires.
+
+CHAPITRE 28 — Les règles d'or du projet
+Je terminerais le PRD par une page qui servira de boussole à toute décision.
+Les 10 commandements de L'Écrin Français
+1. Le client ne doit jamais perdre son travail.
+2. Le configurateur doit toujours rester fluide.
+3. La simplicité prévaut sur la multiplication des options.
+4. Chaque nouvelle fonctionnalité doit renforcer le caractère premium du produit.
+5. Le moteur reste indépendant des univers.
+6. Le code doit être compréhensible par un nouveau développeur en moins d'une journée.
+7. Toutes les règles métier sont centralisées et documentées.
+8. Le configurateur est conçu pour évoluer pendant au moins dix ans.
+9. La technologie est au service de l'artisanat, jamais l'inverse.
+10. Chaque décision doit être prise en se demandant : "Est-ce que cela améliore réellement l'expérience du client ?"
+
+
+
+
+
+
+
+

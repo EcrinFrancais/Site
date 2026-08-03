@@ -1,0 +1,51 @@
+{
+  "title": "Your Profile",
+  "intro": "Manage your information, follow your projects and send your questions to the L'Écrin Français team.",
+  "personalInfo": "Personal Information",
+  "fields": {
+    "type": "Type",
+    "typeParticulier": "Individual",
+    "typeEntreprise": "Company",
+    "civility": "Title",
+    "civilityMonsieur": "Mr.",
+    "civilityMadame": "Ms.",
+    "civilityAutre": "Other",
+    "firstName": "First name",
+    "lastName": "Last name",
+    "email": "Email",
+    "phone": "Phone",
+    "company": "Company",
+    "siret": "Company reg. no. / VAT",
+    "addressNumber": "Street number",
+    "addressStreet": "Street",
+    "addressComplement": "Additional info",
+    "postalCode": "Postal code",
+    "city": "City",
+    "country": "Country",
+    "language": "Correspondence language",
+    "languageFr": "Français",
+    "languageEn": "English",
+    "passion": "Your tastes or objects to protect",
+    "expectation": "Your expectations"
+  },
+  "save": "Save",
+  "savedProfile": "Profile updated",
+  "projects": {
+    "title": "Projects in Progress",
+    "empty": "No project in progress at the moment.",
+    "line": "Version {{version}} • {{essence}} • {{finition}}"
+  },
+  "orders": {
+    "title": "Past Orders",
+    "empty": "No order has been recorded yet.",
+    "fallbackReference": "Order",
+    "line": "{{status}} • {{date}}"
+  },
+  "question": {
+    "title": "A Question?",
+    "intro": "Send a message to our team for advice, details on a project or help with personalisation.",
+    "placeholder": "Describe your request…",
+    "send": "Send",
+    "sent": "Message sent"
+  }
+}

@@ -1,0 +1,296 @@
+CAHIER DES CHARGES TECHNIQUE & FONCTIONNEL
+Projet : L'Écrin Français
+Version : 2.0 (Finale/Production)
+Date : 06 Février 2026
+
+1. IDENTITÉ ET POSITIONNEMENT
+* Nom de marque : L’Écrin Français.
+* Slogan : "L'art du coffret bois sur mesure".
+* Ancrage : Artisanat de luxe, Fabrication française (Bourgogne).
+* Charte Graphique :
+o Ambiance : "Dark Luxury" (Luxe sombre).
+o Couleurs : Fond Noir Anthracite (#1A1A1A), Texte Blanc Cassé (#F4F4F4), Accents Or Vieilli (#C5A059).
+o Typographie : Playfair Display (Titres, Élégance) & Montserrat (Textes, Modernité).
+* Iconographie : Photos type "Clair-Obscur", focus sur la matière (bois, velours) et la lumière dorée.
+
+2. PARCOURS UTILISATEUR & ARBORESCENCE
+A. Page d'Accueil (Vitrine)
+* Header : Logo, Navigation, Bouton "Connexion / Mon Espace".
+* Hero Section : Vidéo ou image immersive d'atelier, Slogan, CTA "Accéder à l'Atelier".
+* Section Rassurance : Storytelling sur le savoir-faire bourguignon.
+* Entrées par Univers : 4 cartes cliquables (Vin, Joaillerie, Horlogerie, Coffret Cadeau) menant chacune à une page spécifique avec un configurateur.
+B. Le Configurateur (Cœur du site)
+* Interface : Écran scindé. Panneau de contrôle latéral à gauche, visualisation 3D interactive à droite représentant 30% de la page, pas plus.
+* Fonctionnalités Clés :
+o Changement d'univers dynamique.
+o Mise à jour du prix en temps réel.
+o Basculer l'affichage B2B (Prix HT) / B2C (Prix TTC).
+o Bouton "Commander" ou "Demander Devis" selon le montant.
+C. Espace Client
+* Connexion / Inscription : Email, Mot de passe, Nom (et Raison Sociale si B2B).
+* Tableau de Bord :
+o Coordonnées de facturation/livraison.
+o Historique des commandes avec statuts (En production, Expédié, Livré).
+o Téléchargement des factures (PDF).
+
+3. SPÉCIFICATIONS FONCTIONNELLES DÉTAILLÉES
+A. Le Moteur 3D (Three.js)
+L'objet 3D doit réagir instantanément aux inputs utilisateurs :
+1. Dimensions : Redimensionnement du modèle (L x l x h).
+2. Matières : Changement de texture (Chêne, Noyer, Ébène) et de rugosité selon la finition (Mat, Satin, Brillant).
+3. Ouvertures Mécaniques :
+o Univers Vin : Charnières latérales (type coffret bouteille).
+o Univers Bijoux/Montres : Charnières arrières classiques.
+o Animation : Bouton "Ouvrir/Fermer" pour voir l'intérieur.
+4. Gravure : Affichage du texte personnalisé directement sur la face supérieure du couvercle.
+5. Afficher le logo doré qui pulse ou une barre de chargement "Construction de l'atelier..." pendant que le moteur 3D s'initialise.
+6. Le rendu 3D n'utilisera pas de couleurs unies mais des textures haute définition (Maps PBR) pour restituer le veinage du bois et la réaction réaliste à la lumière
+B. Options par Univers
+Ajouter un bouton flottant discret "Besoin d'aide pour configurer ?" avec un lien pour réserver 15 mins de conseil visio avec l’artisan.
+
+* Vins & Spiritueux :
+o Taille : Bouteille (33*9*9), Magnum (38*12*12), Jéroboam (48*16*16), Réhoboam (53*18*18), Sur mesure. Il faut que je puisse rentrer ces données dans un fichier de configuration. Si c’est le format sur mesure, il faut laisser la possibilité de choisir la longueur, la largeur, la hauteur et de charger un fichier avec la photo de la bouteille pour placer les cales comme il faut.
+o Essence du bois : Pin, Peuplier, Noyer, érable, chêne, Ebène, Palissandre, Merisier. Le configurateur doit reprendre la finition demandée. 
+o Finition : brut, vernis mat, vernis brillant, laque (choix de la couleur du coup)
+o Gravure : 
+* Choix du type de gravure : gravure laser, gravure mécanique, sérigraphie. 
+* Localisation de la gravure : intérieure ou extérieure ou les deux
+* Texte (avec choix police, taille) ou chargement d’une image.
+o Cales : cales en bois ou intérieur velours (choix de la couleur : grenat, émeraude, bleu royal, anthracite, ivoire)
+o Fermeture : Charnière, Magnétique, loquets, coulissante
+o Nombre de coffrets, par défaut 1
+* Joaillerie & Horlogerie :
+o Type d’écrin : Pendentif  (9*6*3), Collier (12*8*3,5), Boucles d’oreilles classiques (6*6*3), Boucles d’oreilles pendantes (7*7*3,5), Bague standard (6*5*4), Bague (7*6*4,5), Bracelet Simple (15*9*3), Bracelet large (18*11*3,5) , sur mesure (taille de base 10*6*3, que l’on peut modifier) 
+o Matériau extérieur : Cuir, Suédine, soie, bois (avec le choix de la couleur)
+o Finition : brut, vernis mat, vernis brillant, laque (choix de la couleur du coup)
+o Couleur velours intérieur
+o Fermeture : magnétique, charnière métallique, rien
+o Logo : 
+* Localisation : intérieur, extérieur, les deux
+* Texte (avec le choix de la police et de la taille) ou chargement d’une image
+o Nombre de coffrets, par défaut 1
+
+* Coffret Cadeaux :
+o Taille : taille initiale de 12*8*4 que l’on peut modifier (soit en saisissant des valeurs, soit en faisant bouger un curseur)
+o Matériau : cuir, Pin, Peuplier, Noyer, érable, chêne, Ebène, Palissandre, Merisier
+o Finition : brut, vernis mat, vernis brillant, laque (choix de la couleur du coup)
+o Fermeture : Charnière, Magnétique, loquets,
+o Gravure : 
+* Choix du type de gravure : gravure laser, gravure mécanique, sérigraphie. 
+* Localisation de la gravure : intérieure ou extérieure ou les deux
+* Texte (avec choix police, taille) ou chargement d’une image.
+o Aménagement intérieur : possibilité de télécharger une image qui permet de comprendre l’aménagement à effectuer.
+o Nombre de coffrets, par défaut 1 
+
+C. Gestion des clients
+Le client doit pouvoir se créer un compte avec comme identifiant son email et un mot de passe de 10 caractères au minimum. Le mot de passe doit être sauvegardé crypté.
+Si c’est un particulier, on demande : 
+- Nom
+- Prénom
+- Rue
+- Code Postal
+- Ville
+- Pays avec France par défaut
+- Numéro de téléphone
+
+Les fonctionnalités doivent être 
+- le changement du mot de passe, 
+- la mise à jour des informations
+- Le suivi des commandes : il y a plusieurs statuts : Reçu, En analyse, Fabrication, Fabriqué, Expédié
+- L’historique des commandes.
+
+Le client doit pouvoir sauvegarder sa configuration, se la faire envoyer par email et la retrouver dans son compte pour passer commande définitivement. (dans ce cas, m’envoyer aussi un mail à benoit.peyronnet@wanadoo.fr que je sache qu’une configuration est en cours pour pouvoir rappeler le client ou lui renvoyer un mail de relance. 
+
+D. Validation commande
+Une fois la configuration effectuée, le client valide sa commande (il doit être connecté à son compte) On lui propose un récapitulatif de la commande, on lui demande la confirmation en lui demandant de lire les conditions générales de vente.
+Puis on demande de faire cocher une case pour :
+"Je reconnais que le produit étant personnalisé, le droit de rétractation de 14 jours ne s'applique pas (Article L221-28 du Code de la consommation)."
+Une fois qu’il confirme sa commande, un mail est envoyé à benoit.peyronnet@wanadoo.fr avec le détail de la commande et du client. 
+Un message de remerciement est affiché en donnant comme email de contact contact@lecrinfrancais.fr pour toute question sur la commande. Indiquer un délai d’une semaine pour avoir un retour sur le délai de fabrication. 
+
+E. Formulaire de contact
+Propose d’accéder à tout moment au formulaire de contact qui si le client est connecté avec son compte ;
+- Reprend les coordonnées du client
+- Mets un champ libre de saisie de texte 
+- Envoie un mail à benoit.peyronnet@wanadoo.fr avec les éléments 
+- Affiche un message de prise en compte du contact avec la promesse d’un retour rapide. 
+ 
+
+F. Logique de Calcul (Pricing Engine)
+Le prix est calculé côté serveur (ou sécurisé côté front) selon la formule :
+1. Matière : Surface développée ($2 \times (Ll + Lh + lh)$) $\times$ Prix $m^2$ essence.
+2. Finitions : Surcoût fixe ou % selon le choix (Vernis, Laque).
+3. Intérieur : Prix forfaitaire selon le type (Cales bois vs Velours gainé).
+4. Gravure : Prix à la surface ($cm^2$) + Frais techniques si Logo.
+5. Frais Fixes : Coût main d'œuvre incompressible par unité.
+6. Remise Volume (B2B) : -20% automatique si quantité $\ge$ 10.
+7. TVA : Ajout de 20% sur le total HT.
+
+4. LOGISTIQUE & PAIEMENT
+A. Calcul des Frais de Port
+* Algorithme :
+o Calcul du volume de bois ($Surface \times Épaisseur$).
+o Calcul du poids estimé ($Volume \times Densité$ de l'essence choisie).
+o Comparaison avec la grille tarifaire (ex: La Poste) par tranches de poids.
+B. Modalités de Paiement
+* Acompte : Le client ne paie pas tout de suite la totalité.
+o Règle : 20% du total TTC.
+o Plafond : Maximum 200,00 € d'acompte (le reste à la livraison).
+* Moyens de paiement : Carte Bancaire (Stripe) ou Virement (Affichage RIB).
+
+5. STACK TECHNIQUE (Technologies)
+* Fichiers téléchargés (pour la gravure ou la configuration intérieure):
+o Ils doivent être sauvegardés sur le serveur et le lien pour les retrouver doit être joint au mail (et non pas envoyé en pièce jointe)
+o Les fichiers doivent être du type JPG, PNF, ou PDF de 5Mo maximum. 
+* Emails :
+o Service transactionnel (SendGrid ou EmailJS) pour envoyer le récapitulatif à benoit.peyronnet@wanadoo.fr.
+* Analytics :
+o Matomo : Pour le suivi respectueux de la vie privée (RGPD).
+* Commentaire :
+o Tout le code doit être documenté en français
+* Langue :
+o Le site doit être en français mais aussi en anglais (avec la possibilité pour le client de passer d’une langue à l’autre dans un menu en haut à droite de la page) – mettre les textes dans un fichier json. 
+* Intégration de react-helmet pour gérer dynamiquement les titres et méta-descriptions de chaque page afin d'optimiser le référencement naturel (SEO)
+* ?  Le Favicon : C'est la petite icône à côté du titre dans l'onglet.
+o À faire : Remplacer public/favicon.ico par votre logo doré stylisé (format carré 64x64 px).
+* Le Titre de l'onglet :
+o À faire : Dans public/index.html, vérifier la balise <title>. Elle doit être : L'Écrin Français | Coffrets Bois Sur-Mesure.
+* L'image de partage (Open Graph) : Quand quelqu'un enverra le lien de votre site sur WhatsApp ou Facebook, quelle image apparaîtra ?
+o À faire : Ajouter une belle image og-image.jpg dans public/ pour qu'elle s'affiche lors des partages.
+
+
+
+6. BACK OFFICE
+* Une page administration doit permettre à l’administrateur de se connecter pour 
+o Voir la liste des commandes en cours
+o Changer le statut de la commandes (et le changement de statut envoie un mail au client pour le prévenir du changement de statut de sa commande) 
+o Télécharger la fiche de fabrication (un PDF qui récapitule les informations) 
+o un bouton "Exporter pour Colissimo/UPS" pour chaque commande pour avoir un fichier CSV qui permet d’imprimer l’étiquette d’envoi directement au format de la poste, DHL ou d’UPS.
+o 
+
+7. FICHIER DE PILOTAGE (Config)
+Toutes les variables commerciales doivent être centralisées dans un fichier config.js pour permettre au gérant de modifier les prix sans toucher au code :
+* Prix des essences au $m^2$.
+* Taux de TVA.
+* Taux de change (EUR/USD/GBP).
+* Seuils de remises.
+* Grille des frais de port.
+
+
+8. RESTRICTIONS
+* La longueur maximum est de 60cms au maximum
+* La longueur doit rester supérieure à la largeur. 
+* La largeur est supérieure à la hauteur
+
+
+9. MENTIONS LEGALES
+Ajouter la page avec 
+Titre : Mentions Légales
+1. Éditeur du site Le site L'Écrin Français est édité par :
+* Nom de la société / Entrepreneur : [TON NOM ou NOM SOCIÉTÉ] (ex: Atelier Peyronnet SAS)
+* Forme juridique : [SAS, SASU, EURL, Auto-entrepreneur...]
+* Capital social : [Montant] € (si société)
+* Siège social : [Ton Adresse complète en Bourgogne]
+* RCS : Inscrit au RCS de [Ville, ex: Dijon] sous le numéro [Numéro SIRET]
+* Numéro de TVA Intracommunautaire : [FRXX 000000000]
+* Email de contact : benoit.peyronnet@wanadoo.fr
+* Téléphone : [Ton Numéro]
+* Directeur de la publication : Benoît Peyronnet
+2. Hébergement Le site est hébergé par :
+* Hébergeur : [Nom de l'hébergeur, ex: Vercel Inc. ou OVH]
+* Adresse : [Adresse de l'hébergeur]
+* Site web : [www.vercel.com]
+3. Propriété Intellectuelle L'ensemble de ce site relève de la législation française et internationale sur le droit d'auteur et la propriété intellectuelle. Tous les droits de reproduction sont réservés, y compris pour les documents téléchargeables et les représentations iconographiques et photographiques (visuels 3D, photos des essences de bois).
+
+10. LES CGV (Conditions Générales de Vente) - SPÉCIAL SUR-MESURE
+C'est ton contrat. C'est ici que tu te protèges contre les retours abusifs. Tu dois avoir une case à cocher "J'accepte les CGV" avant le paiement.
+Voici les clauses critiques à insérer absolument :
+Article X - Produits Sur-Mesure et Personnalisés Les produits vendus par L'Écrin Français sont fabriqués à la demande selon les spécifications précises du Client (dimensions, essences de bois, gravures).
+Article Y - Absence de Droit de Rétractation Conformément à l'article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contrats de fourniture de biens confectionnés selon les spécifications du consommateur ou nettement personnalisés. En conséquence, aucune annulation, aucun retour ni aucun remboursement ne pourra être accepté une fois la commande validée et la fabrication lancée, sauf en cas de défaut de conformité avéré (défaut technique ou erreur de dimension de notre part).
+Article Z - Tolérances Techniques (Bois) Le bois étant un matériau vivant, des variations de teinte, de veinage ou de texture peuvent apparaître par rapport aux visuels 3D présentés sur le site. Ces variations naturelles ne peuvent être considérées comme des défauts et ne justifient pas un refus de la marchandise.
+Article W - Délais et Livraison Le délai de fabrication annoncé (4 semaines) est donné à titre indicatif. Un retard raisonnable ne peut donner lieu à l'annulation de la commande ni à des dommages et intérêts.
+
+11. POLITIQUE DE CONFIDENTIALITÉ (RGPD)
+Obligatoire car tu collectes des emails et des adresses.
+1. Collecte des données Les informations recueillies (Nom, Adresse, Email, Téléphone) sont nécessaires pour le traitement de votre commande et l'établissement des factures.
+2. Destinataires Vos données ne sont transmises qu'aux partenaires logistiques (La Poste, Transporteurs) pour la livraison. Elles ne sont jamais vendues à des tiers.
+3. Vos droits Vous disposez d'un droit d'accès, de modification et de suppression de vos données. Pour l'exercer, contactez : benoit.peyronnet@wanadoo.fr
+
+
+
+
+
+?? MODULE SPÉCIFIQUE : IDENTITÉ VISUELLE & PAGE D'ACCUEIL
+Version : V.LUXE-FINAL Cible : Reproduction à l'identique de l'ambiance "Atelier Langalerie" / "Manufacture".
+1. CHARTE GRAPHIQUE (UI)
+A. Palette de Couleurs "Clair-Obscur"
+L'ambiance ne doit pas être "noire" (black #000) mais "charbon profond" pour plus de douceur et de matière.
+* Fond Principal (Background) : #0B0B0B (Noir Profond/Charbon).
+* Fond Secondaire (Sections) : #101010 (Gris Anthracite très sombre).
+* Couleur Accent (Or Vieilli) : #C5A059 (Utilisé pour le Logo, les titres, les bordures et les boutons).
+* Texte Principal : #EAEAEA (Blanc Cassé / Argenté).
+* Texte Secondaire : #999999 (Gris Moyen).
+B. Typographie
+* Titres (H1, H2, Logo) : Playfair Display (Serif). Doit être utilisé pour tout ce qui évoque le luxe et la tradition.
+* Corps de texte (P, Boutons) : Montserrat (Sans-serif). Pour la lisibilité et la modernité technique.
+* Traitement du texte : Utilisation fréquente de l'espacement de lettres (letter-spacing: 2px) et des majuscules (uppercase) pour les sous-titres.
+
+2. LE LOGO (SPÉCIFICATIONS SVG)
+Le logo n'est pas une image importée, c'est un tracé vectoriel (SVG) généré par le code pour une netteté parfaite.
+* Type : Monogramme Géométrique.
+* Forme :
+o Un carré extérieur (stroke thickness: 2).
+o Un carré intérieur (stroke thickness: 1, opacity: 0.6) évoquant l'épaisseur du bois.
+o Une ouverture stylisée en bas (coupure du trait).
+* Contenu : Les initiales "ÉF" centrées, en police Playfair Display Bold.
+* Comportement : Doit être redimensionnable (props size) et recolorable (props color).
+* Emplacements :
+o Navbar : Petit (50px) + Texte "L'ÉCRIN FRANÇAIS" sur 2 lignes à droite.
+o Hero : Grand (120px) au centre.
+o Footer : Moyen (60px) en gris (#555).
+
+3. LIGNE ÉDITORIALE & VOCABULAIRE
+Interdiction d'utiliser un vocabulaire "E-commerce basique". Le ton doit être celui d'une Maison de Tradition.
+? Ne pas dire? Dire (Vocabulaire "Langalerie")UsineManufactureProduit / BoîteOuvrage / Gardien / ÉcrinFabriquerFaçonner / ConcevoirClientsEsthètes / MaisonsAcheter maintenantConcevoir votre OuvrageBois solideEssences nobles15 ans d'expérienceHéritage / 15 ans d'ExcellenceExporter vers Sheets
+
+4. STRUCTURE DE LA PAGE D'ACCUEIL (WIREFRAME)
+Section 1 : Navbar (Navigation)
+* Style : Fixe (position: fixed), fond semi-transparent flouté (backdrop-filter: blur).
+* Contenu : Bloc Logo à gauche + Bouton "Accéder à l'Atelier" (Ghost Button : fond transparent, bordure dorée) à droite.
+Section 2 : Hero (La Vitrine)
+* Fond : Image de texture bois très sombre (linear-gradient noir à 80% sur photo Unsplash).
+* Contenu centré :
+1. Grand Logo SVG.
+2. Titre H1 : "Haute Facture de Coffrets & Écrins".
+3. Sous-titre : Citation entre guillemets sur la protection des objets.
+4. CTA : Bouton "Concevoir votre Ouvrage" (Effet Hover : le fond se remplit en doré).
+Section 3 : Bandeau "Preuve"
+* Une barre horizontale sombre #111 avec 3 arguments clés :
+1. Héritage (15 ans).
+2. Manufacture (Propriétaire Portugal).
+3. Pièce Unique (Sur-mesure).
+Section 4 : L'Histoire (Storytelling)
+* Mise en page : Asymétrique (Texte à gauche, Composition d'images à droite).
+* Détail clé : Utilisation d'une Lettrine (Grande lettre "D" dorée) pour commencer le paragraphe.
+* Images : Montage de 2 photos (une en arrière-plan sombre, une au premier plan plus lumineuse avec bordure, montrant un geste artisanal).
+Section 5 : Savoir-Faire (Piliers)
+* Grille : 3 cartes alignées.
+* Icônes : Symboles simples (Étoile, Crayon, Infini) en doré.
+* Contenu :
+o Maîtrise d'Œuvre (Pas d'intermédiaire).
+o L'Art du Sur-Mesure (Page blanche).
+o De l'Unité à la Série (Flexibilité industrielle).
+Section 6 : Footer (Pied de page)
+* Style : Minimaliste, fond #080808.
+* Contenu : Rappel du Logo (gris), slogan "Manufacture au Portugal - Design en Bourgogne", liens légaux discrets.
+
+?? COMMENT UTILISER CE DOCUMENT ?
+Si vous devez demander à une autre IA (ou à un développeur) de refaire cette page, donnez-lui simplement le prompt suivant :
+"Génère une Landing Page React pour une marque de luxe appelée 'L'Écrin Français'. Utilise les spécifications suivantes : Couleurs #0B0B0B et #C5A059. Polices Playfair Display et Montserrat. Le logo doit être un SVG intégré représentant un monogramme 'ÉF' dans un double carré. Le vocabulaire doit être soutenu ('Manufacture', 'Ouvrage'). La structure doit inclure un Hero avec texture bois sombre, une section Histoire avec lettrine, et une section Savoir-Faire à 3 colonnes. Inspire-toi du style des Ateliers de Langalerie."
+
+
+
+
+
+
+

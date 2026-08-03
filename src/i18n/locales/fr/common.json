@@ -1,0 +1,13 @@
+{
+  "brand": "L'Écrin Français",
+  "loading": {
+    "workshop": "Chargement de l'atelier…",
+    "space": "Chargement de votre espace…"
+  },
+  "status": {
+    "Nouvelle": "Nouvelle",
+    "Reçu": "Reçu",
+    "En cours": "En cours"
+  },
+  "configurationFallback": "Configuration"
+}

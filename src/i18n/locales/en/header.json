@@ -1,0 +1,18 @@
+{
+  "nav": {
+    "univers": "Our universes",
+    "about": "About us",
+    "contact": "Contact",
+    "client": "Client area"
+  },
+  "signIn": "Sign in",
+  "menu": {
+    "profile": "My profile",
+    "projects": "My projects & orders",
+    "signOut": "Sign out"
+  },
+  "language": {
+    "fr": "FR",
+    "en": "EN"
+  }
+}

@@ -1,0 +1,50 @@
+{
+  "eyebrow": "About Us",
+  "heroTitle": "A discreet manufacture, in service of the right gesture",
+  "heroSubtitle": "\"We do not make boxes. We give a case to what matters.\"",
+  "storyImageAlt": "Noble wood grain worked in the workshop",
+  "story": {
+    "title": "Our Story",
+    "lead1": "For fifteen years, L'Écrin Français has designed cases and presentation boxes for those who never acquire a precious object without considering how it will be protected, transported and passed on.",
+    "lead2": "The design of every piece is born in Burgundy, in close dialogue with our clients and our partners. Its making is entrusted to our own manufacture in Portugal, where craftsmen in wood, leather and lacquer treat every order as a unique piece — even when it is part of a series.",
+    "lead3": "We have no fixed collection. We have a craft: to listen to a need, choose the right material, and build an object that will outlast the fashions surrounding it."
+  },
+  "cards": {
+    "card1": {
+      "title": "Full-Circle Craftsmanship",
+      "text": "From selecting the wood essence to fitting the last hinge, no step is blindly outsourced: we remain responsible for every gesture."
+    },
+    "card2": {
+      "title": "Exacting Bespoke Work",
+      "text": "Millimetre-precise dimensions, hot-stamped or laser engraving, choice of materials: every case is redesigned for the object it will hold, never the other way round."
+    },
+    "card3": {
+      "title": "From a Single Piece to a Series",
+      "text": "An exceptional gift or a collection destined for a distribution network: the same standard of finish applies, whatever the quantity."
+    }
+  },
+  "process": {
+    "title": "The Making Journey",
+    "intro": "Every order follows the same path, from the first conversation to delivery.",
+    "steps": {
+      "step1": { "title": "Listening & Measuring", "text": "We take the time to understand the object to be protected and the intended use of the case." },
+      "step2": { "title": "Choice of Materials", "text": "Wood essence, lining, tint: every material is selected for how it holds up over time." },
+      "step3": { "title": "Shaping in the Workshop", "text": "Cutting, assembly and fitting are carried out by hand by our craftsmen, in Portugal." },
+      "step4": { "title": "Finishing & Engraving", "text": "Lacquering, velvet, personalised engraving: the final touch that makes every piece unique." },
+      "step5": { "title": "Inspection & Delivery", "text": "Every case is inspected piece by piece before being packed with the same care as its contents." }
+    }
+  },
+  "values": {
+    "title": "Our Values",
+    "excellence": { "title": "Excellence", "text": "No piece leaves the workshop without passing our quality control." },
+    "discretion": { "title": "Discretion", "text": "We often work behind the scenes, in the service of exacting brands and collectors." },
+    "surMesure": { "title": "Bespoke", "text": "No fixed catalogue: every project starts from a blank page." },
+    "durabilite": { "title": "Durability", "text": "Noble materials and assemblies conceived to last generations." }
+  },
+  "cta": {
+    "title": "Wish to entrust us with your project?",
+    "lead": "Begin configuring your case online, or write to us directly for a particular project.",
+    "primary": "Design Your Case",
+    "secondary": "Write to Us"
+  }
+}

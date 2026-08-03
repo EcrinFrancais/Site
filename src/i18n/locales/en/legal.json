@@ -1,0 +1,26 @@
+{
+  "title": "Legal Notice & Terms and Conditions of Sale",
+  "lastUpdated": "Last updated: 30 July 2026.",
+  "sections": {
+    "editor": {
+      "title": "Site Publisher",
+      "text": "L’Écrin Français is a brand dedicated to the creation and personalisation of bespoke cases and presentation boxes. The site is published by L’Écrin Français, a company or structure operating under this brand, with its registered office in France."
+    },
+    "ip": {
+      "title": "Intellectual Property",
+      "text": "All content on the site — texts, images, logos, visuals, designs and presentation elements — is the property of L’Écrin Français or its partners and is protected by intellectual property rights. Any unauthorised reproduction or use is prohibited."
+    },
+    "data": {
+      "title": "Data Protection",
+      "text": "Personal data collected via the site is used solely for managing your order, your client account and improving the service. It is not shared with third parties without consent, except where required by law."
+    },
+    "terms": {
+      "title": "Terms and Conditions of Sale",
+      "text": "Quotes and price proposals are given as an indication and may be adjusted according to the final specifications, manufacturing lead time, materials selected and technical complexity of the project. Orders are confirmed after written validation by the client and payment of any deposits due. Manufacturing lead times are given as an indication and may vary according to production workload."
+    },
+    "returns": {
+      "title": "Returns and Cancellation",
+      "text": "Bespoke products are neither returned nor refunded, except in the event of an obvious defect or manufacturing error. Any cancellation request must be made as soon as possible and will be examined according to the progress of the project."
+    }
+  }
+}

@@ -1,4 +1,4 @@
-import React, { useState, Suspense, useRef, useEffect } from 'react';
+import React, { useState, useMemo, Suspense, useRef, useEffect } from 'react';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { vinsConfig } from '../data/vinsConfig';
@@ -14,7 +14,7 @@ import ConfigurationPanel from '../components/ConfigurationPanel';
 import Preview3DPanel from '../components/Preview3DPanel';
 import { HEADER_HEIGHT } from '../components/Header';
 
-import bottleImage from '../textures/auxey-duresse.png';
+import bottleLabelImage from '../textures/etiquette-auxey-duresse.jpg';
 import textureChene from '../textures/chene.jpg';
 import textureEbene from '../textures/ebene.jpg';
 import textureNoyer from '../textures/noyer.jpg';
@@ -67,7 +67,7 @@ export function Coffret3D({
   viewSize,
 }) {
   const [woodTexture, setWoodTexture] = useState(null);
-  const [bottleRatio, setBottleRatio] = useState(1); // 1 par défaut
+  const [labelRatio, setLabelRatio] = useState(400 / 293); // ratio par défaut
 
   // Réinitialisation pendant le rendu (plutôt que dans l'effet) pour éviter
   // d'afficher un instant l'ancienne texture pendant le chargement de la nouvelle.
@@ -108,20 +108,20 @@ export function Coffret3D({
     }
   }, [imageGravure, modeGravure]);
 
-  const [bottleTexture, setBottleTexture] = useState(null);
+  const [labelTexture, setLabelTexture] = useState(null);
   useEffect(() => {
     const loader = new THREE.TextureLoader();
     loader.load(
-      bottleImage,
+      bottleLabelImage,
       (texture) => {
         texture.minFilter = THREE.LinearFilter;
         texture.colorSpace = THREE.SRGBColorSpace;
-        setBottleRatio(texture.image.width / texture.image.height);
-        setBottleTexture(texture);
+        setLabelRatio(texture.image.width / texture.image.height);
+        setLabelTexture(texture);
       },
       undefined,
       (error) => {
-        console.error('Erreur bouteille :', error);
+        console.error('Erreur étiquette :', error);
       }
     );
   }, []);
@@ -170,52 +170,64 @@ export function Coffret3D({
   };
 
   const lidRef = useRef();
-  const isMagnetic = fermeture === 'Charnières + fermeture magnétique invisible';
   const isSlidingTop = fermeture === 'Couvercle coulissant';
   const isSlidingDrawer = fermeture === 'Tiroir coulissant';
   const isEmboitement = fermeture === 'Couvercle amovible par emboîtement';
   const isLatch = fermeture === 'Charnières + loquet en laiton';
+  // Course d'ouverture verticale suffisante pour dégager la bouteille.
+  const slideOpenDistance = H + 0.15;
+  // Le tiroir repose 5 mm sous le bord du coffret (au repos).
+  const drawerRecess = 0.05;
 
   useFrame(() => {
     if (lidRef.current) {
       if (isSlidingTop) {
+        // Même emplacement que la porte à charnières (sur le devant du
+        // coffret) ; coulisse vers le haut à l'ouverture au lieu de pivoter.
         lidRef.current.position.y = THREE.MathUtils.lerp(
           lidRef.current.position.y,
-          isOpen ? 0.55 : 0,
+          isOpen ? slideOpenDistance : 0,
           0.08
         );
         lidRef.current.position.x = THREE.MathUtils.lerp(
           lidRef.current.position.x,
-          0,
+          -W / 2,
           0.08
         );
         lidRef.current.position.z = THREE.MathUtils.lerp(
           lidRef.current.position.z,
-          0,
+          D / 2 - LD,
           0.08
         );
         lidRef.current.rotation.y = 0;
       } else if (isSlidingDrawer) {
-        lidRef.current.position.z = THREE.MathUtils.lerp(
-          lidRef.current.position.z,
-          isOpen ? 0.35 : 0,
+        // Coulisse dans des rainures de part et d'autre du coffret, en
+        // retrait de 5 mm vers l'intérieur (par rapport au plan de la
+        // porte) ; glisse vers le haut à l'ouverture, assez haut pour
+        // dégager la bouteille.
+        lidRef.current.position.y = THREE.MathUtils.lerp(
+          lidRef.current.position.y,
+          isOpen ? slideOpenDistance : 0,
           0.08
         );
         lidRef.current.position.x = THREE.MathUtils.lerp(
           lidRef.current.position.x,
-          0,
+          -W / 2,
           0.08
         );
-        lidRef.current.position.y = THREE.MathUtils.lerp(
-          lidRef.current.position.y,
-          0,
+        lidRef.current.position.z = THREE.MathUtils.lerp(
+          lidRef.current.position.z,
+          D / 2 - LD - drawerRecess,
           0.08
         );
         lidRef.current.rotation.y = 0;
       } else if (isEmboitement) {
+        // Au repos, le couvercle amovible occupe le même plan que la porte
+        // (bord aligné avec le coffret) ; à l'ouverture, il glisse
+        // entièrement à côté du coffret plutôt que de flotter devant.
         lidRef.current.position.x = THREE.MathUtils.lerp(
           lidRef.current.position.x,
-          isOpen ? 0.4 : 0,
+          isOpen ? W / 2 + 0.2 : -W / 2,
           0.08
         );
         lidRef.current.position.y = THREE.MathUtils.lerp(
@@ -225,12 +237,14 @@ export function Coffret3D({
         );
         lidRef.current.position.z = THREE.MathUtils.lerp(
           lidRef.current.position.z,
-          0,
+          D / 2 - LD,
           0.08
         );
         lidRef.current.rotation.y = 0;
       } else {
-        const targetRotation = isOpen ? -Math.PI / 1.45 : 0;
+        // Ouverture "porte d'armoire" : la charnière reste fixe sur le bord
+        // du coffret (le pivot de la porte), seule la rotation anime.
+        const targetRotation = isOpen ? -Math.PI / 2 : 0;
         lidRef.current.rotation.y = THREE.MathUtils.lerp(
           lidRef.current.rotation.y,
           targetRotation,
@@ -238,7 +252,7 @@ export function Coffret3D({
         );
         lidRef.current.position.x = THREE.MathUtils.lerp(
           lidRef.current.position.x,
-          0,
+          -W / 2,
           0.08
         );
         lidRef.current.position.y = THREE.MathUtils.lerp(
@@ -248,7 +262,7 @@ export function Coffret3D({
         );
         lidRef.current.position.z = THREE.MathUtils.lerp(
           lidRef.current.position.z,
-          0,
+          D / 2 - LD,
           0.08
         );
       }
@@ -256,14 +270,69 @@ export function Coffret3D({
   });
 
   const innerHeight = H - 2 * T;
-  const bottomInnerY = -H / 2 + T;
 
-  const bottleHeight = innerHeight * 0.9;
-  const bottlePosY = bottomInnerY + bottleHeight / 2 - 0.01;
+  // Un peu plus petite en hauteur, et centrée en profondeur dans le coffret.
+  const bottleHeight = innerHeight * 0.92;
+  const bottlePosZ = 0;
 
-  //  const bottleHeight = H * 0.82;
-  //  const bottlePosY = -H / 2 + T + bottleHeight / 2;
-  const bottlePosZ = D * 0.3;
+  // --- SILHOUETTE 3D DE LA BOUTEILLE (verre bourguignon) ---
+  // Rayon calculé sur une hauteur de référence fixe (indépendante du réglage
+  // ci-dessus) pour pouvoir ajuster la hauteur sans jamais élargir la bouteille.
+  const bottleGlassRadius = Math.min(
+    innerHeight * 0.9 * 0.135,
+    (W - 2 * T) * 0.4
+  );
+  // Profil [rayon relatif, hauteur relative] du fond au goulot, révolutionné
+  // en LatheGeometry. Contrairement à une bordelaise (épaule haute et
+  // anguleuse), la bourguignonne a une pente longue, continue et lissée
+  // (courbe smoothstep) du corps jusqu'au col, sans rupture nette.
+  const bottleProfile = useMemo(() => {
+    const points = [];
+    const addPoint = (rFrac, yFrac) =>
+      points.push(
+        new THREE.Vector2(rFrac * bottleGlassRadius, yFrac * bottleHeight)
+      );
+
+    // Talon / fond légèrement renfoncé
+    addPoint(0.0, 0.0);
+    addPoint(0.7, 0.012);
+    addPoint(0.95, 0.03);
+    addPoint(1.0, 0.06);
+
+    // Corps cylindrique
+    addPoint(1.0, 0.56);
+
+    // Épaule bourguignonne : longue pente continue et lissée
+    const shoulderStart = 0.56;
+    const shoulderEnd = 0.87;
+    const neckRadiusFrac = 0.27;
+    const shoulderSteps = 10;
+    for (let i = 1; i <= shoulderSteps; i += 1) {
+      const t = i / shoulderSteps;
+      const smooth = t * t * (3 - 2 * t); // smoothstep
+      const rFrac = 1.0 - (1.0 - neckRadiusFrac) * smooth;
+      const yFrac = shoulderStart + (shoulderEnd - shoulderStart) * t;
+      addPoint(rFrac, yFrac);
+    }
+
+    // Col cylindrique
+    addPoint(neckRadiusFrac, 0.94);
+
+    // Bague de la capsule, puis bouchon fermé
+    addPoint(0.33, 0.965);
+    addPoint(0.29, 0.98);
+    addPoint(0.0, 1.0);
+
+    return points;
+  }, [bottleGlassRadius, bottleHeight]);
+  // Centrée verticalement par rapport au coffret (et non posée sur le fond).
+  const bottleBottomY = -bottleHeight / 2;
+
+  // Étiquette enroulée sur ~95% du tour du corps, centrée côté face avant
+  // (theta=0 pointe vers +z avec cette paramétrisation de cylindre).
+  const labelThetaLength = Math.PI * 0.95;
+  const labelHeight = (labelThetaLength * bottleGlassRadius) / labelRatio;
+  const labelCenterY = bottleBottomY + bottleHeight * 0.35;
 
   let colorGravure = '#3e2723';
   if (
@@ -275,7 +344,7 @@ export function Coffret3D({
 
   const textPosX = (posX / 100) * W - W / 2;
   const textPosY = H / 2 - (posY / 100) * H;
-  const actualFontSize = 0.06 * (tailleTexte / 100);
+  const actualFontSize = 0.13 * (tailleTexte / 100);
   const actualImageScale = 0.3 * (tailleImage / 100);
   const modelScale = { petit: 0.58, moyen: 0.72, grand: 0.86 }[viewSize] || 0.72;
 
@@ -313,10 +382,43 @@ export function Coffret3D({
         </mesh>
 
         {/* ✅ BOUTEILLE DANS LE COFFRET */}
-        {bottleTexture && (
-          <mesh position={[0, bottlePosY, bottlePosZ]}>
-            <planeGeometry args={[bottleHeight * bottleRatio, bottleHeight]} />
-            <meshStandardMaterial map={bottleTexture} transparent />
+        {/* Verre 3D (silhouette bourguignonne) : donne du volume sous tous
+            les angles, y compris de profil. */}
+        <mesh position={[0, bottleBottomY, bottlePosZ]} castShadow receiveShadow>
+          <latheGeometry args={[bottleProfile, 32]} />
+          <meshPhysicalMaterial
+            color="#132018"
+            roughness={0.15}
+            metalness={0}
+            transparent
+            opacity={0.9}
+            transmission={0.3}
+            thickness={0.05}
+            clearcoat={0.4}
+          />
+        </mesh>
+
+        {/* Étiquette enroulée sur le corps du verre (et non un plan plat
+            devant), pour un rendu correct sous tous les angles. */}
+        {labelTexture && (
+          <mesh position={[0, labelCenterY, bottlePosZ]}>
+            <cylinderGeometry
+              args={[
+                bottleGlassRadius + 0.004,
+                bottleGlassRadius + 0.004,
+                labelHeight,
+                32,
+                1,
+                true,
+                -labelThetaLength / 2,
+                labelThetaLength,
+              ]}
+            />
+            <meshStandardMaterial
+              map={labelTexture}
+              side={THREE.DoubleSide}
+              roughness={0.85}
+            />
           </mesh>
         )}
 
@@ -325,23 +427,11 @@ export function Coffret3D({
           <mesh position={[W / 2, 0, LD / 2]} castShadow>
             <boxGeometry args={[W, H, LD]} />
             <meshStandardMaterial {...woodMaterialProps} />
-            {isMagnetic && (
-              <mesh position={[0.12 * W, -0.12 * H, LD / 2 + 0.012]}>
-                <boxGeometry args={[0.02, 0.02, 0.015]} />
-                <meshStandardMaterial color="#d7d7d7" metalness={0.9} roughness={0.2} />
-              </mesh>
-            )}
             {isLatch && (
-              <>
-                <mesh position={[0.08 * W, 0.08 * H, LD / 2 + 0.012]}>
-                  <boxGeometry args={[0.06, 0.12, 0.025]} />
-                  <meshStandardMaterial color="#b08b2d" metalness={0.8} roughness={0.2} />
-                </mesh>
-                <mesh position={[0.18 * W, 0.02 * H, LD / 2 + 0.012]}>
-                  <boxGeometry args={[0.04, 0.08, 0.022]} />
-                  <meshStandardMaterial color="#b08b2d" metalness={0.8} roughness={0.2} />
-                </mesh>
-              </>
+              <mesh position={[W / 2 + 0.012, 0, 0]}>
+                <boxGeometry args={[0.025, 0.14, Math.min(0.06, LD * 0.8)]} />
+                <meshStandardMaterial color="#b08b2d" metalness={0.8} roughness={0.2} />
+              </mesh>
             )}
 
             {/* LE TEXTE 3D */}
@@ -572,16 +662,19 @@ export default function ConfiguratorPage({ univers }) {
 const styles = {
   pageContainer: {
     display: 'flex',
+    justifyContent: 'center',
     height: `calc(100vh - ${HEADER_HEIGHT}px)`,
-    width: '100vw',
+    width: '100%',
     background: 'linear-gradient(135deg, #050505 0%, #111 45%, #0d0d0d 100%)',
     color: '#f6f1e8',
     fontFamily: '"Optima", "Didot", "Helvetica Neue", sans-serif',
     overflow: 'hidden',
+    boxSizing: 'border-box',
   },
   leftPanel: {
     width: 'min(60%, 900px)',
     minWidth: '320px',
+    boxSizing: 'border-box',
     display: 'flex',
     flexDirection: 'column',
     padding: '24px 28px 28px',
@@ -590,8 +683,9 @@ const styles = {
     borderRight: '1px solid rgba(212, 175, 55, 0.16)',
   },
   rightPanel3D: {
-    flex: 1,
+    width: 'min(40%, 600px)',
     minWidth: '320px',
+    boxSizing: 'border-box',
     background: 'radial-gradient(circle at top, #2d2418 0%, #030303 60%, #000 100%)',
     borderLeft: '1px solid rgba(212, 175, 55, 0.18)',
     position: 'relative',

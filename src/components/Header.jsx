@@ -50,13 +50,12 @@ const styles = {
     fontSize: '0.72rem',
     letterSpacing: '0.1em',
     textTransform: 'uppercase',
-    color: '#cabfa4',
     textDecoration: 'none',
     paddingBottom: '4px',
-    borderBottom: '1px solid transparent',
+    borderBottomWidth: '1px',
+    borderBottomStyle: 'solid',
     whiteSpace: 'nowrap',
   },
-  navLinkActive: { color: '#c5a059', borderBottomColor: '#c5a059' },
   pillButton: {
     fontSize: '0.72rem',
     letterSpacing: '0.1em',
@@ -206,9 +205,6 @@ export default function Header() {
     navigate('/');
   };
 
-  const navLinkStyle = ({ isActive }) =>
-    isActive ? { ...styles.navLink, ...styles.navLinkActive } : styles.navLink;
-
   return (
     <header style={styles.bar}>
       <Link to="/" style={styles.brand}>
@@ -217,10 +213,10 @@ export default function Header() {
       </Link>
 
       <nav style={styles.nav}>
-        <NavLink to="/univers" style={navLinkStyle}>{t('nav.univers')}</NavLink>
-        <NavLink to="/a-propos" style={navLinkStyle}>{t('nav.about')}</NavLink>
-        <NavLink to="/contact" style={navLinkStyle}>{t('nav.contact')}</NavLink>
-        <NavLink to="/client" style={navLinkStyle}>{t('nav.client')}</NavLink>
+        <NavLink to="/univers" className="nav-link" style={styles.navLink}>{t('nav.univers')}</NavLink>
+        <NavLink to="/a-propos" className="nav-link" style={styles.navLink}>{t('nav.about')}</NavLink>
+        <NavLink to="/contact" className="nav-link" style={styles.navLink}>{t('nav.contact')}</NavLink>
+        <NavLink to="/client" className="nav-link" style={styles.navLink}>{t('nav.client')}</NavLink>
       </nav>
 
       <div style={styles.langSwitch}>

@@ -9,6 +9,18 @@ body {
   min-height: 100vh;
 }
 
+.nav-link {
+  color: #cabfa4;
+  border-bottom-color: transparent;
+  transition: color 0.15s ease, border-bottom-color 0.15s ease;
+}
+
+.nav-link:hover,
+.nav-link:focus-visible {
+  color: #c5a059;
+  border-bottom-color: #c5a059;
+}
+
 .configurator-loading {
   min-height: 100vh;
   display: flex;

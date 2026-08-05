@@ -1,5 +1,5 @@
 import { db } from '../config/firebase';
-import { collection, addDoc, doc, getDoc, updateDoc, query, where, getDocs } from 'firebase/firestore';
+import { collection, addDoc, doc, getDoc, setDoc, deleteDoc, query, where, getDocs } from 'firebase/firestore';
 
 const collectionName = 'configurations';
 
@@ -12,7 +12,7 @@ export const configurationRepository = {
 
     if (payload.id && payload.id.startsWith('config-')) {
       const ref = doc(db, collectionName, payload.id);
-      await updateDoc(ref, payload);
+      await setDoc(ref, payload, { merge: true });
       return payload;
     }
 
@@ -49,5 +49,9 @@ export const configurationRepository = {
     const q = query(collection(db, collectionName), where('userId', '==', userId));
     const snapshot = await getDocs(q);
     return snapshot.docs.map((docItem) => ({ id: docItem.id, ...docItem.data() }));
+  },
+
+  async remove(id) {
+    await deleteDoc(doc(db, collectionName, id));
   },
 };

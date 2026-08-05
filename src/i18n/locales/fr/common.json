@@ -5,8 +5,21 @@
     "space": "Chargement de votre espace…"
   },
   "status": {
-    "Nouvelle": "Nouvelle",
-    "Reçu": "Reçu",
+    "received": "Commande reçue / En attente de paiement",
+    "confirmed": "Commande confirmée / Paiement validé",
+    "awaiting_client_validation": "En attente de validation client",
+    "validated": "Validée / Prête pour production",
+    "in_production": "En production / En fabrication",
+    "quality_control": "Contrôle qualité",
+    "ready_to_ship": "Prête à expédier / En préparation de commande",
+    "shipped": "Expédiée",
+    "in_delivery": "En cours de livraison",
+    "delivered": "Livrée",
+    "cancelled": "Annulée",
+    "dispute_return": "Litige / Retour",
+    "on_hold": "En pause",
+    "Nouvelle": "Commande reçue / En attente de paiement",
+    "Reçu": "Commande reçue / En attente de paiement",
     "En cours": "En cours"
   },
   "configurationFallback": "Configuration"

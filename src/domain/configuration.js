@@ -9,6 +9,7 @@ export function createConfigurationModel({ universId, universTitle, data = {} })
     id: data.id || `config-${Date.now()}`,
     universId,
     universTitle,
+    name: data.name || '',
     status: data.status || ConfigurationStatus.DRAFT,
     version: data.version || 1,
     versions: data.versions || [],

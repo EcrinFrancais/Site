@@ -4,6 +4,8 @@
   "draftsTitle": "Mes brouillons",
   "empty": "Aucun brouillon enregistré pour le moment.",
   "draftLine": "Version {{version}} • Essence : {{essence}} • Finition : {{finition}} • Quantité : {{quantite}}",
+  "delete": "Supprimer",
+  "deleteConfirm": "Supprimer ce projet ? Cette action est définitive.",
   "ordersTitle": "Mes commandes",
   "ordersEmpty": "Aucune commande pour le moment.",
   "orderLine": "Commande {{id}} • {{date}} • Quantité : {{quantite}} • Total : {{total}} €"

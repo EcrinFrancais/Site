@@ -4,6 +4,8 @@
   "draftsTitle": "My drafts",
   "empty": "No draft saved at the moment.",
   "draftLine": "Version {{version}} • Wood: {{essence}} • Finish: {{finition}} • Quantity: {{quantite}}",
+  "delete": "Delete",
+  "deleteConfirm": "Delete this project? This cannot be undone.",
   "ordersTitle": "My orders",
   "ordersEmpty": "No order at the moment.",
   "orderLine": "Order {{id}} • {{date}} • Quantity: {{quantite}} • Total: {{total}} €"

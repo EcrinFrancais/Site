@@ -6,6 +6,8 @@
     "engraving": "Gravure & personnalisation"
   },
   "labels": {
+    "projectName": "Nom du projet (facultatif)",
+    "projectNamePlaceholder": "Ex : Coffret anniversaire de Julie",
     "boxSize": "Taille du coffret",
     "lengthPlaceholder": "L(cm)",
     "widthPlaceholder": "l(cm)",

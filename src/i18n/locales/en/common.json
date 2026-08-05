@@ -5,8 +5,21 @@
     "space": "Loading your space…"
   },
   "status": {
-    "Nouvelle": "New",
-    "Reçu": "Received",
+    "received": "Order received / Awaiting payment",
+    "confirmed": "Order confirmed / Payment received",
+    "awaiting_client_validation": "Awaiting client validation",
+    "validated": "Validated / Ready for production",
+    "in_production": "In production / Manufacturing",
+    "quality_control": "Quality control",
+    "ready_to_ship": "Ready to ship / Being packed",
+    "shipped": "Shipped",
+    "in_delivery": "Out for delivery",
+    "delivered": "Delivered",
+    "cancelled": "Cancelled",
+    "dispute_return": "Dispute / Return",
+    "on_hold": "On hold",
+    "Nouvelle": "Order received / Awaiting payment",
+    "Reçu": "Order received / Awaiting payment",
     "En cours": "In progress"
   },
   "configurationFallback": "Configuration"

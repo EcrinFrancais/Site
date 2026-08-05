@@ -6,6 +6,8 @@
     "engraving": "Engraving & Personalisation"
   },
   "labels": {
+    "projectName": "Project name (optional)",
+    "projectNamePlaceholder": "E.g. Julie's birthday case",
     "boxSize": "Case size",
     "lengthPlaceholder": "L(cm)",
     "widthPlaceholder": "W(cm)",

@@ -6,7 +6,7 @@ export function createDraftConfiguration(universId, universTitle) {
   return createConfigurationModel({ universId, universTitle });
 }
 
-export function buildConfigurationSnapshot(configuration, overrides = {}) {
+export function buildConfigurationSnapshot(configuration, overrides = {}, topLevelOverrides = {}) {
   const nextValues = {
     ...configuration.values,
     ...overrides,
@@ -14,6 +14,7 @@ export function buildConfigurationSnapshot(configuration, overrides = {}) {
 
   return {
     ...configuration,
+    ...topLevelOverrides,
     values: nextValues,
     updatedAt: new Date().toISOString(),
   };
@@ -65,4 +66,8 @@ export async function loadConfigurationById(id) {
 
 export async function listConfigurationDrafts(userId) {
   return configurationRepository.listByUser(userId || 'anonymous');
+}
+
+export async function deleteConfigurationDraft(id) {
+  return configurationRepository.remove(id);
 }

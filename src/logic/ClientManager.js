@@ -3,6 +3,7 @@ import { db, auth } from '../config/firebase';
 import { collection, addDoc, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { escapeHtml } from './ContactManager';
+import { OrderStatus } from '../domain/orderStatus';
 
 export const ClientManager = {
   inscription: async (email, password, infosSup) => {
@@ -61,7 +62,7 @@ export const ClientManager = {
         clientId: user ? user.uid : "anonyme",
         date: new Date().toLocaleDateString(),
         ...detailsCommande,
-        statut: "Nouvelle"
+        statut: OrderStatus.RECEIVED,
       });
 
       const destinataire = user?.email || detailsCommande.clientProfile?.email;

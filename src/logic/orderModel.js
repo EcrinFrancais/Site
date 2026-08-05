@@ -1,7 +1,9 @@
+import { OrderStatus } from '../domain/orderStatus';
+
 export const createOrderDraft = (configuration, quote = {}, clientProfile = {}) => ({
   configuration,
   clientProfile,
-  status: 'Reçu',
+  status: OrderStatus.RECEIVED,
   total: Number(quote.totalTTC || 0),
   currency: 'EUR',
   createdAt: new Date().toISOString(),

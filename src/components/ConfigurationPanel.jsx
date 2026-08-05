@@ -3,6 +3,8 @@ import { useTranslation } from 'react-i18next';
 
 export default function ConfigurationPanel({
   styles,
+  name,
+  setName,
   taille,
   setTaille,
   mesures,
@@ -51,6 +53,17 @@ export default function ConfigurationPanel({
     <div style={styles.leftPanel}>
       <div style={styles.configContainer}>
         <h1 style={styles.title}>{title}</h1>
+
+        <div style={styles.fieldGroup}>
+          <label style={styles.label}>{t('labels.projectName')}</label>
+          <input
+            type="text"
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder={t('labels.projectNamePlaceholder')}
+            style={styles.minimalInput}
+          />
+        </div>
 
         <div style={{ ...styles.sectionCard, paddingTop: '16px' }}>
           <div style={styles.sectionHeader}>

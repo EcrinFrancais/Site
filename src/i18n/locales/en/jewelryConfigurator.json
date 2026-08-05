@@ -1,0 +1,33 @@
+{
+  "sections": {
+    "type": "Case type",
+    "materiau": "Material & lining"
+  },
+  "labels": {
+    "famille": "Jewellery family",
+    "sousType": "Case model",
+    "formeGenerale": "Overall shape",
+    "doublure": "Lining colour"
+  },
+  "familles": {
+    "bague": "Ring",
+    "boucles": "Earrings",
+    "collier": "Necklace / Pendant",
+    "bracelet": "Bracelet",
+    "parure": "Full set",
+    "montre": "Watch"
+  },
+  "sousTypes": {
+    "bague-coussinet": "Classic cushion ring box",
+    "boucles-fentes": "Slotted earring box",
+    "collier-allonge": "Elongated rectangular case",
+    "bracelet-allonge": "Elongated horizontal case",
+    "parure-multi": "Multi-level set case",
+    "montre-coussin": "Fixed cushion watch case"
+  },
+  "formesGenerales": {
+    "rectangulaire": "Square / classic rectangular",
+    "rond": "Round",
+    "coeur": "Heart"
+  }
+}

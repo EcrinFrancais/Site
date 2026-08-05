@@ -1,0 +1,33 @@
+{
+  "sections": {
+    "type": "Type d'écrin",
+    "materiau": "Matériau & doublure"
+  },
+  "labels": {
+    "famille": "Famille de bijou",
+    "sousType": "Modèle d'écrin",
+    "formeGenerale": "Forme générale",
+    "doublure": "Couleur de la doublure"
+  },
+  "familles": {
+    "bague": "Bague",
+    "boucles": "Boucles d'oreilles",
+    "collier": "Collier / Pendentif",
+    "bracelet": "Bracelet",
+    "parure": "Parure (set complet)",
+    "montre": "Montre"
+  },
+  "sousTypes": {
+    "bague-coussinet": "Écrin classique à coussinet",
+    "boucles-fentes": "Écrin à fentes",
+    "collier-allonge": "Écrin allongé rectangulaire",
+    "bracelet-allonge": "Écrin allongé horizontal",
+    "parure-multi": "Écrin multi-niveaux",
+    "montre-coussin": "Écrin à coussin fixe"
+  },
+  "formesGenerales": {
+    "rectangulaire": "Carré / rectangulaire classique",
+    "rond": "Rond",
+    "coeur": "Cœur"
+  }
+}

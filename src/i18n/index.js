@@ -10,6 +10,7 @@ import authFr from './locales/fr/auth.json';
 import profileFr from './locales/fr/profile.json';
 import clientSpaceFr from './locales/fr/clientSpace.json';
 import configuratorFr from './locales/fr/configurator.json';
+import jewelryConfiguratorFr from './locales/fr/jewelryConfigurator.json';
 import aboutFr from './locales/fr/about.json';
 import contactFr from './locales/fr/contact.json';
 import legalFr from './locales/fr/legal.json';
@@ -23,6 +24,7 @@ import authEn from './locales/en/auth.json';
 import profileEn from './locales/en/profile.json';
 import clientSpaceEn from './locales/en/clientSpace.json';
 import configuratorEn from './locales/en/configurator.json';
+import jewelryConfiguratorEn from './locales/en/jewelryConfigurator.json';
 import aboutEn from './locales/en/about.json';
 import contactEn from './locales/en/contact.json';
 import legalEn from './locales/en/legal.json';
@@ -47,6 +49,7 @@ i18n
         profile: profileFr,
         clientSpace: clientSpaceFr,
         configurator: configuratorFr,
+        jewelryConfigurator: jewelryConfiguratorFr,
         about: aboutFr,
         contact: contactFr,
         legal: legalFr,
@@ -61,6 +64,7 @@ i18n
         profile: profileEn,
         clientSpace: clientSpaceEn,
         configurator: configuratorEn,
+        jewelryConfigurator: jewelryConfiguratorEn,
         about: aboutEn,
         contact: contactEn,
         legal: legalEn,
@@ -80,6 +84,7 @@ i18n
       'profile',
       'clientSpace',
       'configurator',
+      'jewelryConfigurator',
       'about',
       'contact',
       'legal',

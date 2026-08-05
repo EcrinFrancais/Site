@@ -17,7 +17,8 @@ import './App.css';
 
 // Le configurateur embarque Three.js / React Three Fiber : on ne le charge
 // que lorsqu'on visite réellement la route, pour garder la page d'accueil légère.
-const ConfiguratorPage = lazy(() => import('./pages/ConfiguratorPage'));
+// ConfiguratorRouter aiguille lui-même vers la page vin ou bijouterie selon l'univers.
+const ConfiguratorRouter = lazy(() => import('./pages/ConfiguratorRouter'));
 
 export default function App() {
   const navigate = useNavigate();
@@ -38,7 +39,7 @@ export default function App() {
             path="/config/:universId"
             element={
               <Suspense fallback={<div className="configurator-loading">{t('loading.workshop')}</div>}>
-                <ConfiguratorPage univers={null} />
+                <ConfiguratorRouter />
               </Suspense>
             }
           />

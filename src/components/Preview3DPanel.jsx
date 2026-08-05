@@ -12,6 +12,7 @@ export default function Preview3DPanel({
   finition,
   couleurLaque,
   couleurVelours,
+  cales,
   isOpen,
   fermeture,
   gravureType,
@@ -70,6 +71,7 @@ export default function Preview3DPanel({
               finition={finition}
               couleurLaque={couleurLaque}
               couleurVelours={couleurVelours}
+              cales={cales}
               isOpen={isOpen}
               fermeture={fermeture}
               gravureType={gravureType}

@@ -45,6 +45,27 @@ const fonts = {
     'https://fonts.gstatic.com/s/greatvibes/v14/RWmMoKWR9v4ksMfaWd_JN9XliaO6.woff',
 };
 
+// Silhouette d'une cale de calage : un bloc qui épouse le contour circulaire
+// de la bouteille (vu du dessus) sans former un anneau fermé. L'ouverture est
+// un couloir à parois verticales, tangentes au cercle (donc large exactement
+// du diamètre de la bouteille à cet endroit), afin que la bouteille puisse
+// réellement y glisser sans toucher la cale.
+function buildCaleShape({ halfWidth, zBack, zFront, radius }) {
+  const shape = new THREE.Shape();
+  shape.moveTo(-halfWidth, zFront);
+  shape.lineTo(-radius, zFront);
+  shape.lineTo(-radius, 0);
+  // Demi-cercle arrière (le "C") : tout le tour sauf l'ouverture avant.
+  shape.absarc(0, 0, radius, Math.PI, 0, false);
+  shape.lineTo(radius, zFront);
+  shape.lineTo(halfWidth, zFront);
+  shape.lineTo(halfWidth, zBack);
+  shape.lineTo(-halfWidth, zBack);
+  shape.closePath();
+
+  return shape;
+}
+
 // --- LE MOTEUR 3D : CRÉATION DU COFFRET ---
 export function Coffret3D({
   taille,
@@ -53,6 +74,7 @@ export function Coffret3D({
   finition,
   couleurLaque,
   couleurVelours,
+  cales,
   isOpen,
   gravureType,
   texteGravure,
@@ -160,6 +182,17 @@ export function Coffret3D({
     : woodTexture
     ? woodTints[essence] || '#a67b5b'
     : '#a67b5b';
+
+  // Les teintes de velours sont choisies par nom (voir vinsConfig.veloursColors) ;
+  // Three.js ne comprend pas ces libellés français, il faut les convertir en hex.
+  const veloursColorHex = {
+    Grenat: '#6e0f1f',
+    Émeraude: '#0b6e4f',
+    'Bleu royal': '#1e3a8a',
+    Anthracite: '#2b2b2e',
+    Ivoire: '#f1e9d2',
+  };
+  const resolvedVelvetColor = veloursColorHex[couleurVelours] || couleurVelours;
 
   const woodMaterialProps = {
     key: `${essence}-${textureAAppliquer ? textureAAppliquer.uuid : 'sans-texture'}`,
@@ -282,6 +315,9 @@ export function Coffret3D({
     innerHeight * 0.9 * 0.135,
     (W - 2 * T) * 0.4
   );
+  // Rayon du col (fraction du rayon du corps), réutilisé aussi pour caler la
+  // cale de calage sous le goulot.
+  const neckRadiusFrac = 0.27;
   // Profil [rayon relatif, hauteur relative] du fond au goulot, révolutionné
   // en LatheGeometry. Contrairement à une bordelaise (épaule haute et
   // anguleuse), la bourguignonne a une pente longue, continue et lissée
@@ -305,7 +341,6 @@ export function Coffret3D({
     // Épaule bourguignonne : longue pente continue et lissée
     const shoulderStart = 0.56;
     const shoulderEnd = 0.87;
-    const neckRadiusFrac = 0.27;
     const shoulderSteps = 10;
     for (let i = 1; i <= shoulderSteps; i += 1) {
       const t = i / shoulderSteps;
@@ -324,9 +359,51 @@ export function Coffret3D({
     addPoint(0.0, 1.0);
 
     return points;
-  }, [bottleGlassRadius, bottleHeight]);
+  }, [bottleGlassRadius, bottleHeight, neckRadiusFrac]);
   // Centrée verticalement par rapport au coffret (et non posée sur le fond).
   const bottleBottomY = -bottleHeight / 2;
+
+  // --- CALES EN BOIS : maintiennent la bouteille sous le goulot et en pied ---
+  // Chaque cale est un bloc de la largeur intérieure du coffret, percé d'un
+  // trou qui épouse le rayon de la bouteille à cette hauteur, mais laissé
+  // ouvert sur l'avant pour pouvoir y glisser la bouteille latéralement.
+  const caleHalfWidth = W / 2 - T;
+  const caleZBack = -BD / 2 + T;
+  const caleZFront = BD / 2 - LD / 2 - 0.01;
+  const caleClearance = 0.015;
+  const caleThickness = Math.max(0.05, bottleHeight * 0.05);
+
+  const neckCaleCenterY = bottleBottomY + bottleHeight * 0.9;
+  const neckCaleRadius = neckRadiusFrac * bottleGlassRadius + caleClearance;
+  const baseCaleCenterY = bottleBottomY + bottleHeight * 0.15;
+  const baseCaleRadius = bottleGlassRadius + caleClearance;
+
+  const caleExtrudeSettings = useMemo(
+    () => ({ depth: caleThickness, bevelEnabled: false, curveSegments: 32 }),
+    [caleThickness]
+  );
+
+  const neckCaleShape = useMemo(
+    () =>
+      buildCaleShape({
+        halfWidth: caleHalfWidth,
+        zBack: caleZBack,
+        zFront: caleZFront,
+        radius: neckCaleRadius,
+      }),
+    [caleHalfWidth, caleZBack, caleZFront, neckCaleRadius]
+  );
+
+  const baseCaleShape = useMemo(
+    () =>
+      buildCaleShape({
+        halfWidth: caleHalfWidth,
+        zBack: caleZBack,
+        zFront: caleZFront,
+        radius: baseCaleRadius,
+      }),
+    [caleHalfWidth, caleZBack, caleZFront, baseCaleRadius]
+  );
 
   // Étiquette enroulée sur ~95% du tour du corps, centrée côté face avant
   // (theta=0 pointe vers +z avec cette paramétrisation de cylindre).
@@ -372,14 +449,59 @@ export function Coffret3D({
           <meshStandardMaterial {...woodMaterialProps} />
         </mesh>
 
-        <mesh position={[0, 0, -BD / 2 + T + 0.005]}>
-          <boxGeometry args={[W - 2 * T - 0.02, H - 2 * T - 0.02, 0.01]} />
-          <meshStandardMaterial
-            color={couleurVelours}
-            roughness={0.9}
-            metalness={0.1}
-          />
-        </mesh>
+        {cales === 'Velours' && (
+          <>
+            {/* Doublure de velours sur l'ensemble des faces intérieures du
+                coffret (fond, côtés, dessus, dessous), pour donner
+                l'impression que la bouteille repose entièrement sur du
+                velours de cette couleur. */}
+            <mesh position={[0, 0, -BD / 2 + T + 0.005]}>
+              <boxGeometry args={[W - 2 * T - 0.02, innerHeight - 0.02, 0.01]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[-W / 2 + T + 0.005, 0, T / 2]} rotation={[0, Math.PI / 2, 0]}>
+              <boxGeometry args={[BD - T - 0.02, innerHeight - 0.02, 0.01]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[W / 2 - T - 0.005, 0, T / 2]} rotation={[0, Math.PI / 2, 0]}>
+              <boxGeometry args={[BD - T - 0.02, innerHeight - 0.02, 0.01]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[0, -H / 2 + T + 0.005, T / 2]} rotation={[Math.PI / 2, 0, 0]}>
+              <boxGeometry args={[W - 2 * T - 0.02, BD - T - 0.02, 0.01]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+            </mesh>
+            <mesh position={[0, H / 2 - T - 0.005, T / 2]} rotation={[Math.PI / 2, 0, 0]}>
+              <boxGeometry args={[W - 2 * T - 0.02, BD - T - 0.02, 0.01]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+            </mesh>
+          </>
+        )}
+
+        {cales === 'Bois' && (
+          <>
+            {/* Cale sous le goulot */}
+            <mesh
+              position={[0, neckCaleCenterY + caleThickness / 2, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+            >
+              <extrudeGeometry args={[neckCaleShape, caleExtrudeSettings]} />
+              <meshStandardMaterial {...woodMaterialProps} side={THREE.DoubleSide} />
+            </mesh>
+            {/* Cale en pied de bouteille */}
+            <mesh
+              position={[0, baseCaleCenterY + caleThickness / 2, 0]}
+              rotation={[Math.PI / 2, 0, 0]}
+              castShadow
+              receiveShadow
+            >
+              <extrudeGeometry args={[baseCaleShape, caleExtrudeSettings]} />
+              <meshStandardMaterial {...woodMaterialProps} side={THREE.DoubleSide} />
+            </mesh>
+          </>
+        )}
 
         {/* ✅ BOUTEILLE DANS LE COFFRET */}
         {/* Verre 3D (silhouette bourguignonne) : donne du volume sous tous
@@ -427,6 +549,12 @@ export function Coffret3D({
           <mesh position={[W / 2, 0, LD / 2]} castShadow>
             <boxGeometry args={[W, H, LD]} />
             <meshStandardMaterial {...woodMaterialProps} />
+            {cales === 'Velours' && (
+              <mesh position={[0, 0, -LD / 2 - 0.005]}>
+                <boxGeometry args={[W - 0.02, H - 0.02, 0.01]} />
+                <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.1} />
+              </mesh>
+            )}
             {isLatch && (
               <mesh position={[W / 2 + 0.012, 0, 0]}>
                 <boxGeometry args={[0.025, 0.14, Math.min(0.06, LD * 0.8)]} />
@@ -510,6 +638,7 @@ export default function ConfiguratorPage({ univers }) {
     );
   }, [incomingDraft, resolvedUnivers]);
 
+  const [name, setName] = useState(initialConfiguration.name || '');
   const [taille, setTaille] = useState(initialConfiguration.values.taille);
   const [mesures, setMesures] = useState(initialConfiguration.values.mesures);
   const [essence, setEssence] = useState(initialConfiguration.values.essence);
@@ -543,14 +672,18 @@ export default function ConfiguratorPage({ univers }) {
 
   const configuration = React.useMemo(
     () =>
-      buildConfigurationSnapshot(initialConfiguration, {
-        taille,
-        mesures,
-        essence,
-        finition,
-        quantite,
-      }),
-    [initialConfiguration, taille, mesures, essence, finition, quantite]
+      buildConfigurationSnapshot(
+        initialConfiguration,
+        {
+          taille,
+          mesures,
+          essence,
+          finition,
+          quantite,
+        },
+        { name }
+      ),
+    [initialConfiguration, taille, mesures, essence, finition, quantite, name]
   );
   const quote = React.useMemo(
     () => calculateConfigurationQuote(configuration),
@@ -589,6 +722,8 @@ export default function ConfiguratorPage({ univers }) {
     <div style={styles.pageContainer}>
       <ConfigurationPanel
         styles={styles}
+        name={name}
+        setName={setName}
         taille={taille}
         setTaille={setTaille}
         mesures={mesures}
@@ -641,6 +776,7 @@ export default function ConfiguratorPage({ univers }) {
         finition={finition}
         couleurLaque={couleurLaque}
         couleurVelours={couleurVelours}
+        cales={cales}
         isOpen={isOpen}
         fermeture={fermeture}
         gravureType={gravureType}

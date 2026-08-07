@@ -43,6 +43,11 @@
   "footerHint": "Select your materials, finishes and engraving to create your bespoke case.",
   "addToCart": "Add to Cart",
   "sending": "Sending...",
+  "saveDraft": "Save as draft",
+  "savingDraft": "Saving...",
+  "draftSaved": "Saved ✓",
+  "saveDraftNamePrompt": "Give this project a name so you can find it again more easily:",
+  "unsavedChangesConfirm": "This project hasn't been saved yet. Would you like to save it as a draft before continuing?",
   "openBox": "Open the case",
   "closeBox": "Close the case",
   "tailles": {

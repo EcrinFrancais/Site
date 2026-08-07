@@ -35,8 +35,6 @@ export default function ConfigurationPanel({
   setPosY,
   quantite,
   setQuantite,
-  viewSize,
-  setViewSize,
   texteGravure,
   setTexteGravure,
   modeGravure,
@@ -46,6 +44,8 @@ export default function ConfigurationPanel({
   vinsConfig,
   onOrder,
   orderPending,
+  onSaveDraft,
+  draftSaveState,
   title,
 }) {
   const { t } = useTranslation('configurator');
@@ -432,30 +432,7 @@ export default function ConfigurationPanel({
             <div style={styles.summaryLabel}>{t('labels.estimate')}</div>
             <div style={styles.summaryValue}>{quote.totalTTC} € TTC</div>
           </div>
-          <div style={{ marginLeft: 'auto' }}>
-            <div style={styles.summaryLabel}>{t('labels.preview3d')}</div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              {['petit', 'moyen', 'grand'].map((value) => (
-                <button
-                  key={value}
-                  onClick={() => setViewSize(value)}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '999px',
-                    border: viewSize === value ? '1px solid #d4af37' : '1px solid rgba(255,255,255,0.15)',
-                    background: viewSize === value ? 'rgba(212, 175, 55, 0.16)' : 'transparent',
-                    color: '#f7efe3',
-                    cursor: 'pointer',
-                    textTransform: 'capitalize',
-                    fontSize: '0.78rem',
-                  }}
-                >
-                  {t(`viewSize.${value}`, value)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
             <label style={styles.summaryLabel}>{t('labels.qty')}</label>
             <input
               type="number"
@@ -476,13 +453,24 @@ export default function ConfigurationPanel({
           <div style={{ color: '#d4af37', fontSize: '0.9rem' }}>
             {t('footerHint')}
           </div>
-          <button
-            style={{ ...styles.orderButton, opacity: orderPending ? 0.6 : 1, cursor: orderPending ? 'not-allowed' : 'pointer' }}
-            onClick={onOrder}
-            disabled={orderPending}
-          >
-            {orderPending ? t('sending') : t('addToCart')}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              style={{ ...styles.secondaryButton, opacity: draftSaveState === 'saving' ? 0.6 : 1 }}
+              onClick={onSaveDraft}
+              disabled={draftSaveState === 'saving'}
+            >
+              {draftSaveState === 'saving' && t('savingDraft')}
+              {draftSaveState === 'saved' && t('draftSaved')}
+              {draftSaveState === 'idle' && t('saveDraft')}
+            </button>
+            <button
+              style={{ ...styles.orderButton, opacity: orderPending ? 0.6 : 1, cursor: orderPending ? 'not-allowed' : 'pointer' }}
+              onClick={onOrder}
+              disabled={orderPending}
+            >
+              {orderPending ? t('sending') : t('addToCart')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

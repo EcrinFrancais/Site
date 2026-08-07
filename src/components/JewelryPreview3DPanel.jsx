@@ -23,11 +23,27 @@ export default function JewelryPreview3DPanel({
   posX,
   posY,
   viewSize,
+  setViewSize,
+  dims,
   setIsOpen,
 }) {
   const { t } = useTranslation('configurator');
   return (
     <div style={styles.rightPanel3D}>
+      <div style={styles.viewSizeGroup}>
+        {['petit', 'moyen', 'grand'].map((value) => (
+          <button
+            key={value}
+            onClick={() => setViewSize(value)}
+            style={{
+              ...styles.viewSizeButton,
+              ...(viewSize === value ? styles.viewSizeButtonActive : null),
+            }}
+          >
+            {t(`viewSize.${value}`, value)}
+          </button>
+        ))}
+      </div>
       <button onClick={() => setIsOpen(!isOpen)} style={styles.openButton}>
         {isOpen ? t('closeBox') : t('openBox')}
       </button>
@@ -52,6 +68,8 @@ export default function JewelryPreview3DPanel({
             shadow-mapSize-height={2048}
           />
           <pointLight position={[0, 2, 3]} intensity={0.5} />
+          {/* Lumière chaude d'appoint pour faire ressortir les reflets dorés des bijoux */}
+          <pointLight position={[-2.4, 2.2, 2.6]} intensity={0.7} color="#ffe3ad" />
           <Suspense
             fallback={
               <group>
@@ -80,6 +98,7 @@ export default function JewelryPreview3DPanel({
               posX={posX}
               posY={posY}
               viewSize={viewSize}
+              dims={dims}
             />
             <ContactShadows
               position={[0, -2, 0]}

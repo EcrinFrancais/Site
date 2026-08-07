@@ -50,7 +50,17 @@ const fonts = {
   Script: 'https://fonts.gstatic.com/s/greatvibes/v14/RWmMoKWR9v4ksMfaWd_JN9XliaO6.woff',
 };
 
-const metalMaterialProps = { color: '#d9b45c', metalness: 0.9, roughness: 0.18 };
+// Or plus saturé et plus brillant qu'un doré terne : couleur plus chaude,
+// moins de metalness pure (qui assombrit sans environnement réfléchi) et une
+// légère émissivité pour que les bijoux restent bien visibles quel que soit
+// l'angle de vue.
+const metalMaterialProps = {
+  color: '#f5c542',
+  metalness: 0.85,
+  roughness: 0.1,
+  emissive: '#6b4400',
+  emissiveIntensity: 0.12,
+};
 const gemMaterialProps = {
   color: '#bfe3ff',
   roughness: 0.05,
@@ -59,6 +69,17 @@ const gemMaterialProps = {
   opacity: 0.9,
   transmission: 0.55,
   clearcoat: 0.6,
+};
+// Vitre du couvercle "à fenêtre" : plus claire et plus transparente qu'une
+// pierre, pour laisser deviner le bijou en dessous sans le déformer.
+const glassPaneMaterialProps = {
+  color: '#eef6ff',
+  roughness: 0.04,
+  metalness: 0,
+  transparent: true,
+  opacity: 0.4,
+  transmission: 0.92,
+  clearcoat: 1,
 };
 
 // Silhouette du coffret vue du dessus, centrée sur l'origine. `width` est
@@ -148,6 +169,7 @@ export function CoffretBijou3D({
   posX,
   posY,
   viewSize,
+  dims,
 }) {
   const [woodTexture, setWoodTexture] = useState(null);
   const [previousEssence, setPreviousEssence] = useState(essence);
@@ -203,11 +225,14 @@ export function CoffretBijou3D({
   const resolvedVelvetColor = veloursColorHex[couleurVelours] || couleurVelours;
 
   const sousTypeInfo = getSousType(famille, sousType);
-  const dims = sousTypeInfo?.dims || { L: 9, l: 9, h: 6 };
-  const W = dims.L / 10;
-  const D = dims.l / 10;
-  const H = dims.h / 10;
+  const effectiveDims = dims || sousTypeInfo?.dims || { L: 9, l: 9, h: 6 };
+  const W = effectiveDims.L / 10;
+  const D = effectiveDims.l / 10;
+  const H = effectiveDims.h / 10;
   const T = 0.035;
+
+  const isDrawerCase = sousType === 'montre-tiroir';
+  const isWindowCase = sousType === 'montre-fenetre';
 
   const outerFootprint = useMemo(
     () => getFootprintShape(formeGenerale, W, D),
@@ -229,6 +254,20 @@ export function CoffretBijou3D({
     () => getFootprintShape(formeGenerale, Math.max(W - 0.02, 0.05), Math.max(D - 0.02, 0.05)),
     [formeGenerale, W, D]
   );
+  const frameThickness = Math.min(Math.max(Math.min(W, D) * 0.14, 0.06), 0.16);
+  const lidFrameShape = useMemo(
+    () => buildWallRingShape(formeGenerale, Math.max(W - 0.02, 0.05), Math.max(D - 0.02, 0.05), frameThickness),
+    [formeGenerale, W, D, frameThickness]
+  );
+  const lidGlassFootprint = useMemo(
+    () =>
+      getFootprintShape(
+        formeGenerale,
+        Math.max(W - 0.02 - 2 * frameThickness, 0.05),
+        Math.max(D - 0.02 - 2 * frameThickness, 0.05)
+      ),
+    [formeGenerale, W, D, frameThickness]
+  );
 
   const wallHeight = H - T;
   const wallExtrude = useMemo(() => ({ depth: wallHeight, bevelEnabled: false, curveSegments: 32 }), [wallHeight]);
@@ -239,12 +278,24 @@ export function CoffretBijou3D({
   const floorExtrude = useMemo(() => ({ depth: T, bevelEnabled: false, curveSegments: 32 }), [T]);
   const liningFloorExtrude = useMemo(() => ({ depth: 0.01, bevelEnabled: false, curveSegments: 32 }), []);
   const lidExtrude = useMemo(() => ({ depth: T, bevelEnabled: false, curveSegments: 32 }), [T]);
+  const glassExtrude = useMemo(
+    () => ({ depth: Math.max(T * 0.5, 0.008), bevelEnabled: false, curveSegments: 32 }),
+    [T]
+  );
 
   const lidRef = useRef();
   useFrame(() => {
     if (lidRef.current) {
-      const targetRotation = isOpen ? -2.1 : 0;
+      const targetRotation = !isDrawerCase && isOpen ? -2.1 : 0;
       lidRef.current.rotation.x = THREE.MathUtils.lerp(lidRef.current.rotation.x, targetRotation, 0.08);
+    }
+  });
+
+  const drawerRef = useRef();
+  useFrame(() => {
+    if (drawerRef.current) {
+      const targetZ = isDrawerCase && isOpen ? D * 0.48 : 0;
+      drawerRef.current.position.z = THREE.MathUtils.lerp(drawerRef.current.position.z, targetZ, 0.09);
     }
   });
 
@@ -260,6 +311,51 @@ export function CoffretBijou3D({
   const modelScale = { petit: 0.58, moyen: 0.72, grand: 0.86 }[viewSize] || 0.72;
 
   const cushionH = Math.max(H * 0.35, 0.06);
+
+  const lidEngraving = (
+    <>
+      {/* Le mesh parent (couvercle) applique déjà une rotation de +90° sur X
+          pour se coucher à plat (astuce d'extrusion partagée avec les parois/
+          cales) : les coordonnées locales ici sont donc (x=largeur, y=ce qui
+          deviendra la profondeur monde, z=léger décalage vertical), et il faut
+          une rotation supplémentaire de 180° sur X pour que le texte regarde
+          vers le haut une fois la rotation du parent appliquée. */}
+      {gravureType !== 'Aucune' && modeGravure === 'texte' && texteGravure && (
+        <Suspense fallback={null}>
+          <Text
+            font={fonts[fontStyle]}
+            position={[textPosX, textPosZ, -0.002]}
+            rotation={[Math.PI, 0, 0]}
+            fontSize={actualFontSize}
+            color={colorGravure}
+            anchorX="center"
+            anchorY="middle"
+            maxWidth={W - 0.05}
+            textAlign="center"
+            material-side={THREE.DoubleSide}
+            material-roughness={gravureType.includes('Laser') ? 0.9 : 0.2}
+            material-metalness={gravureType.includes('Laser') ? 0.1 : 0.8}
+          >
+            {texteGravure}
+          </Text>
+        </Suspense>
+      )}
+
+      {gravureType !== 'Aucune' && modeGravure === 'image' && logoTexture && (
+        <mesh position={[textPosX, textPosZ, -0.002]} rotation={[Math.PI, 0, 0]}>
+          <planeGeometry args={[actualImageScale, actualImageScale]} />
+          <meshStandardMaterial
+            map={logoTexture}
+            transparent={true}
+            color={colorGravure}
+            side={THREE.DoubleSide}
+            roughness={gravureType.includes('Laser') ? 0.9 : 0.2}
+            metalness={gravureType.includes('Laser') ? 0.1 : 0.8}
+          />
+        </mesh>
+      )}
+    </>
+  );
 
   return (
     <group scale={[modelScale, modelScale, modelScale]} position={[0, -(H + T) / 2 + 0.15, 0]}>
@@ -285,7 +381,7 @@ export function CoffretBijou3D({
 
       {/* AMÉNAGEMENT + BIJOU */}
       <group position={[0, T, 0]}>
-        {famille === 'bague' && (
+        {sousType === 'bague-coussinet' && (
           <>
             <mesh position={[0, cushionH / 2, 0]} castShadow receiveShadow>
               <boxGeometry args={[Math.min(W - 2 * T - 0.06, 0.5), cushionH, Math.min(D - 2 * T - 0.06, 0.5)]} />
@@ -295,18 +391,18 @@ export function CoffretBijou3D({
               <boxGeometry args={[0.32, 0.01, 0.03]} />
               <meshStandardMaterial color="#1a1a1a" roughness={0.9} />
             </mesh>
-            <mesh position={[0, cushionH + 0.045, 0]} rotation={[0.15, 0.3, 0]} castShadow>
-              <torusGeometry args={[0.09, 0.012, 16, 32]} />
+            <mesh position={[0, cushionH + 0.06, 0]} rotation={[0.15, 0.3, 0]} castShadow>
+              <torusGeometry args={[0.14, 0.02, 16, 32]} />
               <meshStandardMaterial {...metalMaterialProps} />
             </mesh>
-            <mesh position={[0, cushionH + 0.13, 0.01]}>
-              <octahedronGeometry args={[0.026, 0]} />
+            <mesh position={[0, cushionH + 0.17, 0.012]}>
+              <octahedronGeometry args={[0.044, 0]} />
               <meshPhysicalMaterial {...gemMaterialProps} />
             </mesh>
           </>
         )}
 
-        {famille === 'boucles' && (
+        {sousType === 'boucles-fentes' && (
           <>
             <mesh position={[0, 0.01, 0]} castShadow receiveShadow>
               <boxGeometry args={[Math.min(W - 2 * T - 0.06, 0.7), 0.02, Math.min(D - 2 * T - 0.06, 0.7)]} />
@@ -314,12 +410,12 @@ export function CoffretBijou3D({
             </mesh>
             {[-1, 1].map((side) => (
               <group key={side} position={[side * Math.min(W * 0.16, 0.14), 0.02, 0]}>
-                <mesh position={[0, 0.015, 0]} castShadow>
-                  <cylinderGeometry args={[0.006, 0.006, 0.03, 8]} />
+                <mesh position={[0, 0.02, 0]} castShadow>
+                  <cylinderGeometry args={[0.009, 0.009, 0.04, 8]} />
                   <meshStandardMaterial {...metalMaterialProps} />
                 </mesh>
-                <mesh position={[0, 0.035, 0]} castShadow>
-                  <sphereGeometry args={[0.02, 16, 16]} />
+                <mesh position={[0, 0.05, 0]} castShadow>
+                  <sphereGeometry args={[0.034, 16, 16]} />
                   <meshStandardMaterial {...metalMaterialProps} />
                 </mesh>
               </group>
@@ -327,52 +423,101 @@ export function CoffretBijou3D({
           </>
         )}
 
-        {famille === 'collier' && (
+        {sousType === 'boucles-coussinet-crochets' && (
+          <EarringHookCushionInsert W={W} D={D} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        )}
+
+        {sousType === 'boucles-plat-velours' && (
+          <EarringFlatVelvetInsert W={W} D={D} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        )}
+
+        {sousType === 'collier-allonge' && (
           <NecklaceInsert W={W} T={T} resolvedVelvetColor={resolvedVelvetColor} />
         )}
 
-        {famille === 'bracelet' && (
+        {sousType === 'collier-pendentif-seul' && (
+          <PendantOnlyInsert W={W} D={D} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        )}
+
+        {sousType === 'bracelet-allonge' && (
           <>
             <mesh position={[0, 0.045, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow receiveShadow>
               <torusGeometry args={[Math.min(W, D) / 2 - T - 0.06, 0.032, 12, 32, Math.PI]} />
               <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
             </mesh>
-            <mesh position={[0, 0.085, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[Math.min(W, D) / 2 - T - 0.06, 0.011, 12, 32, Math.PI]} />
+            <mesh position={[0, 0.09, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[Math.min(W, D) / 2 - T - 0.06, 0.018, 12, 32, Math.PI]} />
               <meshStandardMaterial {...metalMaterialProps} />
             </mesh>
           </>
         )}
 
-        {famille === 'montre' && (
+        {sousType === 'bracelet-manchette' && (
+          <CuffBraceletInsert W={W} D={D} H={H} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        )}
+
+        {sousType === 'montre-coussin' && (
           <>
             <mesh position={[0, cushionH / 2, 0]} castShadow receiveShadow>
               <cylinderGeometry args={[Math.min(W, D) / 2 - T - 0.08, Math.min(W, D) / 2 - T - 0.08, cushionH, 32]} />
               <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
             </mesh>
             <mesh position={[0, cushionH * 0.5, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-              <torusGeometry args={[Math.min(W, D) / 2 - T - 0.08, 0.02, 12, 32, Math.PI * 1.6]} />
-              <meshStandardMaterial {...metalMaterialProps} roughness={0.5} metalness={0.3} />
+              <torusGeometry args={[Math.min(W, D) / 2 - T - 0.08, 0.03, 12, 32, Math.PI * 1.6]} />
+              <meshStandardMaterial {...metalMaterialProps} roughness={0.4} metalness={0.6} />
             </mesh>
-            <mesh position={[0, cushionH + 0.014, 0]} castShadow>
-              <cylinderGeometry args={[0.06, 0.06, 0.025, 24]} />
+            {/* sangle élastique qui maintient le bracelet contre le coussin */}
+            <mesh position={[0, cushionH * 0.5, (Math.min(W, D) / 2 - T - 0.08) * 0.55]} castShadow>
+              <boxGeometry args={[0.05, cushionH * 0.94, 0.012]} />
+              <meshStandardMaterial color="#1a1a1a" roughness={0.85} />
+            </mesh>
+            <mesh position={[0, cushionH + 0.017, 0]} castShadow>
+              <cylinderGeometry args={[0.085, 0.085, 0.032, 24]} />
               <meshStandardMaterial {...metalMaterialProps} />
             </mesh>
-            <mesh position={[0, cushionH + 0.028, 0]}>
-              <cylinderGeometry args={[0.05, 0.05, 0.003, 24]} />
+            <mesh position={[0, cushionH + 0.036, 0]}>
+              <cylinderGeometry args={[0.072, 0.072, 0.004, 24]} />
               <meshStandardMaterial color="#f4f1ea" roughness={0.4} />
             </mesh>
           </>
         )}
 
-        {famille === 'parure' && (
+        {sousType === 'montre-socle-rigide' && (
+          <WatchStandInsert W={W} D={D} H={H} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        )}
+
+        {sousType === 'montre-fenetre' && (
+          <>
+            <mesh position={[0, cushionH / 2, 0]} castShadow receiveShadow>
+              <cylinderGeometry args={[Math.min(W, D) / 2 - T - 0.08, Math.min(W, D) / 2 - T - 0.08, cushionH, 32]} />
+              <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+            </mesh>
+            <mesh position={[0, cushionH * 0.5, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <torusGeometry args={[Math.min(W, D) / 2 - T - 0.08, 0.03, 12, 32, Math.PI * 1.6]} />
+              <meshStandardMaterial {...metalMaterialProps} roughness={0.4} metalness={0.6} />
+            </mesh>
+            <mesh position={[0, cushionH + 0.017, 0]} castShadow>
+              <cylinderGeometry args={[0.085, 0.085, 0.032, 24]} />
+              <meshStandardMaterial {...metalMaterialProps} />
+            </mesh>
+            <mesh position={[0, cushionH + 0.036, 0]}>
+              <cylinderGeometry args={[0.072, 0.072, 0.004, 24]} />
+              <meshStandardMaterial color="#f4f1ea" roughness={0.4} />
+            </mesh>
+          </>
+        )}
+
+        {/* Le contenu de l'écrin "tiroir" vit dans le tiroir coulissant
+            ci-dessous, pas dans cet aménagement fixe. */}
+
+        {sousType === 'parure-multi' && (
           <>
             <mesh position={[0, 0.02, -D * 0.16]} castShadow receiveShadow>
               <boxGeometry args={[W - 2 * T - 0.08, 0.03, D * 0.28]} />
               <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
             </mesh>
             <mesh position={[0, 0.05, -D * 0.16]} castShadow>
-              <torusGeometry args={[(W - 2 * T - 0.2) / 2, 0.006, 12, 32, Math.PI]} />
+              <torusGeometry args={[(W - 2 * T - 0.2) / 2, 0.009, 12, 32, Math.PI]} />
               <meshStandardMaterial {...metalMaterialProps} />
             </mesh>
 
@@ -381,16 +526,16 @@ export function CoffretBijou3D({
               <meshStandardMaterial color={resolvedVelvetColor} roughness={0.85} metalness={0.05} />
             </mesh>
             <mesh
-              position={[-W * 0.14, cushionH * 0.6 + 0.08, D * 0.2]}
+              position={[-W * 0.14, cushionH * 0.6 + 0.09, D * 0.2]}
               rotation={[0.15, 0.3, 0]}
               castShadow
             >
-              <torusGeometry args={[0.045, 0.007, 12, 24]} />
+              <torusGeometry args={[0.06, 0.011, 12, 24]} />
               <meshStandardMaterial {...metalMaterialProps} />
             </mesh>
             {[-1, 1].map((side) => (
-              <mesh key={side} position={[W * 0.1 + side * 0.045, cushionH * 0.6 + 0.06, D * 0.2]} castShadow>
-                <sphereGeometry args={[0.013, 12, 12]} />
+              <mesh key={side} position={[W * 0.1 + side * 0.06, cushionH * 0.6 + 0.07, D * 0.2]} castShadow>
+                <sphereGeometry args={[0.02, 12, 12]} />
                 <meshStandardMaterial {...metalMaterialProps} />
               </mesh>
             ))}
@@ -398,53 +543,34 @@ export function CoffretBijou3D({
         )}
       </group>
 
-      {/* COUVERCLE ANIMÉ : charnière arrière, s'ouvre comme un coffre */}
+      {isDrawerCase && (
+        <group ref={drawerRef} position={[0, T, 0]}>
+          <WatchDrawerContents W={W} D={D} T={T} resolvedVelvetColor={resolvedVelvetColor} />
+        </group>
+      )}
+
+      {/* COUVERCLE : charnière arrière (sauf tiroir, dont le couvercle reste
+          fixe puisque l'ouverture se fait par le tiroir coulissant) */}
       <group position={[0, H, -D / 2]} ref={lidRef}>
-        <mesh position={[0, T, D / 2]} rotation={[Math.PI / 2, 0, 0]} castShadow>
-          <extrudeGeometry args={[lidFootprint, lidExtrude]} />
-          <meshStandardMaterial {...woodMaterialProps} side={THREE.DoubleSide} />
-
-          {/* Le mesh parent (couvercle) applique déjà une rotation de +90° sur X
-              pour se coucher à plat (astuce d'extrusion partagée avec les parois/
-              cales) : les coordonnées locales ici sont donc (x=largeur, y=ce qui
-              deviendra la profondeur monde, z=léger décalage vertical), et il faut
-              une rotation supplémentaire de 180° sur X pour que le texte regarde
-              vers le haut une fois la rotation du parent appliquée. */}
-          {gravureType !== 'Aucune' && modeGravure === 'texte' && texteGravure && (
-            <Suspense fallback={null}>
-              <Text
-                font={fonts[fontStyle]}
-                position={[textPosX, textPosZ, -0.002]}
-                rotation={[Math.PI, 0, 0]}
-                fontSize={actualFontSize}
-                color={colorGravure}
-                anchorX="center"
-                anchorY="middle"
-                maxWidth={W - 0.05}
-                textAlign="center"
-                material-side={THREE.DoubleSide}
-                material-roughness={gravureType.includes('Laser') ? 0.9 : 0.2}
-                material-metalness={gravureType.includes('Laser') ? 0.1 : 0.8}
-              >
-                {texteGravure}
-              </Text>
-            </Suspense>
-          )}
-
-          {gravureType !== 'Aucune' && modeGravure === 'image' && logoTexture && (
-            <mesh position={[textPosX, textPosZ, -0.002]} rotation={[Math.PI, 0, 0]}>
-              <planeGeometry args={[actualImageScale, actualImageScale]} />
-              <meshStandardMaterial
-                map={logoTexture}
-                transparent={true}
-                color={colorGravure}
-                side={THREE.DoubleSide}
-                roughness={gravureType.includes('Laser') ? 0.9 : 0.2}
-                metalness={gravureType.includes('Laser') ? 0.1 : 0.8}
-              />
+        {isWindowCase ? (
+          <>
+            <mesh position={[0, T, D / 2]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+              <extrudeGeometry args={[lidFrameShape, lidExtrude]} />
+              <meshStandardMaterial {...woodMaterialProps} side={THREE.DoubleSide} />
+              {lidEngraving}
             </mesh>
-          )}
-        </mesh>
+            <mesh position={[0, T * 0.55, D / 2]} rotation={[Math.PI / 2, 0, 0]}>
+              <extrudeGeometry args={[lidGlassFootprint, glassExtrude]} />
+              <meshPhysicalMaterial {...glassPaneMaterialProps} side={THREE.DoubleSide} />
+            </mesh>
+          </>
+        ) : (
+          <mesh position={[0, T, D / 2]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <extrudeGeometry args={[lidFootprint, lidExtrude]} />
+            <meshStandardMaterial {...woodMaterialProps} side={THREE.DoubleSide} />
+            {lidEngraving}
+          </mesh>
+        )}
         <mesh position={[0, -0.006, D / 2]} rotation={[Math.PI / 2, 0, 0]}>
           <extrudeGeometry args={[lidFootprint, liningFloorExtrude]} />
           <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} side={THREE.DoubleSide} />
@@ -479,13 +605,213 @@ function NecklaceInsert({ W, T, resolvedVelvetColor }) {
         <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
       </mesh>
       <mesh castShadow>
-        <tubeGeometry args={[chainCurve, 64, 0.006, 8, false]} />
+        <tubeGeometry args={[chainCurve, 64, 0.009, 8, false]} />
         <meshStandardMaterial {...metalMaterialProps} />
       </mesh>
       <mesh position={[0, ridgeH - 0.055, 0.015]} castShadow>
-        <octahedronGeometry args={[0.035, 0]} />
+        <octahedronGeometry args={[0.055, 0]} />
         <meshPhysicalMaterial {...gemMaterialProps} />
       </mesh>
     </>
+  );
+}
+
+// Écrin à pendentif seul : la chaîne repose enroulée en spirale au fond de
+// l'écrin, le pendentif est présenté debout sur une petite tige centrale.
+function PendantOnlyInsert({ W, D, T, resolvedVelvetColor }) {
+  const standH = 0.09;
+  const spiralCurve = useMemo(() => {
+    const pts = [];
+    const turns = 2.4;
+    const steps = 48;
+    for (let i = 0; i <= steps; i += 1) {
+      const t = i / steps;
+      const angle = t * Math.PI * 2 * turns;
+      const r = 0.02 + t * Math.min(W, D) * 0.15;
+      pts.push(new THREE.Vector3(Math.cos(angle) * r, 0.006, Math.sin(angle) * r));
+    }
+    return new THREE.CatmullRomCurve3(pts);
+  }, [W, D]);
+
+  return (
+    <>
+      <mesh position={[0, 0.01, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[Math.min(W, D) / 2 - T - 0.06, Math.min(W, D) / 2 - T - 0.06, 0.02, 32]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      <mesh castShadow>
+        <tubeGeometry args={[spiralCurve, 96, 0.007, 8, false]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+      <mesh position={[0, standH / 2, 0]} castShadow>
+        <cylinderGeometry args={[0.004, 0.004, standH, 8]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+      <mesh position={[0, standH + 0.01, 0]} rotation={[0.1, 0.2, 0]} castShadow>
+        <torusGeometry args={[0.024, 0.005, 12, 24]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+      <mesh position={[0, standH - 0.03, 0]} castShadow>
+        <octahedronGeometry args={[0.045, 0]} />
+        <meshPhysicalMaterial {...gemMaterialProps} />
+      </mesh>
+    </>
+  );
+}
+
+// Boucles pendantes suspendues à des petits crochets métalliques sur une
+// tige, pour qu'elles ne touchent jamais le coussin et ne se déforment pas.
+function EarringHookCushionInsert({ W, D, T, resolvedVelvetColor }) {
+  const ridgeH = 0.045;
+  const postH = 0.11;
+  const hookSpan = Math.min(W * 0.2, 0.17);
+
+  return (
+    <>
+      <mesh position={[0, ridgeH / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[Math.min(W - 2 * T - 0.06, 0.7), ridgeH, Math.min(D - 2 * T - 0.06, 0.45)]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * hookSpan, ridgeH, 0]}>
+          <mesh position={[0, postH / 2, 0]} castShadow>
+            <cylinderGeometry args={[0.005, 0.005, postH, 8]} />
+            <meshStandardMaterial {...metalMaterialProps} />
+          </mesh>
+          <mesh position={[0, postH, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+            <torusGeometry args={[0.018, 0.004, 8, 16, Math.PI * 1.4]} />
+            <meshStandardMaterial {...metalMaterialProps} />
+          </mesh>
+          <mesh position={[0, postH - 0.028, 0]} castShadow>
+            <torusGeometry args={[0.022, 0.006, 12, 24]} />
+            <meshStandardMaterial {...metalMaterialProps} />
+          </mesh>
+          <mesh position={[0, postH - 0.062, 0]} castShadow>
+            <octahedronGeometry args={[0.03, 0]} />
+            <meshPhysicalMaterial {...gemMaterialProps} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+}
+
+// Support plat simple : puces ou clips posés à plat, sans tige verticale.
+function EarringFlatVelvetInsert({ W, D, T, resolvedVelvetColor }) {
+  const discR = 0.045;
+  return (
+    <>
+      <mesh position={[0, 0.008, 0]} castShadow receiveShadow>
+        <boxGeometry args={[Math.min(W - 2 * T - 0.06, 0.75), 0.016, Math.min(D - 2 * T - 0.06, 0.55)]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      {[-1, 1].map((side) => (
+        <group key={side} position={[side * Math.min(W * 0.16, 0.15), 0.017, 0]} rotation={[Math.PI / 2, 0, 0]}>
+          <mesh castShadow>
+            <cylinderGeometry args={[discR, discR, 0.01, 32]} />
+            <meshStandardMaterial {...metalMaterialProps} />
+          </mesh>
+          <mesh position={[0, 0, 0.008]}>
+            <cylinderGeometry args={[discR * 0.55, discR * 0.55, 0.004, 32]} />
+            <meshPhysicalMaterial {...gemMaterialProps} />
+          </mesh>
+        </group>
+      ))}
+    </>
+  );
+}
+
+// Manchette rigide : l'anneau ouvert reste debout, enroulé autour d'un socle
+// capitonné, pour conserver sa forme (contrairement au bracelet souple posé
+// à plat de l'écrin allongé horizontal).
+function CuffBraceletInsert({ W, D, H, T, resolvedVelvetColor }) {
+  const cuffR = Math.min(W, D) / 2 - T - 0.09;
+  const standH = Math.max(H * 0.4, 0.09);
+  return (
+    <>
+      <mesh position={[0, 0.012, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[cuffR + 0.05, cuffR + 0.06, 0.024, 32]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, standH / 2 + 0.02, 0]} castShadow>
+        <cylinderGeometry args={[0.03, 0.036, standH, 24]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.85} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, standH + 0.02, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[cuffR, 0.026, 16, 40, Math.PI * 1.75]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+    </>
+  );
+}
+
+// Socle rigide (montre) : la montre s'enroule debout autour d'un pied
+// capitonné massif, à la différence du coussin fixe posé à plat.
+function WatchStandInsert({ W, D, H, T, resolvedVelvetColor }) {
+  const standR = Math.min(W, D) * 0.09;
+  const standH = Math.max(H * 0.55, 0.13);
+  const bandR = Math.min(W, D) / 2 - T - 0.1;
+  return (
+    <>
+      <mesh position={[0, 0.01, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[Math.min(W, D) / 2 - T - 0.07, Math.min(W, D) / 2 - T - 0.07, 0.02, 32]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, standH / 2 + 0.02, 0]} castShadow>
+        <cylinderGeometry args={[standR, standR * 1.15, standH, 24]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.85} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, standH * 0.62, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[bandR * 0.55, 0.024, 14, 32, Math.PI * 1.7]} />
+        <meshStandardMaterial {...metalMaterialProps} roughness={0.35} metalness={0.65} />
+      </mesh>
+      <mesh position={[0, standH + 0.02, 0]} castShadow>
+        <cylinderGeometry args={[0.075, 0.075, 0.03, 32]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+      <mesh position={[0, standH + 0.038, 0]}>
+        <cylinderGeometry args={[0.062, 0.062, 0.004, 32]} />
+        <meshStandardMaterial color="#f4f1ea" roughness={0.35} />
+      </mesh>
+    </>
+  );
+}
+
+// Contenu du tiroir capitonné qui glisse hors de l'écrin "coulissant" — la
+// montre repose sur un petit coussin bas, façade dorée visible côté avant.
+function WatchDrawerContents({ W, D, T, resolvedVelvetColor }) {
+  const trayW = Math.max(W - 2 * T - 0.12, 0.2);
+  const trayD = Math.max(D * 0.62, 0.16);
+  const trayWallH = 0.045;
+  const cushionH = 0.05;
+  const bandR = Math.max(Math.min(trayW, trayD) / 2 - 0.05, 0.05);
+  return (
+    <group>
+      <mesh position={[0, trayWallH / 2, 0]} castShadow receiveShadow>
+        <boxGeometry args={[trayW, trayWallH, trayD]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.9} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, trayWallH + cushionH / 2, 0]} castShadow receiveShadow>
+        <cylinderGeometry args={[bandR - 0.02, bandR - 0.02, cushionH, 32]} />
+        <meshStandardMaterial color={resolvedVelvetColor} roughness={0.88} metalness={0.05} />
+      </mesh>
+      <mesh position={[0, trayWallH + cushionH * 0.55, 0]} rotation={[Math.PI / 2, 0, 0]} castShadow>
+        <torusGeometry args={[bandR, 0.02, 12, 32, Math.PI * 1.6]} />
+        <meshStandardMaterial {...metalMaterialProps} roughness={0.35} metalness={0.65} />
+      </mesh>
+      <mesh position={[0, trayWallH + cushionH + 0.014, 0]} castShadow>
+        <cylinderGeometry args={[0.065, 0.065, 0.026, 24]} />
+        <meshStandardMaterial {...metalMaterialProps} />
+      </mesh>
+      <mesh position={[0, trayWallH + cushionH + 0.03, 0]}>
+        <cylinderGeometry args={[0.054, 0.054, 0.003, 24]} />
+        <meshStandardMaterial color="#f4f1ea" roughness={0.4} />
+      </mesh>
+      {/* façade dorée du tiroir, visible de face une fois le tiroir refermé */}
+      <mesh position={[0, trayWallH * 1.5, trayD / 2 + 0.006]} castShadow>
+        <boxGeometry args={[trayW * 0.9, trayWallH * 1.6, 0.012]} />
+        <meshStandardMaterial {...metalMaterialProps} roughness={0.3} />
+      </mesh>
+    </group>
   );
 }

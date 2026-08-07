@@ -14,5 +14,6 @@
   "language": {
     "fr": "FR",
     "en": "EN"
-  }
+  },
+  "unsavedChangesConfirm": "This project hasn't been saved yet. Would you like to save it as a draft before continuing?"
 }

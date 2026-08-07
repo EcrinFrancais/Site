@@ -13,6 +13,7 @@ import ContactPage from './pages/ContactPage';
 import ProtectedRoute from './components/ProtectedRoute';
 import Header from './components/Header';
 import { AuthProvider } from './context/AuthContext';
+import { UnsavedChangesProvider } from './context/UnsavedChangesContext';
 import './App.css';
 
 // Le configurateur embarque Three.js / React Three Fiber : on ne le charge
@@ -26,46 +27,48 @@ export default function App() {
 
   return (
     <AuthProvider>
-      <div className="app">
-        <Header />
-        <Routes>
-          <Route path="/" element={<HomePage onStart={() => navigate('/auth')} />} />
-          <Route path="/auth" element={<AuthPage onStart={() => navigate('/univers')} />} />
-          <Route
-            path="/univers"
-            element={<ChoixUnivers onSelectUnivers={(id) => navigate(`/config/${id}`)} />}
-          />
-          <Route
-            path="/config/:universId"
-            element={
-              <Suspense fallback={<div className="configurator-loading">{t('loading.workshop')}</div>}>
-                <ConfiguratorRouter />
-              </Suspense>
-            }
-          />
-          <Route
-            path="/client"
-            element={
-              <ProtectedRoute>
-                <ClientSpacePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route
-            path="/profil"
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            }
-          />
-          <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
-          <Route path="/a-propos" element={<AboutPage />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/commande" element={<OrderSummaryPage />} />
-          <Route path="*" element={<Navigate to="/" replace />} />
-        </Routes>
-      </div>
+      <UnsavedChangesProvider>
+        <div className="app">
+          <Header />
+          <Routes>
+            <Route path="/" element={<HomePage onStart={() => navigate('/auth')} />} />
+            <Route path="/auth" element={<AuthPage onStart={() => navigate('/univers')} />} />
+            <Route
+              path="/univers"
+              element={<ChoixUnivers onSelectUnivers={(id) => navigate(`/config/${id}`)} />}
+            />
+            <Route
+              path="/config/:universId"
+              element={
+                <Suspense fallback={<div className="configurator-loading">{t('loading.workshop')}</div>}>
+                  <ConfiguratorRouter />
+                </Suspense>
+              }
+            />
+            <Route
+              path="/client"
+              element={
+                <ProtectedRoute>
+                  <ClientSpacePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route
+              path="/profil"
+              element={
+                <ProtectedRoute>
+                  <ProfilePage />
+                </ProtectedRoute>
+              }
+            />
+            <Route path="/mentions-legales" element={<MentionsLegalesPage />} />
+            <Route path="/a-propos" element={<AboutPage />} />
+            <Route path="/contact" element={<ContactPage />} />
+            <Route path="/commande" element={<OrderSummaryPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
+      </UnsavedChangesProvider>
     </AuthProvider>
   );
 }

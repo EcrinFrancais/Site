@@ -25,11 +25,26 @@ export default function Preview3DPanel({
   posX,
   posY,
   viewSize,
+  setViewSize,
   setIsOpen,
 }) {
   const { t } = useTranslation('configurator');
   return (
     <div style={styles.rightPanel3D}>
+      <div style={styles.viewSizeGroup}>
+        {['petit', 'moyen', 'grand'].map((value) => (
+          <button
+            key={value}
+            onClick={() => setViewSize(value)}
+            style={{
+              ...styles.viewSizeButton,
+              ...(viewSize === value ? styles.viewSizeButtonActive : null),
+            }}
+          >
+            {t(`viewSize.${value}`, value)}
+          </button>
+        ))}
+      </div>
       <button onClick={() => setIsOpen(!isOpen)} style={styles.openButton}>
         {isOpen ? t('closeBox') : t('openBox')}
       </button>

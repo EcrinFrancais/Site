@@ -1,13 +1,18 @@
 {
   "sections": {
     "type": "Type d'écrin",
-    "materiau": "Matériau & doublure"
+    "materiau": "Matériau & doublure",
+    "dimensions": "Dimensions du coffret"
   },
   "labels": {
     "famille": "Famille de bijou",
     "sousType": "Modèle d'écrin",
     "formeGenerale": "Forme générale",
-    "doublure": "Couleur de la doublure"
+    "doublure": "Couleur de la doublure",
+    "longueur": "Longueur",
+    "largeur": "Largeur",
+    "hauteur": "Hauteur",
+    "lockProportions": "Conserver les proportions"
   },
   "familles": {
     "bague": "Bague",
@@ -20,10 +25,17 @@
   "sousTypes": {
     "bague-coussinet": "Écrin classique à coussinet",
     "boucles-fentes": "Écrin à fentes",
+    "boucles-coussinet-crochets": "Écrin à coussinet avec crochets",
+    "boucles-plat-velours": "Écrin plat velours",
     "collier-allonge": "Écrin allongé rectangulaire",
+    "collier-pendentif-seul": "Écrin à pendentif seul",
     "bracelet-allonge": "Écrin allongé horizontal",
+    "bracelet-manchette": "Écrin à bracelet rigide / manchette",
     "parure-multi": "Écrin multi-niveaux",
-    "montre-coussin": "Écrin à coussin fixe"
+    "montre-coussin": "Écrin à coussin fixe",
+    "montre-socle-rigide": "Écrin à socle rigide",
+    "montre-tiroir": "Écrin coulissant / tiroir",
+    "montre-fenetre": "Écrin à fenêtre"
   },
   "formesGenerales": {
     "rectangulaire": "Carré / rectangulaire classique",

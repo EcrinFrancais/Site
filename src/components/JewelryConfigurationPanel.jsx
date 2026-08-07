@@ -18,6 +18,11 @@ export default function JewelryConfigurationPanel({
   setFinition,
   couleurVelours,
   setCouleurVelours,
+  dims,
+  dimsRange,
+  onDimChange,
+  lockProportions,
+  setLockProportions,
   gravureType,
   setGravureType,
   fontStyle,
@@ -32,8 +37,6 @@ export default function JewelryConfigurationPanel({
   setPosY,
   quantite,
   setQuantite,
-  viewSize,
-  setViewSize,
   texteGravure,
   setTexteGravure,
   modeGravure,
@@ -42,6 +45,8 @@ export default function JewelryConfigurationPanel({
   quote,
   onOrder,
   orderPending,
+  onSaveDraft,
+  draftSaveState,
   title,
 }) {
   const { t } = useTranslation(['jewelryConfigurator', 'configurator']);
@@ -119,6 +124,62 @@ export default function JewelryConfigurationPanel({
                 ))}
               </select>
             </div>
+          </div>
+        </div>
+
+        <div style={styles.sectionCard}>
+          <div style={styles.sectionHeader}>
+            <div>
+              <h2 style={styles.sectionTitle}>{t('sections.dimensions')}</h2>
+            </div>
+            <label
+              style={{
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                fontSize: '0.72rem',
+                letterSpacing: '0.5px',
+                color: '#c7a75b',
+                cursor: 'pointer',
+              }}
+            >
+              <input
+                type="checkbox"
+                checked={lockProportions}
+                onChange={(e) => setLockProportions(e.target.checked)}
+                style={{ accentColor: '#d4af37', width: '15px', height: '15px', cursor: 'pointer' }}
+              />
+              {t('labels.lockProportions')}
+            </label>
+          </div>
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
+            {[
+              { axis: 'L', label: t('labels.longueur') },
+              { axis: 'l', label: t('labels.largeur') },
+              { axis: 'h', label: t('labels.hauteur') },
+            ].map(({ axis, label }) => {
+              const range = dimsRange[axis];
+              const value = dims[axis];
+              const fillPct = ((value - range.min) / (range.max - range.min)) * 100;
+              return (
+                <div key={axis}>
+                  <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '6px' }}>
+                    <label style={{ ...styles.label, marginBottom: 0 }}>{label}</label>
+                    <span style={{ color: '#f7efe3', fontSize: '0.8rem' }}>{value.toFixed(1)} cm</span>
+                  </div>
+                  <input
+                    type="range"
+                    className="gold-range-slider"
+                    min={range.min}
+                    max={range.max}
+                    step={0.5}
+                    value={value}
+                    onChange={(e) => onDimChange(axis, e.target.value)}
+                    style={{ '--range-fill': `${fillPct}%` }}
+                  />
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -330,30 +391,7 @@ export default function JewelryConfigurationPanel({
             <div style={styles.summaryLabel}>{t('configurator:labels.estimate')}</div>
             <div style={styles.summaryValue}>{quote.totalTTC} € TTC</div>
           </div>
-          <div style={{ marginLeft: 'auto' }}>
-            <div style={styles.summaryLabel}>{t('configurator:labels.preview3d')}</div>
-            <div style={{ display: 'flex', gap: '8px', marginTop: '6px' }}>
-              {['petit', 'moyen', 'grand'].map((value) => (
-                <button
-                  key={value}
-                  onClick={() => setViewSize(value)}
-                  style={{
-                    padding: '6px 10px',
-                    borderRadius: '999px',
-                    border: viewSize === value ? '1px solid #d4af37' : '1px solid rgba(255,255,255,0.15)',
-                    background: viewSize === value ? 'rgba(212, 175, 55, 0.16)' : 'transparent',
-                    color: '#f7efe3',
-                    cursor: 'pointer',
-                    textTransform: 'capitalize',
-                    fontSize: '0.78rem',
-                  }}
-                >
-                  {t(`configurator:viewSize.${value}`, value)}
-                </button>
-              ))}
-            </div>
-          </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginLeft: 'auto' }}>
             <label style={styles.summaryLabel}>{t('configurator:labels.qty')}</label>
             <input
               type="number"
@@ -369,13 +407,24 @@ export default function JewelryConfigurationPanel({
           <div style={{ color: '#d4af37', fontSize: '0.9rem' }}>
             {t('configurator:footerHint')}
           </div>
-          <button
-            style={{ ...styles.orderButton, opacity: orderPending ? 0.6 : 1, cursor: orderPending ? 'not-allowed' : 'pointer' }}
-            onClick={onOrder}
-            disabled={orderPending}
-          >
-            {orderPending ? t('configurator:sending') : t('configurator:addToCart')}
-          </button>
+          <div style={{ display: 'flex', gap: '12px' }}>
+            <button
+              style={{ ...styles.secondaryButton, opacity: draftSaveState === 'saving' ? 0.6 : 1 }}
+              onClick={onSaveDraft}
+              disabled={draftSaveState === 'saving'}
+            >
+              {draftSaveState === 'saving' && t('configurator:savingDraft')}
+              {draftSaveState === 'saved' && t('configurator:draftSaved')}
+              {draftSaveState === 'idle' && t('configurator:saveDraft')}
+            </button>
+            <button
+              style={{ ...styles.orderButton, opacity: orderPending ? 0.6 : 1, cursor: orderPending ? 'not-allowed' : 'pointer' }}
+              onClick={onOrder}
+              disabled={orderPending}
+            >
+              {orderPending ? t('configurator:sending') : t('configurator:addToCart')}
+            </button>
+          </div>
         </div>
       </div>
     </div>

@@ -8,6 +8,7 @@ import { createDraftConfiguration, calculateConfigurationQuote, buildConfigurati
 import { createOrderDraft } from '../logic/orderModel';
 import { ClientManager } from '../logic/ClientManager';
 import { useAuth } from '../context/AuthContext';
+import { useUnsavedChanges } from '../context/UnsavedChangesContext';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
 import ConfigurationPanel from '../components/ConfigurationPanel';
@@ -613,11 +614,12 @@ export function Coffret3D({
 
 // --- LA PAGE D'INTERFACE ---
 export default function ConfiguratorPage({ univers }) {
-  const { t } = useTranslation('univers');
+  const { t } = useTranslation(['univers', 'configurator']);
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  const { setIsDirty: setGlobalDirty, registerSaveHandler } = useUnsavedChanges();
   const resolvedUnivers = univers || params.universId || 'vins-spiritueux';
   const incomingDraft = location.state?.draft;
 
@@ -698,6 +700,91 @@ export default function ConfiguratorPage({ univers }) {
     return () => window.clearTimeout(timer);
   }, [configuration, user]);
 
+  // Suivi des modifications non enregistrées : on ne regarde pas seulement
+  // `configuration` (qui n'embarque qu'un sous-ensemble des champs pour le
+  // devis) mais bien tous les réglages éditables, pour que le bouton
+  // "Enregistrer comme brouillon" et l'avertissement de navigation restent
+  // fiables même sur des champs comme la fermeture ou la gravure.
+  const [isDirty, setIsDirty] = useState(false);
+  const [draftSaveState, setDraftSaveState] = useState('idle');
+  const isFirstEditRef = useRef(true);
+  useEffect(() => {
+    if (isFirstEditRef.current) {
+      isFirstEditRef.current = false;
+      return;
+    }
+    setIsDirty(true);
+  }, [
+    name, taille, mesures, essence, finition, couleurLaque, cales, couleurVelours,
+    fermeture, gravureType, fontStyle, tailleTexte, tailleImage, posX, posY,
+    quantite, isOpen, texteGravure, modeGravure, imageGravure,
+  ]);
+
+  useEffect(() => {
+    setGlobalDirty(isDirty);
+  }, [isDirty, setGlobalDirty]);
+
+  useEffect(() => {
+    if (!isDirty) return undefined;
+    const handler = (event) => {
+      event.preventDefault();
+      event.returnValue = '';
+    };
+    window.addEventListener('beforeunload', handler);
+    return () => window.removeEventListener('beforeunload', handler);
+  }, [isDirty]);
+
+  const persistDraft = async (nameToUse) => {
+    setDraftSaveState('saving');
+    try {
+      const snapshot = buildConfigurationSnapshot(
+        initialConfiguration,
+        {
+          taille, mesures, essence, finition, couleurLaque, cales, couleurVelours,
+          fermeture, gravureType, fontStyle, tailleTexte, tailleImage, posX, posY,
+          quantite, isOpen, texteGravure, modeGravure, imageGravure,
+        },
+        { name: nameToUse }
+      );
+      await saveConfigurationDraft(snapshot, user?.uid || 'anonymous');
+      setIsDirty(false);
+      setDraftSaveState('saved');
+      window.setTimeout(() => setDraftSaveState('idle'), 2500);
+      return true;
+    } catch {
+      setDraftSaveState('idle');
+      return false;
+    }
+  };
+
+  const handleSaveDraft = async () => {
+    const trimmed = name.trim();
+    if (trimmed) {
+      return persistDraft(trimmed);
+    }
+    const entered = window.prompt(t('configurator:saveDraftNamePrompt'));
+    if (!entered || !entered.trim()) return false;
+    const finalName = entered.trim();
+    setName(finalName);
+    return persistDraft(finalName);
+  };
+
+  useEffect(() => {
+    registerSaveHandler(handleSaveDraft);
+  });
+
+  useEffect(
+    () => () => {
+      // Réinitialise l'état global (et non le state local, qui ne
+      // re-render plus une fois le composant démonté) pour que la page
+      // suivante ne reste pas coincée avec un avertissement obsolète.
+      setGlobalDirty(false);
+      registerSaveHandler(null);
+    },
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    []
+  );
+
   const handleUploadImage = (e) => {
     const file = e.target.files[0];
     if (file) {
@@ -713,6 +800,7 @@ export default function ConfiguratorPage({ univers }) {
     const orderDraft = createOrderDraft(configuration, quote, profile || {});
     const result = await ClientManager.sauvegarderCommande(orderDraft);
     setIsOrdering(false);
+    setIsDirty(false);
     navigate('/commande', {
       state: { orderDraft: { ...orderDraft, id: result.id, persisted: result.success } },
     });
@@ -754,8 +842,6 @@ export default function ConfiguratorPage({ univers }) {
         setPosY={setPosY}
         quantite={quantite}
         setQuantite={setQuantite}
-        viewSize={viewSize}
-        setViewSize={setViewSize}
         texteGravure={texteGravure}
         setTexteGravure={setTexteGravure}
         modeGravure={modeGravure}
@@ -765,6 +851,8 @@ export default function ConfiguratorPage({ univers }) {
         vinsConfig={vinsConfig}
         onOrder={handleOrder}
         orderPending={isOrdering}
+        onSaveDraft={handleSaveDraft}
+        draftSaveState={draftSaveState}
         title={t(`titles.${resolvedUnivers}`, configurationService.getTitle(resolvedUnivers))}
       />
 
@@ -789,6 +877,7 @@ export default function ConfiguratorPage({ univers }) {
         posX={posX}
         posY={posY}
         viewSize={viewSize}
+        setViewSize={setViewSize}
         setIsOpen={setIsOpen}
       />
     </div>
@@ -984,6 +1073,18 @@ const styles = {
     fontWeight: 'bold',
     borderRadius: '999px',
   },
+  secondaryButton: {
+    backgroundColor: 'transparent',
+    color: '#d4af37',
+    border: '1px solid rgba(212, 175, 55, 0.5)',
+    padding: '14px 28px',
+    fontSize: '0.8rem',
+    textTransform: 'uppercase',
+    letterSpacing: '2px',
+    cursor: 'pointer',
+    fontWeight: 'bold',
+    borderRadius: '999px',
+  },
   openButton: {
     position: 'absolute',
     top: '20px',
@@ -998,5 +1099,29 @@ const styles = {
     fontSize: '0.7rem',
     letterSpacing: '1px',
     borderRadius: '999px',
+  },
+  viewSizeGroup: {
+    position: 'absolute',
+    top: '20px',
+    left: '20px',
+    zIndex: 10,
+    display: 'flex',
+    gap: '8px',
+  },
+  viewSizeButton: {
+    padding: '10px 16px',
+    borderRadius: '999px',
+    backgroundColor: 'rgba(10, 10, 10, 0.82)',
+    border: '1px solid rgba(255, 255, 255, 0.15)',
+    color: '#f7efe3',
+    cursor: 'pointer',
+    textTransform: 'capitalize',
+    fontSize: '0.7rem',
+    letterSpacing: '1px',
+  },
+  viewSizeButtonActive: {
+    border: '1px solid #d4af37',
+    background: 'rgba(212, 175, 55, 0.16)',
+    color: '#d4af37',
   },
 };

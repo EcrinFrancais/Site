@@ -17,7 +17,7 @@ const normalizeEssence = (essence) => {
 export const bijouxPricingService = {
   calculateQuote(configuration) {
     const sousType = getSousType(configuration.famille, configuration.sousType);
-    const dims = sousType?.dims || { L: 9, l: 9, h: 6 };
+    const dims = configuration.dims || sousType?.dims || { L: 9, l: 9, h: 6 };
 
     const quote = PricingEngine.calculerPrix(
       dims.L,

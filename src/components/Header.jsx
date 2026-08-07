@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useUnsavedChanges } from '../context/UnsavedChangesContext';
 import { ClientManager } from '../logic/ClientManager';
 import { supportedLanguages } from '../i18n';
 
@@ -177,9 +178,23 @@ export default function Header() {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation('header');
+  const { isDirty, runSaveHandler } = useUnsavedChanges();
   const [menuOpen, setMenuOpen] = useState(false);
   const wrapRef = useRef(null);
   const activeLanguage = (i18n.resolvedLanguage || i18n.language || 'fr').slice(0, 2);
+
+  // Si la page courante (un configurateur) a des modifications non
+  // enregistrées, on propose de les enregistrer avant de quitter plutôt que
+  // de laisser le lien naviguer directement.
+  const guardNavigation = (to) => async (event) => {
+    if (!isDirty) return;
+    event.preventDefault();
+    const shouldSave = window.confirm(t('unsavedChangesConfirm'));
+    if (!shouldSave) return;
+    const saved = await runSaveHandler();
+    if (!saved) return;
+    navigate(to);
+  };
 
   useEffect(() => {
     if (!menuOpen) return;
@@ -199,7 +214,14 @@ export default function Header() {
     };
   }, [menuOpen]);
 
-  const handleLogout = async () => {
+  const handleLogout = async (event) => {
+    if (isDirty) {
+      event.preventDefault();
+      const shouldSave = window.confirm(t('unsavedChangesConfirm'));
+      if (!shouldSave) return;
+      const saved = await runSaveHandler();
+      if (!saved) return;
+    }
     setMenuOpen(false);
     await ClientManager.deconnexion();
     navigate('/');
@@ -207,16 +229,16 @@ export default function Header() {
 
   return (
     <header style={styles.bar}>
-      <Link to="/" style={styles.brand}>
+      <Link to="/" style={styles.brand} onClick={guardNavigation('/')}>
         <span style={styles.brandMark}>ÉF</span>
         <span style={styles.brandWord}>L'Écrin Français</span>
       </Link>
 
       <nav style={styles.nav}>
-        <NavLink to="/univers" className="nav-link" style={styles.navLink}>{t('nav.univers')}</NavLink>
-        <NavLink to="/a-propos" className="nav-link" style={styles.navLink}>{t('nav.about')}</NavLink>
-        <NavLink to="/contact" className="nav-link" style={styles.navLink}>{t('nav.contact')}</NavLink>
-        <NavLink to="/client" className="nav-link" style={styles.navLink}>{t('nav.client')}</NavLink>
+        <NavLink to="/univers" className="nav-link" style={styles.navLink} onClick={guardNavigation('/univers')}>{t('nav.univers')}</NavLink>
+        <NavLink to="/a-propos" className="nav-link" style={styles.navLink} onClick={guardNavigation('/a-propos')}>{t('nav.about')}</NavLink>
+        <NavLink to="/contact" className="nav-link" style={styles.navLink} onClick={guardNavigation('/contact')}>{t('nav.contact')}</NavLink>
+        <NavLink to="/client" className="nav-link" style={styles.navLink} onClick={guardNavigation('/client')}>{t('nav.client')}</NavLink>
       </nav>
 
       <div style={styles.langSwitch}>
@@ -233,7 +255,7 @@ export default function Header() {
       </div>
 
       {!loading && !user && (
-        <Link to="/auth" style={styles.pillButton}>{t('signIn')}</Link>
+        <Link to="/auth" style={styles.pillButton} onClick={guardNavigation('/auth')}>{t('signIn')}</Link>
       )}
 
       {!loading && user && (
@@ -246,8 +268,26 @@ export default function Header() {
           {menuOpen && (
             <div style={styles.menu}>
               <div style={styles.menuEmail}>{user.email}</div>
-              <Link to="/profil" style={styles.menuItem} onClick={() => setMenuOpen(false)}>{t('menu.profile')}</Link>
-              <Link to="/client" style={styles.menuItem} onClick={() => setMenuOpen(false)}>{t('menu.projects')}</Link>
+              <Link
+                to="/profil"
+                style={styles.menuItem}
+                onClick={(event) => {
+                  guardNavigation('/profil')(event);
+                  if (!isDirty) setMenuOpen(false);
+                }}
+              >
+                {t('menu.profile')}
+              </Link>
+              <Link
+                to="/client"
+                style={styles.menuItem}
+                onClick={(event) => {
+                  guardNavigation('/client')(event);
+                  if (!isDirty) setMenuOpen(false);
+                }}
+              >
+                {t('menu.projects')}
+              </Link>
               <div style={styles.menuDivider}></div>
               <button type="button" style={{ ...styles.menuItem, ...styles.menuItemDanger }} onClick={handleLogout}>
                 {t('menu.signOut')}

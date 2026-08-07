@@ -1,13 +1,18 @@
 {
   "sections": {
     "type": "Case type",
-    "materiau": "Material & lining"
+    "materiau": "Material & lining",
+    "dimensions": "Case dimensions"
   },
   "labels": {
     "famille": "Jewellery family",
     "sousType": "Case model",
     "formeGenerale": "Overall shape",
-    "doublure": "Lining colour"
+    "doublure": "Lining colour",
+    "longueur": "Length",
+    "largeur": "Width",
+    "hauteur": "Height",
+    "lockProportions": "Keep proportions"
   },
   "familles": {
     "bague": "Ring",
@@ -20,10 +25,17 @@
   "sousTypes": {
     "bague-coussinet": "Classic cushion ring box",
     "boucles-fentes": "Slotted earring box",
+    "boucles-coussinet-crochets": "Hooked cushion earring box",
+    "boucles-plat-velours": "Flat velvet earring box",
     "collier-allonge": "Elongated rectangular case",
+    "collier-pendentif-seul": "Single pendant case",
     "bracelet-allonge": "Elongated horizontal case",
+    "bracelet-manchette": "Rigid cuff bracelet case",
     "parure-multi": "Multi-level set case",
-    "montre-coussin": "Fixed cushion watch case"
+    "montre-coussin": "Fixed cushion watch case",
+    "montre-socle-rigide": "Rigid stand watch case",
+    "montre-tiroir": "Sliding drawer watch case",
+    "montre-fenetre": "Display window watch case"
   },
   "formesGenerales": {
     "rectangulaire": "Square / classic rectangular",

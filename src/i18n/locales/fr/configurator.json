@@ -43,6 +43,11 @@
   "footerHint": "Sélectionnez vos matières, finitions et gravure pour créer votre coffret sur mesure.",
   "addToCart": "Ajouter au panier",
   "sending": "Envoi en cours...",
+  "saveDraft": "Enregistrer comme brouillon",
+  "savingDraft": "Enregistrement...",
+  "draftSaved": "Enregistré ✓",
+  "saveDraftNamePrompt": "Donnez un nom à ce projet pour le retrouver plus facilement :",
+  "unsavedChangesConfirm": "Ce projet n'a pas encore été enregistré. Voulez-vous l'enregistrer comme brouillon avant de continuer ?",
   "openBox": "Ouvrir le coffret",
   "closeBox": "Fermer le coffret",
   "tailles": {

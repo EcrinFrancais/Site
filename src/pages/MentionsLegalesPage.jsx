@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useCookieConsent } from '../context/CookieConsentContext';
 
 const styles = {
   page: {
@@ -24,6 +25,15 @@ const styles = {
 
 export default function MentionsLegalesPage() {
   const { t } = useTranslation('legal');
+  const { t: tCookies } = useTranslation('cookies');
+  const { consent, reopen } = useCookieConsent();
+
+  const consentStatusText = !consent
+    ? tCookies('legalSection.currentChoiceNone')
+    : consent.analytics
+    ? tCookies('legalSection.currentChoiceAccepted')
+    : tCookies('legalSection.currentChoiceRejected');
+
   return (
     <div style={styles.page}>
       <div style={styles.shell}>
@@ -55,6 +65,31 @@ export default function MentionsLegalesPage() {
         <div style={styles.card}>
           <h2 style={styles.subtitle}>{t('sections.returns.title')}</h2>
           <p style={styles.muted}>{t('sections.returns.text')}</p>
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.subtitle}>{tCookies('legalSection.title')}</h2>
+          <p style={styles.muted}>{tCookies('legalSection.text')}</p>
+          <p style={{ ...styles.muted, marginTop: '12px' }}>{consentStatusText}</p>
+          <button
+            type="button"
+            onClick={reopen}
+            style={{
+              marginTop: '12px',
+              fontSize: '0.72rem',
+              letterSpacing: '0.08em',
+              textTransform: 'uppercase',
+              color: '#c5a059',
+              background: 'transparent',
+              border: '1px solid rgba(197, 160, 89, 0.5)',
+              borderRadius: '999px',
+              padding: '11px 20px',
+              cursor: 'pointer',
+              fontFamily: 'inherit',
+            }}
+          >
+            {tCookies('legalSection.manageButton')}
+          </button>
         </div>
       </div>
     </div>

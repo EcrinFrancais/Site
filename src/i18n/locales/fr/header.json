@@ -6,6 +6,7 @@
     "client": "Espace client"
   },
   "signIn": "Se connecter",
+  "cart": "Panier",
   "menu": {
     "profile": "Mon profil",
     "projects": "Mes projets & commandes",
@@ -15,5 +16,10 @@
     "fr": "FR",
     "en": "EN"
   },
-  "unsavedChangesConfirm": "Ce projet n'a pas encore été enregistré. Voulez-vous l'enregistrer comme brouillon avant de continuer ?"
+  "unsavedChangesModal": {
+    "title": "Modifications non enregistrées",
+    "body": "Ce projet n'a pas encore été enregistré. Voulez-vous l'enregistrer comme brouillon avant de continuer ?",
+    "save": "Oui, enregistrer",
+    "discard": "Non, quitter sans enregistrer"
+  }
 }

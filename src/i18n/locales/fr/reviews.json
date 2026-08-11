@@ -1,0 +1,20 @@
+{
+  "cta": "Laisser un avis",
+  "form": {
+    "title": "Votre avis sur cette commande",
+    "ratingLabel": "Votre note",
+    "commentLabel": "Votre commentaire",
+    "commentPlaceholder": "Racontez-nous votre expérience...",
+    "submit": "Envoyer mon avis",
+    "sending": "Envoi en cours…",
+    "cancel": "Annuler",
+    "error": "Une erreur est survenue, merci de réessayer."
+  },
+  "thanks": "Merci ! Votre avis a été envoyé et sera publié après vérification.",
+  "alreadySubmitted": "Avis envoyé — merci !",
+  "testimonials": {
+    "title": "Ce que nos clients en disent",
+    "subtitle": "Des avis vérifiés, laissés par des clients ayant reçu leur création.",
+    "verifiedBadge": "Achat vérifié"
+  }
+}

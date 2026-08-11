@@ -1,0 +1,24 @@
+{
+  "title": "Votre panier",
+  "intro": "Retrouvez ici les projets que vous avez ajoutés au panier. Vous pouvez les retirer ou finaliser votre commande à tout moment.",
+  "empty": "Votre panier est vide.",
+  "emptyCta": "Découvrir nos univers",
+  "quantityLine": "{{quantite}} écrin(s)",
+  "remove": "Retirer",
+  "removeConfirm": "Retirer ce projet du panier ?",
+  "subtotal": "Sous-total",
+  "shipping": "Livraison",
+  "shippingFree": "Offerte",
+  "grandTotal": "Total",
+  "confirmOrder": "Confirmer la commande",
+  "confirming": "Confirmation en cours…",
+  "confirmError": "Une erreur est survenue lors de la confirmation de votre commande. Merci de réessayer.",
+  "signInRequired": "Connectez-vous ou créez un compte pour finaliser votre commande. Votre panier sera conservé.",
+  "freeShippingHint": "Livraison offerte dès {{threshold}} € d'achat.",
+  "addedModal": {
+    "title": "Ajouté au panier",
+    "body": "Souhaitez-vous configurer un autre projet ou consulter votre panier ?",
+    "continue": "Configurer un autre projet",
+    "goToCart": "Voir le panier"
+  }
+}

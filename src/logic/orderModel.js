@@ -1,18 +1,17 @@
 import { OrderStatus } from '../domain/orderStatus';
 
-export const createOrderDraft = (configuration, quote = {}, clientProfile = {}) => ({
-  configuration,
-  clientProfile,
-  status: OrderStatus.RECEIVED,
-  total: Number(quote.totalTTC || 0),
-  currency: 'EUR',
-  createdAt: new Date().toISOString(),
-});
-
-export const buildOrderSummary = (orderDraft) => ({
-  title: 'Résumé de commande',
-  univers: orderDraft.configuration?.universTitle || 'Configuration',
-  quantity: orderDraft.configuration?.values?.quantite || 1,
-  total: orderDraft.total || 0,
-  status: orderDraft.status,
-});
+export const createOrderDraft = (configuration, quote = {}, clientProfile = {}, extra = {}) => {
+  const createdAt = new Date().toISOString();
+  return {
+    configuration,
+    clientProfile,
+    status: OrderStatus.RECEIVED,
+    total: Number(quote.totalTTC || 0) + Number(extra.shippingShareTTC || 0),
+    shippingShareTTC: Number(extra.shippingShareTTC || 0),
+    basketId: extra.basketId || null,
+    currency: 'EUR',
+    createdAt,
+    statusHistory: [{ status: OrderStatus.RECEIVED, changedAt: createdAt }],
+    note: '',
+  };
+};

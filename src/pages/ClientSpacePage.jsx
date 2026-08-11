@@ -4,19 +4,32 @@ import { useTranslation } from 'react-i18next';
 import { listConfigurationDrafts, deleteConfigurationDraft } from '../application/configurationUseCases';
 import { useAuth } from '../context/AuthContext';
 import { ClientManager } from '../logic/ClientManager';
+import { groupOrdersIntoBaskets } from '../domain/basket';
+import { OrderStatus } from '../domain/orderStatus';
 import OrderProgress from '../components/OrderProgress';
+import ReviewForm from '../components/ReviewForm';
 
 export default function ClientSpacePage() {
-  const { t } = useTranslation(['clientSpace', 'univers', 'configurator', 'common']);
+  const { t } = useTranslation(['clientSpace', 'univers', 'configurator', 'common', 'reviews']);
   const navigate = useNavigate();
-  const { user } = useAuth();
+  const { user, profile } = useAuth();
+  // Prénom + initiale du nom uniquement : c'est ce nom qui sera affiché
+  // publiquement à côté de l'avis (jamais le nom complet).
+  const reviewerName = [profile?.prenom, profile?.nom ? `${profile.nom.charAt(0)}.` : ''].filter(Boolean).join(' ');
   const [drafts, setDrafts] = useState([]);
-  const [orders, setOrders] = useState([]);
+  const [orderBaskets, setOrderBaskets] = useState([]);
+  const [reviewedBasketIds, setReviewedBasketIds] = useState([]);
+  const [openReviewBasketId, setOpenReviewBasketId] = useState(null);
 
   useEffect(() => {
     if (!user) return;
     listConfigurationDrafts(user.uid).then((items) => setDrafts(items)).catch(() => setDrafts([]));
-    ClientManager.getOrders(user.uid).then((items) => setOrders(items)).catch(() => setOrders([]));
+    ClientManager.getOrders(user.uid)
+      .then((items) => setOrderBaskets(groupOrdersIntoBaskets(items)))
+      .catch(() => setOrderBaskets([]));
+    ClientManager.getMyReviewedBasketIds(user.uid)
+      .then((ids) => setReviewedBasketIds(ids))
+      .catch(() => setReviewedBasketIds([]));
   }, [user]);
 
   const handleDeleteDraft = (draftId) => {
@@ -89,35 +102,81 @@ export default function ClientSpacePage() {
           {t('ordersTitle')}
         </h2>
         <div style={{ display: 'grid', gap: '12px' }}>
-          {orders.length === 0 ? (
+          {orderBaskets.length === 0 ? (
             <div style={{ padding: '18px', border: '1px solid rgba(212, 175, 55, 0.2)', borderRadius: '12px', background: 'rgba(255,255,255,0.04)' }}>
               {t('ordersEmpty')}
             </div>
           ) : (
-            orders.map((order) => (
-              <div
-                key={order.id}
-                style={{ padding: '18px', border: '1px solid rgba(212, 175, 55, 0.2)', borderRadius: '12px', background: 'rgba(255,255,255,0.04)' }}
-              >
-                <div style={{ fontWeight: 600, color: '#f4e6c0' }}>
-                  {order.configuration?.name || t(`univers:titles.${order.configuration?.universId}`, order.configuration?.universTitle || t('common:configurationFallback', { ns: 'common' }))}
-                </div>
-                {order.configuration?.name && (
-                  <div style={{ color: '#c5a059', fontSize: '0.85rem', marginTop: '2px' }}>
-                    {t(`univers:titles.${order.configuration?.universId}`, order.configuration?.universTitle || t('common:configurationFallback', { ns: 'common' }))}
+            orderBaskets.map((basket) => {
+              const firstNamed = basket.items.find((item) => item.configuration?.name);
+              const displayName = firstNamed?.configuration?.name
+                || t(`univers:titles.${basket.items[0]?.configuration?.universId}`, basket.items[0]?.configuration?.universTitle || t('common:configurationFallback', { ns: 'common' }));
+              const universLabels = Array.from(
+                new Set(basket.items.map((item) => t(`univers:titles.${item.configuration?.universId}`, item.configuration?.universTitle)))
+              ).join(', ');
+              const quantiteTotale = basket.items.reduce((sum, item) => sum + Number(item.configuration?.values?.quantite || 1), 0);
+              const dateLabel = basket.items[0]?.date;
+
+              return (
+                <div
+                  key={basket.basketId}
+                  style={{ padding: '18px', border: '1px solid rgba(212, 175, 55, 0.2)', borderRadius: '12px', background: 'rgba(255,255,255,0.04)' }}
+                >
+                  <div style={{ fontWeight: 600, color: '#f4e6c0' }}>{displayName}</div>
+                  {firstNamed && (
+                    <div style={{ color: '#c5a059', fontSize: '0.85rem', marginTop: '2px' }}>{universLabels}</div>
+                  )}
+                  <div style={{ color: '#999', fontSize: '0.95rem', marginTop: '6px' }}>
+                    {t('orderLine', {
+                      id: basket.basketId.slice(-8).toUpperCase(),
+                      date: dateLabel,
+                      quantite: quantiteTotale,
+                      total: basket.total.toFixed(2),
+                    })}
                   </div>
-                )}
-                <div style={{ color: '#999', fontSize: '0.95rem', marginTop: '6px' }}>
-                  {t('orderLine', {
-                    id: order.id.slice(0, 8).toUpperCase(),
-                    date: order.date,
-                    quantite: order.configuration?.values?.quantite || 1,
-                    total: Number(order.total || 0).toFixed(2),
-                  })}
+                  <OrderProgress status={basket.status} />
+
+                  {basket.status === OrderStatus.DELIVERED && (
+                    reviewedBasketIds.includes(basket.basketId) ? (
+                      <div style={{ marginTop: '12px', color: '#7fae7f', fontSize: '0.85rem' }}>
+                        {t('reviews:alreadySubmitted')}
+                      </div>
+                    ) : openReviewBasketId === basket.basketId ? (
+                      <ReviewForm
+                        userId={user.uid}
+                        clientName={reviewerName}
+                        universId={basket.items[0]?.configuration?.universId}
+                        basketId={basket.basketId}
+                        onCancel={() => setOpenReviewBasketId(null)}
+                        onSubmitted={() => {
+                          setReviewedBasketIds((current) => [...current, basket.basketId]);
+                          setOpenReviewBasketId(null);
+                        }}
+                      />
+                    ) : (
+                      <button
+                        type="button"
+                        onClick={() => setOpenReviewBasketId(basket.basketId)}
+                        style={{
+                          marginTop: '12px',
+                          fontSize: '0.72rem',
+                          letterSpacing: '0.08em',
+                          textTransform: 'uppercase',
+                          color: '#c5a059',
+                          background: 'transparent',
+                          border: '1px solid rgba(197, 160, 89, 0.4)',
+                          borderRadius: '999px',
+                          padding: '10px 18px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        {t('reviews:cta')}
+                      </button>
+                    )
+                  )}
                 </div>
-                <OrderProgress status={order.statut} />
-              </div>
-            ))
+              );
+            })
           )}
         </div>
       </div>

@@ -30,6 +30,22 @@
   },
   "save": "Enregistrer",
   "savedProfile": "Profil mis à jour",
+  "addresses": {
+    "title": "Carnet d'adresses",
+    "empty": "Aucune adresse enregistrée pour le moment.",
+    "labelField": "Nom de l'adresse",
+    "labelPlaceholder": "Domicile, Bureau…",
+    "addButton": "Ajouter une adresse",
+    "editButton": "Modifier",
+    "deleteButton": "Supprimer",
+    "deleteConfirm": "Supprimer cette adresse ?",
+    "setDefaultShipping": "Adresse de livraison par défaut",
+    "setDefaultBilling": "Adresse de facturation par défaut",
+    "defaultShippingBadge": "Livraison par défaut",
+    "defaultBillingBadge": "Facturation par défaut",
+    "save": "Enregistrer l'adresse",
+    "cancel": "Annuler"
+  },
   "projects": {
     "title": "Projets en cours",
     "empty": "Aucun projet en cours pour le moment.",

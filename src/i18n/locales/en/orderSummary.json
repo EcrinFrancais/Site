@@ -1,9 +1,10 @@
 {
-  "title": "Order Summary",
-  "orderId": "Order number: {{id}}",
+  "title": "Thank you for your order",
   "confirmationSent": "A confirmation email has been sent to you.",
-  "univers": "Universe: {{univers}}",
-  "quantity": "Quantity: {{quantity}}",
-  "status": "Status: {{status}}",
-  "total": "Estimated total: {{total}} €"
+  "itemsTitle": "Summary",
+  "itemLine": "{{univers}} — {{quantite}} case(s) — €{{totalTTC}}",
+  "shippingLine": "Shipping: €{{amount}}",
+  "shippingFreeLine": "Free shipping",
+  "grandTotalLine": "Total: €{{amount}}",
+  "orderIdsLine": "Order number(s): {{ids}}"
 }

@@ -1,15 +1,18 @@
 // src/logic/PricingEngine.js
 
 // Dictionnaire des prix au m2 par essence de bois (Valeurs d'exemple à ajuster)
+// Clés sans accent : les services de pricing (pricingService, bijouxPricingService,
+// coffretCadeauPricingService) normalisent l'essence en retirant les accents
+// avant de l'utiliser comme clé ici.
 const PRIX_BOIS_M2 = {
   pin: 45,
   peuplier: 55,
-  chêne: 120,
+  chene: 120,
   noyer: 180,
-  érable: 150,
+  erable: 150,
   merisier: 160,
   palissandre: 450,
-  ebène: 800
+  ebene: 800
 };
 
 // Dictionnaire des finitions (Surcoût)

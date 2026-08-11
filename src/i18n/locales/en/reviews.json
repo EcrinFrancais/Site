@@ -1,0 +1,20 @@
+{
+  "cta": "Leave a review",
+  "form": {
+    "title": "Your review for this order",
+    "ratingLabel": "Your rating",
+    "commentLabel": "Your comment",
+    "commentPlaceholder": "Tell us about your experience...",
+    "submit": "Submit my review",
+    "sending": "Sending…",
+    "cancel": "Cancel",
+    "error": "Something went wrong, please try again."
+  },
+  "thanks": "Thank you! Your review has been sent and will be published after verification.",
+  "alreadySubmitted": "Review sent — thank you!",
+  "testimonials": {
+    "title": "What our clients say",
+    "subtitle": "Verified reviews, left by clients who received their creation.",
+    "verifiedBadge": "Verified purchase"
+  }
+}

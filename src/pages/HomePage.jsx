@@ -1,5 +1,6 @@
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import TestimonialsSection from '../components/TestimonialsSection';
 
 // --- LE LOGO (Code SVG vectoriel) ---
 // Ce composant dessine le logo directement à l'écran
@@ -360,6 +361,9 @@ const HomePage = ({ onStart }) => {
           </button>
         </div>
       </section>
+
+      {/* TÉMOIGNAGES (n'apparaît que s'il existe au moins un avis approuvé) */}
+      <TestimonialsSection />
 
       {/* FOOTER AVEC LOGO */}
       <footer style={styles.footer}>

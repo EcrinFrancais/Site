@@ -6,6 +6,7 @@
     "client": "Client area"
   },
   "signIn": "Sign in",
+  "cart": "Cart",
   "menu": {
     "profile": "My profile",
     "projects": "My projects & orders",
@@ -15,5 +16,10 @@
     "fr": "FR",
     "en": "EN"
   },
-  "unsavedChangesConfirm": "This project hasn't been saved yet. Would you like to save it as a draft before continuing?"
+  "unsavedChangesModal": {
+    "title": "Unsaved changes",
+    "body": "This project hasn't been saved yet. Would you like to save it as a draft before continuing?",
+    "save": "Yes, save",
+    "discard": "No, leave without saving"
+  }
 }

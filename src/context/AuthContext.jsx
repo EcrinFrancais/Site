@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { onAuthStateChanged } from 'firebase/auth';
 import i18n from '../i18n';
 import { auth } from '../config/firebase';
@@ -32,7 +32,16 @@ export function AuthProvider({ children }) {
     });
   }, [user]);
 
-  return <AuthContext.Provider value={{ user, profile, loading }}>{children}</AuthContext.Provider>;
+  // Permet à une page (ex. ProfilePage après enregistrement) de forcer un
+  // rechargement du profil, pour que le reste de l'app (ex. le panier au
+  // moment de la commande) voie immédiatement les changements.
+  const refreshProfile = useCallback(async () => {
+    if (!user) return;
+    const fetchedProfile = await ClientManager.getProfile(user.uid);
+    setProfile(fetchedProfile);
+  }, [user]);
+
+  return <AuthContext.Provider value={{ user, profile, loading, refreshProfile }}>{children}</AuthContext.Provider>;
 }
 
 // eslint-disable-next-line react-refresh/only-export-components -- hook belongs with its provider/context

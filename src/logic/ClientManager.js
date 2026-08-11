@@ -4,6 +4,8 @@ import { collection, addDoc, setDoc, doc, getDoc, getDocs, query, where } from "
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { escapeHtml } from './ContactManager';
 import { OrderStatus } from '../domain/orderStatus';
+import { createOrderDraft } from './orderModel';
+import { estimateShippingCost } from './shippingService';
 
 export const ClientManager = {
   inscription: async (email, password, infosSup) => {
@@ -105,6 +107,122 @@ export const ClientManager = {
     }
   },
 
+  sauvegarderPanier: async (cartItems, profile) => {
+    try {
+      const user = auth.currentUser;
+      const basketId = `basket-${Date.now()}`;
+      const shippingCostTTC = estimateShippingCost(cartItems);
+      const totalWeightKg = cartItems.reduce((sum, item) => sum + Number(item.estimatedWeightKg || 0), 0);
+
+      const orderIds = [];
+      for (const item of cartItems) {
+        const shippingShareTTC = totalWeightKg > 0
+          ? shippingCostTTC * (Number(item.estimatedWeightKg || 0) / totalWeightKg)
+          : shippingCostTTC / cartItems.length;
+
+        const orderDraft = createOrderDraft(item.configuration, item.quote, profile || {}, {
+          shippingShareTTC,
+          basketId,
+        });
+
+        const docRef = await addDoc(collection(db, "commandes"), {
+          clientId: user ? user.uid : "anonyme",
+          date: new Date().toLocaleDateString(),
+          ...orderDraft,
+          statut: OrderStatus.RECEIVED,
+        });
+        orderIds.push(docRef.id);
+      }
+
+      const numero = basketId.slice(-8).toUpperCase();
+      const lignes = cartItems.map((item) => {
+        const univers = item.universTitle || item.configuration?.universTitle || 'Configuration';
+        const quantite = item.quantite || 1;
+        const total = Number(item.quote?.totalTTC || 0).toFixed(2);
+        return `- ${univers} — Quantité : ${quantite} — Total : ${total} €`;
+      });
+      const totalGeneral = (
+        cartItems.reduce((sum, item) => sum + Number(item.quote?.totalTTC || 0), 0) + shippingCostTTC
+      ).toFixed(2);
+
+      const destinataire = user?.email || profile?.email;
+      if (destinataire) {
+        await addDoc(collection(db, 'mail'), {
+          to: [destinataire],
+          message: {
+            subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
+            text: [
+              `Merci pour votre commande auprès de L'Écrin Français.`,
+              '',
+              `Numéro de commande : ${numero}`,
+              ...lignes,
+              '',
+              `Livraison : ${shippingCostTTC.toFixed(2)} €`,
+              `Total général : ${totalGeneral} €`,
+              '',
+              `Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.`,
+            ].join('\n'),
+            html: [
+              `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
+              `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+              `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+              `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+              `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+              `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
+            ].join(''),
+          },
+          createdAt: new Date().toISOString(),
+        });
+      }
+
+      // Notification interne à l'atelier, avec les coordonnées complètes du client.
+      const p = profile || {};
+      const adresseLignes = p.adresse
+        ? [p.adresse.numero, p.adresse.voie, p.adresse.complement].filter(Boolean).join(' ')
+        : '';
+      const coordonnees = [
+        `Nom : ${[p.prenom, p.nom].filter(Boolean).join(' ') || '—'}`,
+        `E-mail : ${destinataire || '—'}`,
+        `Téléphone : ${p.telephone || '—'}`,
+        `Adresse : ${adresseLignes || '—'}${p.adresse ? `, ${[p.adresse.codePostal, p.adresse.ville, p.adresse.pays].filter(Boolean).join(' ')}` : ''}`,
+        ...(p.entreprise ? [`Entreprise : ${p.entreprise}${p.siret ? ` (SIRET ${p.siret})` : ''}`] : []),
+      ];
+
+      await addDoc(collection(db, 'mail'), {
+        to: ['ecrinfrancais@gmail.com'],
+        message: {
+          subject: `Nouvelle commande #${numero} — L'Écrin Français`,
+          text: [
+            `Nouvelle commande reçue.`,
+            '',
+            `Numéro de commande : ${numero}`,
+            ...lignes,
+            '',
+            `Livraison : ${shippingCostTTC.toFixed(2)} €`,
+            `Total général : ${totalGeneral} €`,
+            '',
+            `Coordonnées du client :`,
+            ...coordonnees,
+          ].join('\n'),
+          html: [
+            `<p><strong>Nouvelle commande reçue.</strong></p>`,
+            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+            `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+            `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+            `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+            `<p><strong>Coordonnées du client :</strong></p>`,
+            `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
+          ].join(''),
+        },
+        createdAt: new Date().toISOString(),
+      });
+
+      return { success: true, orderIds, basketId };
+    } catch {
+      return { success: false };
+    }
+  },
+
   getProfile: async (userId) => {
     try {
       const ref = doc(db, "clients", userId);
@@ -154,5 +272,46 @@ export const ClientManager = {
     } catch (e) {
       return { success: false, error: e.message };
     }
-  }
+  },
+
+  // Un avis est toujours créé "en_attente" : il n'apparaît publiquement
+  // qu'une fois approuvé par un admin (voir AdminManager.updateReviewStatus).
+  submitReview: async (userId, payload) => {
+    try {
+      const ref = await addDoc(collection(db, "avis"), {
+        clientId: userId,
+        ...payload,
+        statut: 'en_attente',
+        createdAt: new Date().toISOString(),
+      });
+      return { success: true, id: ref.id };
+    } catch (e) {
+      return { success: false, error: e.message };
+    }
+  },
+
+  getApprovedReviews: async (max = 6) => {
+    try {
+      const q = query(collection(db, "avis"), where("statut", "==", "approuve"));
+      const snapshot = await getDocs(q);
+      return snapshot.docs
+        .map((docItem) => ({ id: docItem.id, ...docItem.data() }))
+        .sort((a, b) => (b.createdAt || '').localeCompare(a.createdAt || ''))
+        .slice(0, max);
+    } catch {
+      return [];
+    }
+  },
+
+  // Paniers (basketId) déjà commentés par ce client, pour ne pas proposer
+  // deux fois le formulaire d'avis sur la même commande livrée.
+  getMyReviewedBasketIds: async (userId) => {
+    try {
+      const q = query(collection(db, "avis"), where("clientId", "==", userId));
+      const snapshot = await getDocs(q);
+      return snapshot.docs.map((docItem) => docItem.data().basketId).filter(Boolean);
+    } catch {
+      return [];
+    }
+  },
 };

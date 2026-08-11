@@ -1,0 +1,82 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && exists(/databases/$(database)/documents/admins/$(request.auth.uid));
+    }
+
+    function isOwner(uid) {
+      return request.auth != null && request.auth.uid == uid;
+    }
+
+    // Comptes admin du back office : seul un admin déjà connecté peut lire ou
+    // modifier cette collection. Le tout premier compte admin doit être créé
+    // manuellement (script ou console Firebase), jamais depuis le site public.
+    match /admins/{adminId} {
+      allow read, write: if isAdmin();
+    }
+
+    // Profils clients : chacun lit/modifie le sien ; un admin peut tous les lire
+    // (nécessaire pour afficher les coordonnées client dans le back office).
+    match /clients/{clientId} {
+      allow read: if isOwner(clientId) || isAdmin();
+      allow write: if isOwner(clientId);
+    }
+
+    // Brouillons de configuration (configurateur) : créés/modifiés par leur
+    // propriétaire, ou en mode anonyme (limitation connue : tous les brouillons
+    // anonymes partagent aujourd'hui le même identifiant "anonymous").
+    match /configurations/{configId} {
+      allow read: if isAdmin()
+        || (request.auth != null && resource.data.userId == request.auth.uid)
+        || resource.data.userId == 'anonymous';
+      allow create: if (request.auth != null && request.resource.data.userId == request.auth.uid)
+        || request.resource.data.userId == 'anonymous';
+      allow update, delete: if isAdmin()
+        || (request.auth != null && resource.data.userId == request.auth.uid)
+        || resource.data.userId == 'anonymous';
+    }
+
+    // Commandes : n'importe qui (y compris un client anonyme) peut créer une
+    // commande au moment du paiement. Seul le client propriétaire ou un admin
+    // peut la lire ; seul un admin peut la modifier (changement de statut) ou
+    // la supprimer — c'est ce qui protège réellement le back office.
+    match /commandes/{orderId} {
+      allow create: if true;
+      allow read: if isAdmin()
+        || (request.auth != null && resource.data.clientId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+
+    // File d'e-mails transactionnels (extension Firebase "Trigger Email") :
+    // écriture ouverte pour permettre les envois depuis le site, jamais de
+    // lecture publique (contiendrait des adresses e-mail et coordonnées).
+    match /mail/{mailId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Messages (formulaire de contact, etc.)
+    match /messages/{messageId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
+    // Avis clients : le client crée son propre avis, toujours en attente de
+    // modération (le statut ne peut pas être forcé à "approuve" côté client).
+    // Lecture publique limitée aux avis approuvés ; l'auteur et l'admin
+    // voient aussi les avis non encore modérés. Seul un admin modère
+    // (change le statut) ou supprime.
+    match /avis/{avisId} {
+      allow create: if request.auth != null
+        && request.resource.data.clientId == request.auth.uid
+        && request.resource.data.statut == 'en_attente';
+      allow read: if resource.data.statut == 'approuve'
+        || isAdmin()
+        || (request.auth != null && resource.data.clientId == request.auth.uid);
+      allow update, delete: if isAdmin();
+    }
+  }
+}

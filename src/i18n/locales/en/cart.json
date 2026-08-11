@@ -1,0 +1,24 @@
+{
+  "title": "Your cart",
+  "intro": "Here are the projects you've added to your cart. You can remove them or finalize your order at any time.",
+  "empty": "Your cart is empty.",
+  "emptyCta": "Discover our universes",
+  "quantityLine": "{{quantite}} case(s)",
+  "remove": "Remove",
+  "removeConfirm": "Remove this project from the cart?",
+  "subtotal": "Subtotal",
+  "shipping": "Shipping",
+  "shippingFree": "Free",
+  "grandTotal": "Total",
+  "confirmOrder": "Confirm order",
+  "confirming": "Confirming…",
+  "confirmError": "Something went wrong while confirming your order. Please try again.",
+  "signInRequired": "Sign in or create an account to finalize your order. Your cart will be kept.",
+  "freeShippingHint": "Free shipping from €{{threshold}} of purchase.",
+  "addedModal": {
+    "title": "Added to cart",
+    "body": "Would you like to configure another project or view your cart?",
+    "continue": "Configure another project",
+    "goToCart": "View cart"
+  }
+}

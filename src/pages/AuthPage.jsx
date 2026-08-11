@@ -1,5 +1,6 @@
 // src/pages/AuthPage.jsx
 import React, { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { ClientManager } from '../logic/ClientManager';
 import { useAuth } from '../context/AuthContext';
@@ -7,6 +8,8 @@ import { useAuth } from '../context/AuthContext';
 export default function AuthPage({ onStart }) {
   const { t, i18n } = useTranslation('auth');
   const { user, loading } = useAuth();
+  const location = useLocation();
+  const redirectTo = location.state?.from || '/univers';
   const [isLogin, setIsLogin] = useState(true);
   const [type, setType] = useState('particulier');
 
@@ -42,15 +45,15 @@ export default function AuthPage({ onStart }) {
 
   useEffect(() => {
     if (!loading && user) {
-      onStart('config');
+      onStart(redirectTo);
     }
-  }, [loading, user, onStart]);
+  }, [loading, user, onStart, redirectTo]);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (isLogin) {
       const res = await ClientManager.connexion(email, password);
-      if (res.success) onStart('config');
+      if (res.success) onStart(redirectTo);
       else alert(t('errors.invalidCredentials'));
     } else {
       // Vérification des mots de passe
@@ -78,7 +81,7 @@ export default function AuthPage({ onStart }) {
         attente,
         langue: i18n.language,
       });
-      if (res.success) onStart('config');
+      if (res.success) onStart(redirectTo);
       else alert(t('errors.genericPrefix') + res.error);
     }
   };

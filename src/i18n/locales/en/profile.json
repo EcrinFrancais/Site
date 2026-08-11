@@ -30,6 +30,22 @@
   },
   "save": "Save",
   "savedProfile": "Profile updated",
+  "addresses": {
+    "title": "Address book",
+    "empty": "No address saved yet.",
+    "labelField": "Address name",
+    "labelPlaceholder": "Home, Office…",
+    "addButton": "Add an address",
+    "editButton": "Edit",
+    "deleteButton": "Delete",
+    "deleteConfirm": "Delete this address?",
+    "setDefaultShipping": "Default shipping address",
+    "setDefaultBilling": "Default billing address",
+    "defaultShippingBadge": "Default shipping",
+    "defaultBillingBadge": "Default billing",
+    "save": "Save address",
+    "cancel": "Cancel"
+  },
   "projects": {
     "title": "Projects in Progress",
     "empty": "No project in progress at the moment.",

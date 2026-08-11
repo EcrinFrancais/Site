@@ -1,9 +1,10 @@
 {
-  "title": "Résumé de commande",
-  "orderId": "Numéro de commande : {{id}}",
+  "title": "Merci pour votre commande",
   "confirmationSent": "Un e-mail de confirmation vous a été envoyé.",
-  "univers": "Univers : {{univers}}",
-  "quantity": "Quantité : {{quantity}}",
-  "status": "Statut : {{status}}",
-  "total": "Total estimé : {{total}} €"
+  "itemsTitle": "Récapitulatif",
+  "itemLine": "{{univers}} — {{quantite}} écrin(s) — {{totalTTC}} € TTC",
+  "shippingLine": "Livraison : {{amount}} €",
+  "shippingFreeLine": "Livraison offerte",
+  "grandTotalLine": "Total : {{amount}} €",
+  "orderIdsLine": "Numéro(s) de commande : {{ids}}"
 }

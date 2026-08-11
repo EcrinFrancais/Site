@@ -48,9 +48,37 @@ const styles = {
   item: { padding: '14px', borderRadius: '14px', background: 'rgba(255,255,255,0.04)', border: '1px solid rgba(255,255,255,0.08)' },
 };
 
+const EMPTY_ADDRESS_FIELDS = { numero: '', voie: '', complement: '', codePostal: '', ville: '', pays: 'France' };
+
+// Ancien profil : une seule adresse à plat (profileData.adresse). On la
+// convertit en carnet d'une entrée par défaut, pour ne rien perdre au
+// premier chargement d'un profil créé avant le carnet d'adresses.
+function migrateAddresses(profileData) {
+  if (Array.isArray(profileData?.adresses) && profileData.adresses.length > 0) {
+    return profileData.adresses;
+  }
+  const legacy = profileData?.adresse;
+  const hasContent = legacy && (legacy.voie || legacy.ville || legacy.codePostal);
+  if (!hasContent) return [];
+  return [
+    {
+      id: 'legacy',
+      label: '',
+      ...EMPTY_ADDRESS_FIELDS,
+      ...legacy,
+      isDefaultLivraison: true,
+      isDefaultFacturation: true,
+    },
+  ];
+}
+
+function generateAddressId() {
+  return `addr-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+}
+
 export default function ProfilePage() {
   const { t, i18n } = useTranslation(['profile', 'configurator', 'common']);
-  const { user } = useAuth();
+  const { user, refreshProfile } = useAuth();
   const [profile, setProfile] = useState({
     type: 'particulier',
     genre: 'Monsieur',
@@ -59,12 +87,14 @@ export default function ProfilePage() {
     entreprise: '',
     siret: '',
     telephone: '',
-    adresse: { numero: '', voie: '', complement: '', codePostal: '', ville: '', pays: 'France' },
     passion: '',
     attente: '',
     email: '',
     langue: i18n.language,
   });
+  const [addresses, setAddresses] = useState([]);
+  const [addressForm, setAddressForm] = useState(null); // null = fermé, sinon l'adresse en cours d'édition/création
+  const [addressSaving, setAddressSaving] = useState(false);
   const [orders, setOrders] = useState([]);
   const [projects, setProjects] = useState([]);
   const [message, setMessage] = useState('');
@@ -84,9 +114,9 @@ export default function ProfilePage() {
       setProfile({
         ...profileData,
         email: user.email || profileData?.email || '',
-        adresse: profileData?.adresse || { numero: '', voie: '', complement: '', codePostal: '', ville: '', pays: 'France' },
         langue: profileData?.langue || i18n.language,
       });
+      setAddresses(migrateAddresses(profileData));
       setOrders(ordersData);
       setProjects(projectsData);
       setLoading(false);
@@ -105,10 +135,6 @@ export default function ProfilePage() {
     }
   };
 
-  const handleAddressChange = (field, value) => {
-    setProfile((prev) => ({ ...prev, adresse: { ...prev.adresse, [field]: value } }));
-  };
-
   const handleSubmit = async (event) => {
     event.preventDefault();
     if (!user) return;
@@ -116,6 +142,77 @@ export default function ProfilePage() {
     await ClientManager.updateProfile(user.uid, profile);
     setSaved(true);
     window.setTimeout(() => setSaved(false), 2000);
+  };
+
+  // L'adresse de livraison par défaut est toujours mirroir dans profile.adresse
+  // (à plat) pour rester compatible avec tout le code existant qui lit encore
+  // ce champ (panier au moment de la commande, back-office, export CSV).
+  const persistAddresses = async (nextAddresses) => {
+    if (!user) return;
+    const defaultLivraison = nextAddresses.find((a) => a.isDefaultLivraison) || nextAddresses[0] || null;
+    await ClientManager.updateProfile(user.uid, {
+      adresses: nextAddresses,
+      adresse: defaultLivraison
+        ? {
+            numero: defaultLivraison.numero,
+            voie: defaultLivraison.voie,
+            complement: defaultLivraison.complement,
+            codePostal: defaultLivraison.codePostal,
+            ville: defaultLivraison.ville,
+            pays: defaultLivraison.pays,
+          }
+        : EMPTY_ADDRESS_FIELDS,
+    });
+    setAddresses(nextAddresses);
+    await refreshProfile();
+  };
+
+  const openNewAddressForm = () => {
+    setAddressForm({
+      id: generateAddressId(),
+      label: '',
+      ...EMPTY_ADDRESS_FIELDS,
+      isDefaultLivraison: addresses.length === 0,
+      isDefaultFacturation: addresses.length === 0,
+    });
+  };
+
+  const openEditAddressForm = (address) => setAddressForm({ ...address });
+
+  const handleAddressFormChange = (field, value) => {
+    setAddressForm((prev) => ({ ...prev, [field]: value }));
+  };
+
+  const handleSaveAddress = async () => {
+    if (!addressForm) return;
+    setAddressSaving(true);
+    const exists = addresses.some((a) => a.id === addressForm.id);
+    let next = exists
+      ? addresses.map((a) => (a.id === addressForm.id ? addressForm : a))
+      : [...addresses, addressForm];
+
+    if (addressForm.isDefaultLivraison) {
+      next = next.map((a) => ({ ...a, isDefaultLivraison: a.id === addressForm.id }));
+    }
+    if (addressForm.isDefaultFacturation) {
+      next = next.map((a) => ({ ...a, isDefaultFacturation: a.id === addressForm.id }));
+    }
+
+    await persistAddresses(next);
+    setAddressSaving(false);
+    setAddressForm(null);
+  };
+
+  const handleDeleteAddress = async (addressId) => {
+    if (!window.confirm(t('addresses.deleteConfirm'))) return;
+    let next = addresses.filter((a) => a.id !== addressId);
+    if (next.length > 0 && !next.some((a) => a.isDefaultLivraison)) {
+      next = next.map((a, index) => (index === 0 ? { ...a, isDefaultLivraison: true } : a));
+    }
+    if (next.length > 0 && !next.some((a) => a.isDefaultFacturation)) {
+      next = next.map((a, index) => (index === 0 ? { ...a, isDefaultFacturation: true } : a));
+    }
+    await persistAddresses(next);
   };
 
   const handleMessage = async () => {
@@ -186,30 +283,6 @@ export default function ProfilePage() {
                 <input value={profile.siret || ''} onChange={(e) => handleChange('siret', e.target.value)} style={styles.input} />
               </label>
               <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressNumber')}</div>
-                <input value={profile.adresse?.numero || ''} onChange={(e) => handleAddressChange('numero', e.target.value)} style={styles.input} />
-              </label>
-              <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressStreet')}</div>
-                <input value={profile.adresse?.voie || ''} onChange={(e) => handleAddressChange('voie', e.target.value)} style={styles.input} />
-              </label>
-              <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressComplement')}</div>
-                <input value={profile.adresse?.complement || ''} onChange={(e) => handleAddressChange('complement', e.target.value)} style={styles.input} />
-              </label>
-              <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.postalCode')}</div>
-                <input value={profile.adresse?.codePostal || ''} onChange={(e) => handleAddressChange('codePostal', e.target.value)} style={styles.input} />
-              </label>
-              <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.city')}</div>
-                <input value={profile.adresse?.ville || ''} onChange={(e) => handleAddressChange('ville', e.target.value)} style={styles.input} />
-              </label>
-              <label>
-                <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.country')}</div>
-                <input value={profile.adresse?.pays || 'France'} onChange={(e) => handleAddressChange('pays', e.target.value)} style={styles.input} />
-              </label>
-              <label>
                 <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.language')}</div>
                 <select value={profile.langue || i18n.language} onChange={(e) => handleChange('langue', e.target.value)} style={styles.input}>
                   <option value="fr">{t('fields.languageFr')}</option>
@@ -234,6 +307,113 @@ export default function ProfilePage() {
               {saved && <span style={styles.pill}>{t('savedProfile')}</span>}
             </div>
           </form>
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.title}>{t('addresses.title')}</h2>
+
+          {addresses.length === 0 && !addressForm && <p style={styles.muted}>{t('addresses.empty')}</p>}
+
+          {addresses.length > 0 && (
+            <div style={styles.list}>
+              {addresses.map((address) => (
+                <div key={address.id} style={styles.item}>
+                  <div style={{ fontWeight: 700, color: '#f7e0a7' }}>
+                    {address.label || t('addresses.labelPlaceholder')}
+                  </div>
+                  <div style={{ color: '#9b937f', marginTop: '6px' }}>
+                    {[address.numero, address.voie, address.complement].filter(Boolean).join(' ')}
+                    {' — '}
+                    {[address.codePostal, address.ville, address.pays].filter(Boolean).join(' ')}
+                  </div>
+                  <div style={styles.row}>
+                    {address.isDefaultLivraison && <span style={styles.pill}>{t('addresses.defaultShippingBadge')}</span>}
+                    {address.isDefaultFacturation && <span style={styles.pill}>{t('addresses.defaultBillingBadge')}</span>}
+                  </div>
+                  <div style={{ ...styles.row, marginTop: '10px' }}>
+                    <button type="button" style={styles.button} onClick={() => openEditAddressForm(address)}>
+                      {t('addresses.editButton')}
+                    </button>
+                    <button type="button" style={styles.button} onClick={() => handleDeleteAddress(address.id)}>
+                      {t('addresses.deleteButton')}
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {addressForm ? (
+            <div style={{ ...styles.item, marginTop: '16px' }}>
+              <div style={styles.grid}>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('addresses.labelField')}</div>
+                  <input
+                    value={addressForm.label}
+                    onChange={(e) => handleAddressFormChange('label', e.target.value)}
+                    placeholder={t('addresses.labelPlaceholder')}
+                    style={styles.input}
+                  />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressNumber')}</div>
+                  <input value={addressForm.numero} onChange={(e) => handleAddressFormChange('numero', e.target.value)} style={styles.input} />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressStreet')}</div>
+                  <input value={addressForm.voie} onChange={(e) => handleAddressFormChange('voie', e.target.value)} style={styles.input} />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.addressComplement')}</div>
+                  <input value={addressForm.complement} onChange={(e) => handleAddressFormChange('complement', e.target.value)} style={styles.input} />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.postalCode')}</div>
+                  <input value={addressForm.codePostal} onChange={(e) => handleAddressFormChange('codePostal', e.target.value)} style={styles.input} />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.city')}</div>
+                  <input value={addressForm.ville} onChange={(e) => handleAddressFormChange('ville', e.target.value)} style={styles.input} />
+                </label>
+                <label>
+                  <div style={{ marginBottom: '6px', color: '#d8c89b' }}>{t('fields.country')}</div>
+                  <input value={addressForm.pays} onChange={(e) => handleAddressFormChange('pays', e.target.value)} style={styles.input} />
+                </label>
+              </div>
+              <div style={{ ...styles.row, marginTop: '12px' }}>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#d8c89b' }}>
+                  <input
+                    type="checkbox"
+                    checked={addressForm.isDefaultLivraison}
+                    onChange={(e) => handleAddressFormChange('isDefaultLivraison', e.target.checked)}
+                  />
+                  {t('addresses.setDefaultShipping')}
+                </label>
+                <label style={{ display: 'flex', alignItems: 'center', gap: '8px', color: '#d8c89b' }}>
+                  <input
+                    type="checkbox"
+                    checked={addressForm.isDefaultFacturation}
+                    onChange={(e) => handleAddressFormChange('isDefaultFacturation', e.target.checked)}
+                  />
+                  {t('addresses.setDefaultBilling')}
+                </label>
+              </div>
+              <div style={{ ...styles.row, marginTop: '12px' }}>
+                <button type="button" style={styles.button} onClick={handleSaveAddress} disabled={addressSaving}>
+                  {t('addresses.save')}
+                </button>
+                <button type="button" style={styles.button} onClick={() => setAddressForm(null)} disabled={addressSaving}>
+                  {t('addresses.cancel')}
+                </button>
+              </div>
+            </div>
+          ) : (
+            <div style={styles.row}>
+              <button type="button" style={styles.button} onClick={openNewAddressForm}>
+                {t('addresses.addButton')}
+              </button>
+            </div>
+          )}
         </div>
 
         <div style={styles.card}>

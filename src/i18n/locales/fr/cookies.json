@@ -1,0 +1,16 @@
+{
+  "banner": {
+    "text": "Nous utilisons des cookies strictement nécessaires au fonctionnement du site, ainsi que des cookies de mesure d'audience si vous les acceptez.",
+    "learnMore": "En savoir plus",
+    "accept": "Tout accepter",
+    "reject": "Refuser"
+  },
+  "legalSection": {
+    "title": "Gestion des cookies",
+    "text": "Ce site dépose des cookies strictement nécessaires à son fonctionnement (panier, session, préférences de langue), qui ne requièrent pas votre consentement. Avec votre accord, il peut également déposer des cookies de mesure d'audience pour nous aider à améliorer le site. Vous pouvez revenir sur votre choix à tout moment.",
+    "manageButton": "Gérer mes préférences de cookies",
+    "currentChoiceAccepted": "Choix actuel : cookies de mesure d'audience acceptés.",
+    "currentChoiceRejected": "Choix actuel : cookies de mesure d'audience refusés.",
+    "currentChoiceNone": "Vous n'avez pas encore fait de choix."
+  }
+}

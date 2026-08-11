@@ -1,0 +1,16 @@
+{
+  "banner": {
+    "text": "We use cookies strictly necessary for the site to work, as well as audience-measurement cookies if you accept them.",
+    "learnMore": "Learn more",
+    "accept": "Accept all",
+    "reject": "Reject"
+  },
+  "legalSection": {
+    "title": "Cookie management",
+    "text": "This site places cookies strictly necessary for it to function (cart, session, language preference), which do not require your consent. With your agreement, it may also place audience-measurement cookies to help us improve the site. You can change your choice at any time.",
+    "manageButton": "Manage my cookie preferences",
+    "currentChoiceAccepted": "Current choice: audience-measurement cookies accepted.",
+    "currentChoiceRejected": "Current choice: audience-measurement cookies rejected.",
+    "currentChoiceNone": "You haven't made a choice yet."
+  }
+}

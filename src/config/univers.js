@@ -35,11 +35,30 @@ export const universData = [
     image:
       'https://images.unsplash.com/photo-1608755728617-aefab37d2edd?q=80&w=1000&auto=format&fit=crop',
     defaultConfig: {
-      taille: 'bouteille',
+      taille: 'moyen',
       essence: 'Pin',
       finition: 'Brut',
-      cales: 'Bois',
-      fermeture: 'Charnière',
+      doublure: 'Aucune',
+      fermeture: 'Charnières + fermeture magnétique invisible',
+      gravureType: 'Aucune',
+      quantite: 1,
+    },
+  },
+  // --- Univers "blague" temporaire (voir CercueilConfiguratorPage) ---
+  // Facile à retirer : supprimer ce bloc, l'entrée dans ConfiguratorRouter.jsx,
+  // et les fichiers src/pages/CercueilConfiguratorPage.jsx,
+  // src/components/Cercueil*.jsx et src/data/cercueilConfig.js.
+  {
+    id: 'cercueil',
+    titre: 'Cercueil (Édition Spéciale)',
+    image:
+      'https://images.unsplash.com/photo-1509909756405-be0199881695?q=80&w=1000&auto=format&fit=crop',
+    defaultConfig: {
+      taille: 'bouteille',
+      essence: 'Chêne',
+      finition: 'Brut',
+      doublure: 'Satin',
+      fermeture: 'Poignées dorées',
       gravureType: 'Aucune',
       quantite: 1,
     },

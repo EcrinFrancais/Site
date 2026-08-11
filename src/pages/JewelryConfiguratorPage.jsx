@@ -9,12 +9,14 @@ import {
   buildConfigurationSnapshot,
   saveConfigurationDraft,
 } from '../application/configurationUseCases';
-import { createOrderDraft } from '../logic/orderModel';
-import { ClientManager } from '../logic/ClientManager';
+import { createCartItem } from '../domain/cartItem';
+import { estimateItemWeightKg } from '../logic/shippingService';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { useUnsavedChanges } from '../context/UnsavedChangesContext';
 import JewelryConfigurationPanel from '../components/JewelryConfigurationPanel';
 import JewelryPreview3DPanel from '../components/JewelryPreview3DPanel';
+import AddToCartModal from '../components/AddToCartModal';
 import { jewelryConfiguratorStyles as styles } from '../styles/jewelryConfiguratorStyles';
 
 const JEWELRY_UNIVERS_ID = 'joaillerie-horlogerie';
@@ -26,7 +28,8 @@ export default function JewelryConfiguratorPage() {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { addItem } = useCart();
   const { setIsDirty: setGlobalDirty, registerSaveHandler } = useUnsavedChanges();
   const resolvedUnivers = params.universId || JEWELRY_UNIVERS_ID;
   const incomingDraft = location.state?.draft;
@@ -253,17 +256,26 @@ export default function JewelryConfiguratorPage() {
   };
 
   const [isOrdering, setIsOrdering] = useState(false);
+  const [showAddedModal, setShowAddedModal] = useState(false);
 
   const handleOrder = async () => {
     if (isOrdering) return;
     setIsOrdering(true);
-    const orderDraft = createOrderDraft(configuration, quote, profile || {});
-    const result = await ClientManager.sauvegarderCommande(orderDraft);
+    const weight = estimateItemWeightKg(quote.selectedDimensions, configuration.values.quantite);
+    addItem(createCartItem(configuration, quote, weight));
     setIsOrdering(false);
     setIsDirty(false);
-    navigate('/commande', {
-      state: { orderDraft: { ...orderDraft, id: result.id, persisted: result.success } },
-    });
+    setShowAddedModal(true);
+  };
+
+  const handleContinueConfiguring = () => {
+    setShowAddedModal(false);
+    navigate('/univers');
+  };
+
+  const handleGoToCart = () => {
+    setShowAddedModal(false);
+    navigate('/panier');
   };
 
   return (
@@ -339,6 +351,10 @@ export default function JewelryConfiguratorPage() {
         dims={customDims}
         setIsOpen={setIsOpen}
       />
+
+      {showAddedModal && (
+        <AddToCartModal onContinue={handleContinueConfiguring} onGoToCart={handleGoToCart} />
+      )}
     </div>
   );
 }

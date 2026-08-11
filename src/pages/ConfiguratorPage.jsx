@@ -5,14 +5,16 @@ import { vinsConfig } from '../data/vinsConfig';
 import { useFrame } from '@react-three/fiber';
 import { configurationService } from '../logic/configurationService';
 import { createDraftConfiguration, calculateConfigurationQuote, buildConfigurationSnapshot, saveConfigurationDraft } from '../application/configurationUseCases';
-import { createOrderDraft } from '../logic/orderModel';
-import { ClientManager } from '../logic/ClientManager';
+import { createCartItem } from '../domain/cartItem';
+import { estimateItemWeightKg } from '../logic/shippingService';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { useUnsavedChanges } from '../context/UnsavedChangesContext';
 import * as THREE from 'three';
 import { Text } from '@react-three/drei';
 import ConfigurationPanel from '../components/ConfigurationPanel';
 import Preview3DPanel from '../components/Preview3DPanel';
+import AddToCartModal from '../components/AddToCartModal';
 import { HEADER_HEIGHT } from '../components/Header';
 
 import bottleLabelImage from '../textures/etiquette-auxey-duresse.jpg';
@@ -618,7 +620,8 @@ export default function ConfiguratorPage({ univers }) {
   const params = useParams();
   const location = useLocation();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
+  const { user } = useAuth();
+  const { addItem } = useCart();
   const { setIsDirty: setGlobalDirty, registerSaveHandler } = useUnsavedChanges();
   const resolvedUnivers = univers || params.universId || 'vins-spiritueux';
   const incomingDraft = location.state?.draft;
@@ -793,17 +796,26 @@ export default function ConfiguratorPage({ univers }) {
   };
 
   const [isOrdering, setIsOrdering] = useState(false);
+  const [showAddedModal, setShowAddedModal] = useState(false);
 
   const handleOrder = async () => {
     if (isOrdering) return;
     setIsOrdering(true);
-    const orderDraft = createOrderDraft(configuration, quote, profile || {});
-    const result = await ClientManager.sauvegarderCommande(orderDraft);
+    const weight = estimateItemWeightKg(quote.selectedDimensions, configuration.values.quantite);
+    addItem(createCartItem(configuration, quote, weight));
     setIsOrdering(false);
     setIsDirty(false);
-    navigate('/commande', {
-      state: { orderDraft: { ...orderDraft, id: result.id, persisted: result.success } },
-    });
+    setShowAddedModal(true);
+  };
+
+  const handleContinueConfiguring = () => {
+    setShowAddedModal(false);
+    navigate('/univers');
+  };
+
+  const handleGoToCart = () => {
+    setShowAddedModal(false);
+    navigate('/panier');
   };
 
   return (
@@ -880,6 +892,10 @@ export default function ConfiguratorPage({ univers }) {
         setViewSize={setViewSize}
         setIsOpen={setIsOpen}
       />
+
+      {showAddedModal && (
+        <AddToCartModal onContinue={handleContinueConfiguring} onGoToCart={handleGoToCart} />
+      )}
     </div>
   );
 }

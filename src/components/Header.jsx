@@ -2,9 +2,11 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Link, NavLink, useNavigate } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
+import { useCart } from '../context/CartContext';
 import { useUnsavedChanges } from '../context/UnsavedChangesContext';
 import { ClientManager } from '../logic/ClientManager';
 import { supportedLanguages } from '../i18n';
+import UnsavedChangesModal from './UnsavedChangesModal';
 
 export const HEADER_HEIGHT = 64;
 
@@ -70,6 +72,39 @@ const styles = {
     textDecoration: 'none',
     whiteSpace: 'nowrap',
     flexShrink: 0,
+  },
+  rightGroup: { display: 'flex', alignItems: 'center', gap: '18px', flexShrink: 0 },
+  cartButton: {
+    position: 'relative',
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    width: '38px',
+    height: '38px',
+    border: '1px solid rgba(197, 160, 89, 0.22)',
+    borderRadius: '999px',
+    background: 'rgba(255,255,255,0.02)',
+    color: '#c5a059',
+    textDecoration: 'none',
+    flexShrink: 0,
+  },
+  cartBadge: {
+    position: 'absolute',
+    top: '-4px',
+    right: '-4px',
+    minWidth: '16px',
+    height: '16px',
+    padding: '0 4px',
+    borderRadius: '999px',
+    background: '#c5a059',
+    color: '#151210',
+    fontSize: '0.62rem',
+    fontWeight: 700,
+    display: 'flex',
+    alignItems: 'center',
+    justifyContent: 'center',
+    border: '1px solid #151210',
+    boxSizing: 'content-box',
   },
   accountWrap: { position: 'relative', flexShrink: 0 },
   accountButton: {
@@ -176,24 +211,41 @@ function displayNameFor(profile, user) {
 
 export default function Header() {
   const { user, profile, loading } = useAuth();
+  const { count } = useCart();
   const navigate = useNavigate();
   const { t, i18n } = useTranslation('header');
   const { isDirty, runSaveHandler } = useUnsavedChanges();
   const [menuOpen, setMenuOpen] = useState(false);
+  // Fonction à exécuter (navigation ou déconnexion) une fois que l'utilisateur
+  // a répondu à la modale "modifications non enregistrées". null = modale fermée.
+  const [pendingAction, setPendingAction] = useState(null);
   const wrapRef = useRef(null);
   const activeLanguage = (i18n.resolvedLanguage || i18n.language || 'fr').slice(0, 2);
 
   // Si la page courante (un configurateur) a des modifications non
   // enregistrées, on propose de les enregistrer avant de quitter plutôt que
   // de laisser le lien naviguer directement.
-  const guardNavigation = (to) => async (event) => {
+  const guardNavigation = (to) => (event) => {
     if (!isDirty) return;
     event.preventDefault();
-    const shouldSave = window.confirm(t('unsavedChangesConfirm'));
-    if (!shouldSave) return;
+    setPendingAction(() => () => navigate(to));
+  };
+
+  const handleModalSave = async () => {
+    const action = pendingAction;
     const saved = await runSaveHandler();
-    if (!saved) return;
-    navigate(to);
+    setPendingAction(null);
+    if (saved && action) action();
+  };
+
+  const handleModalDiscard = () => {
+    const action = pendingAction;
+    setPendingAction(null);
+    if (action) action();
+  };
+
+  const handleModalCancel = () => {
+    setPendingAction(null);
   };
 
   useEffect(() => {
@@ -217,10 +269,12 @@ export default function Header() {
   const handleLogout = async (event) => {
     if (isDirty) {
       event.preventDefault();
-      const shouldSave = window.confirm(t('unsavedChangesConfirm'));
-      if (!shouldSave) return;
-      const saved = await runSaveHandler();
-      if (!saved) return;
+      setMenuOpen(false);
+      setPendingAction(() => async () => {
+        await ClientManager.deconnexion();
+        navigate('/');
+      });
+      return;
     }
     setMenuOpen(false);
     await ClientManager.deconnexion();
@@ -228,6 +282,7 @@ export default function Header() {
   };
 
   return (
+    <>
     <header style={styles.bar}>
       <Link to="/" style={styles.brand} onClick={guardNavigation('/')}>
         <span style={styles.brandMark}>ÉF</span>
@@ -241,61 +296,75 @@ export default function Header() {
         <NavLink to="/client" className="nav-link" style={styles.navLink} onClick={guardNavigation('/client')}>{t('nav.client')}</NavLink>
       </nav>
 
-      <div style={styles.langSwitch}>
-        {supportedLanguages.map(({ code, label }) => (
-          <button
-            key={code}
-            type="button"
-            onClick={() => i18n.changeLanguage(code)}
-            style={code === activeLanguage ? { ...styles.langButton, ...styles.langButtonActive } : styles.langButton}
-          >
-            {label}
-          </button>
-        ))}
-      </div>
-
-      {!loading && !user && (
-        <Link to="/auth" style={styles.pillButton} onClick={guardNavigation('/auth')}>{t('signIn')}</Link>
-      )}
-
-      {!loading && user && (
-        <div style={styles.accountWrap} ref={wrapRef}>
-          <button type="button" style={styles.accountButton} onClick={() => setMenuOpen((open) => !open)}>
-            <span style={styles.avatar}>{initialsFor(profile, user)}</span>
-            <span style={styles.accountName}>{displayNameFor(profile, user)}</span>
-            <span style={styles.caret}>▾</span>
-          </button>
-          {menuOpen && (
-            <div style={styles.menu}>
-              <div style={styles.menuEmail}>{user.email}</div>
-              <Link
-                to="/profil"
-                style={styles.menuItem}
-                onClick={(event) => {
-                  guardNavigation('/profil')(event);
-                  if (!isDirty) setMenuOpen(false);
-                }}
-              >
-                {t('menu.profile')}
-              </Link>
-              <Link
-                to="/client"
-                style={styles.menuItem}
-                onClick={(event) => {
-                  guardNavigation('/client')(event);
-                  if (!isDirty) setMenuOpen(false);
-                }}
-              >
-                {t('menu.projects')}
-              </Link>
-              <div style={styles.menuDivider}></div>
-              <button type="button" style={{ ...styles.menuItem, ...styles.menuItemDanger }} onClick={handleLogout}>
-                {t('menu.signOut')}
-              </button>
-            </div>
-          )}
+      <div style={styles.rightGroup}>
+        <div style={styles.langSwitch}>
+          {supportedLanguages.map(({ code, label }) => (
+            <button
+              key={code}
+              type="button"
+              onClick={() => i18n.changeLanguage(code)}
+              style={code === activeLanguage ? { ...styles.langButton, ...styles.langButtonActive } : styles.langButton}
+            >
+              {label}
+            </button>
+          ))}
         </div>
-      )}
+
+        <Link to="/panier" style={styles.cartButton} onClick={guardNavigation('/panier')} aria-label={t('cart')}>
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M6 8h12l-1 12a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2L6 8Z" />
+            <path d="M9 8V6a3 3 0 0 1 6 0v2" />
+          </svg>
+          {count > 0 && <span style={styles.cartBadge}>{count}</span>}
+        </Link>
+
+        {!loading && !user && (
+          <Link to="/auth" style={styles.pillButton} onClick={guardNavigation('/auth')}>{t('signIn')}</Link>
+        )}
+
+        {!loading && user && (
+          <div style={styles.accountWrap} ref={wrapRef}>
+            <button type="button" style={styles.accountButton} onClick={() => setMenuOpen((open) => !open)}>
+              <span style={styles.avatar}>{initialsFor(profile, user)}</span>
+              <span style={styles.accountName}>{displayNameFor(profile, user)}</span>
+              <span style={styles.caret}>▾</span>
+            </button>
+            {menuOpen && (
+              <div style={styles.menu}>
+                <div style={styles.menuEmail}>{user.email}</div>
+                <Link
+                  to="/profil"
+                  style={styles.menuItem}
+                  onClick={(event) => {
+                    guardNavigation('/profil')(event);
+                    if (!isDirty) setMenuOpen(false);
+                  }}
+                >
+                  {t('menu.profile')}
+                </Link>
+                <Link
+                  to="/client"
+                  style={styles.menuItem}
+                  onClick={(event) => {
+                    guardNavigation('/client')(event);
+                    if (!isDirty) setMenuOpen(false);
+                  }}
+                >
+                  {t('menu.projects')}
+                </Link>
+                <div style={styles.menuDivider}></div>
+                <button type="button" style={{ ...styles.menuItem, ...styles.menuItemDanger }} onClick={handleLogout}>
+                  {t('menu.signOut')}
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
     </header>
+    {pendingAction && (
+      <UnsavedChangesModal onSave={handleModalSave} onDiscard={handleModalDiscard} onCancel={handleModalCancel} />
+    )}
+    </>
   );
 }

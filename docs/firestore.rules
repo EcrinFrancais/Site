@@ -50,14 +50,6 @@ service cloud.firestore {
       allow update, delete: if isAdmin();
     }
 
-    // File d'e-mails transactionnels (extension Firebase "Trigger Email") :
-    // écriture ouverte pour permettre les envois depuis le site, jamais de
-    // lecture publique (contiendrait des adresses e-mail et coordonnées).
-    match /mail/{mailId} {
-      allow create: if true;
-      allow read, update, delete: if isAdmin();
-    }
-
     // Messages (formulaire de contact, etc.)
     match /messages/{messageId} {
       allow create: if true;

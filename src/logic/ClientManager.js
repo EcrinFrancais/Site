@@ -3,6 +3,7 @@ import { db, auth } from '../config/firebase';
 import { collection, addDoc, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { escapeHtml } from './ContactManager';
+import { EmailService } from './EmailService';
 import { OrderStatus } from '../domain/orderStatus';
 import { createOrderDraft } from './orderModel';
 import { estimateShippingCost } from './shippingService';
@@ -74,30 +75,17 @@ export const ClientManager = {
         const quantite = detailsCommande.configuration?.values?.quantite || 1;
         const total = Number(detailsCommande.total || 0).toFixed(2);
 
-        await addDoc(collection(db, 'mail'), {
-          to: [destinataire],
-          message: {
-            subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
-            text: [
-              `Merci pour votre commande auprès de L'Écrin Français.`,
-              '',
-              `Numéro de commande : ${numero}`,
-              `Univers : ${univers}`,
-              `Quantité : ${quantite}`,
-              `Total estimé : ${total} €`,
-              '',
-              `Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.`,
-            ].join('\n'),
-            html: [
-              `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
-              `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
-              `<p><strong>Univers :</strong> ${escapeHtml(univers)}</p>`,
-              `<p><strong>Quantité :</strong> ${escapeHtml(quantite)}</p>`,
-              `<p><strong>Total estimé :</strong> ${escapeHtml(total)} €</p>`,
-              `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
-            ].join(''),
-          },
-          createdAt: new Date().toISOString(),
+        await EmailService.envoyer({
+          toEmail: destinataire,
+          subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
+          messageHtml: [
+            `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
+            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+            `<p><strong>Univers :</strong> ${escapeHtml(univers)}</p>`,
+            `<p><strong>Quantité :</strong> ${escapeHtml(quantite)}</p>`,
+            `<p><strong>Total estimé :</strong> ${escapeHtml(total)} €</p>`,
+            `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
+          ].join(''),
         });
       }
 
@@ -147,31 +135,17 @@ export const ClientManager = {
 
       const destinataire = user?.email || profile?.email;
       if (destinataire) {
-        await addDoc(collection(db, 'mail'), {
-          to: [destinataire],
-          message: {
-            subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
-            text: [
-              `Merci pour votre commande auprès de L'Écrin Français.`,
-              '',
-              `Numéro de commande : ${numero}`,
-              ...lignes,
-              '',
-              `Livraison : ${shippingCostTTC.toFixed(2)} €`,
-              `Total général : ${totalGeneral} €`,
-              '',
-              `Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.`,
-            ].join('\n'),
-            html: [
-              `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
-              `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
-              `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
-              `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
-              `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
-              `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
-            ].join(''),
-          },
-          createdAt: new Date().toISOString(),
+        await EmailService.envoyer({
+          toEmail: destinataire,
+          subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
+          messageHtml: [
+            `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
+            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+            `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+            `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+            `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+            `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
+          ].join(''),
         });
       }
 
@@ -188,33 +162,18 @@ export const ClientManager = {
         ...(p.entreprise ? [`Entreprise : ${p.entreprise}${p.siret ? ` (SIRET ${p.siret})` : ''}`] : []),
       ];
 
-      await addDoc(collection(db, 'mail'), {
-        to: ['ecrinfrancais@gmail.com'],
-        message: {
-          subject: `Nouvelle commande #${numero} — L'Écrin Français`,
-          text: [
-            `Nouvelle commande reçue.`,
-            '',
-            `Numéro de commande : ${numero}`,
-            ...lignes,
-            '',
-            `Livraison : ${shippingCostTTC.toFixed(2)} €`,
-            `Total général : ${totalGeneral} €`,
-            '',
-            `Coordonnées du client :`,
-            ...coordonnees,
-          ].join('\n'),
-          html: [
-            `<p><strong>Nouvelle commande reçue.</strong></p>`,
-            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
-            `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
-            `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
-            `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
-            `<p><strong>Coordonnées du client :</strong></p>`,
-            `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
-          ].join(''),
-        },
-        createdAt: new Date().toISOString(),
+      await EmailService.envoyer({
+        toEmail: 'ecrinfrancais@gmail.com',
+        subject: `Nouvelle commande #${numero} — L'Écrin Français`,
+        messageHtml: [
+          `<p><strong>Nouvelle commande reçue.</strong></p>`,
+          `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+          `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+          `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+          `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+          `<p><strong>Coordonnées du client :</strong></p>`,
+          `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
+        ].join(''),
       });
 
       return { success: true, orderIds, basketId };

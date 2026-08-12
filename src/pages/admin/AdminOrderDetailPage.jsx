@@ -39,7 +39,11 @@ export default function AdminOrderDetailPage() {
   const handleStatusChange = async (event) => {
     const newStatus = event.target.value;
     setStatusState('saving');
-    const result = await AdminManager.updateBasketStatus(basket.orderIds, newStatus);
+    const result = await AdminManager.updateBasketStatus(basket.orderIds, newStatus, {
+      clientEmail: basket.clientProfile?.email,
+      basketNumero: basket.basketId.slice(-8).toUpperCase(),
+      statusLabel: t(`common:status.${newStatus}`, newStatus),
+    });
     if (result.success) {
       setBasket((prev) => ({
         ...prev,

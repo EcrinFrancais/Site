@@ -26,15 +26,16 @@ export const coffretCadeauPricingService = {
           }
         : preset.dims;
 
-    const quote = PricingEngine.calculerPrix(
-      dims.L,
-      dims.l,
-      dims.h,
-      normalizeEssence(configuration.essence),
-      normalizeFinition(configuration.finition),
-      Number(configuration.quantite || 1),
-      false
-    );
+    const quote = PricingEngine.calculerPrix({
+      longueur: dims.L,
+      largeur: dims.l,
+      hauteur: dims.h,
+      essence: normalizeEssence(configuration.essence),
+      finition: normalizeFinition(configuration.finition),
+      fermeture: configuration.fermeture,
+      qte: Number(configuration.quantite || 1),
+      isB2B: false,
+    });
 
     return {
       ...quote,

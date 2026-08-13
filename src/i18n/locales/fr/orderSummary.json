@@ -6,5 +6,6 @@
   "shippingLine": "Livraison : {{amount}} €",
   "shippingFreeLine": "Livraison offerte",
   "grandTotalLine": "Total : {{amount}} €",
-  "orderIdsLine": "Numéro(s) de commande : {{ids}}"
+  "orderIdsLine": "Numéro(s) de commande : {{ids}}",
+  "followUpNote": "Pour toute question sur votre commande, contactez-nous à ecrinfrancais@gmail.com. Notre atelier revient vers vous sous une semaine pour confirmer le délai de fabrication."
 }

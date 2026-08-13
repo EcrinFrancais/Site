@@ -1,6 +1,6 @@
 // src/logic/AdminManager.js
 import { db, auth } from '../config/firebase';
-import { collection, getDocs, doc, getDoc, setDoc, writeBatch, arrayUnion } from 'firebase/firestore';
+import { collection, getDocs, doc, getDoc, setDoc, writeBatch, arrayUnion, query, where } from 'firebase/firestore';
 import {
   signInWithEmailAndPassword,
   signOut,
@@ -124,6 +124,23 @@ export const AdminManager = {
     } catch (e) {
       return { success: false, error: e.message };
     }
+  },
+
+  // sinceIso (optionnel) : ne remonte que les documents créés après cette
+  // date ISO, pour garder l'onglet Audience rapide même après des années
+  // de trafic (voir AdminAudiencePage).
+  getVisites: async (sinceIso) => {
+    const base = collection(db, 'visites');
+    const q = sinceIso ? query(base, where('createdAt', '>=', sinceIso)) : base;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docItem) => docItem.data());
+  },
+
+  getPageVues: async (sinceIso) => {
+    const base = collection(db, 'pageVues');
+    const q = sinceIso ? query(base, where('createdAt', '>=', sinceIso)) : base;
+    const snapshot = await getDocs(q);
+    return snapshot.docs.map((docItem) => docItem.data());
   },
 
   changeAdminPassword: async (currentPassword, newPassword) => {

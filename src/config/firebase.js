@@ -15,7 +15,7 @@ const firebaseConfig = {
 };
 
 // On allume le moteur Firebase avec les clés
-const app = initializeApp(firebaseConfig);
+export const app = initializeApp(firebaseConfig);
 
 // Export de l'authentification et de la base de données pour les utiliser dans les autres fichiers du site
 export const auth = getAuth(app);

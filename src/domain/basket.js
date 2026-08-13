@@ -23,6 +23,7 @@ export function groupOrdersIntoBaskets(orderDocs) {
         // les lire depuis n'importe lequel, le premier fait l'affaire.
         note: order.note || '',
         statusHistory: order.statusHistory || [],
+        pdfUrl: order.pdfUrl || null,
       });
     }
     const group = groups.get(basketId);

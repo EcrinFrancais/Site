@@ -54,6 +54,7 @@ export default function OrderSummaryPage() {
                 })}
               </p>
             )}
+            <p style={{ color: '#999', lineHeight: 1.8, marginTop: '20px' }}>{t('followUpNote')}</p>
           </>
         )}
 

@@ -11,6 +11,7 @@ import {
 } from '../application/configurationUseCases';
 import { createCartItem } from '../domain/cartItem';
 import { estimateItemWeightKg } from '../logic/shippingService';
+import { useEngravingUpload } from '../hooks/useEngravingUpload';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useUnsavedChanges } from '../context/UnsavedChangesContext';
@@ -79,6 +80,12 @@ export default function CoffretCadeauConfiguratorPage() {
   const [texteGravure, setTexteGravure] = useState(initialConfiguration.values.texteGravure || '');
   const [modeGravure, setModeGravure] = useState(initialConfiguration.values.modeGravure || 'texte');
   const [imageGravure, setImageGravure] = useState(initialConfiguration.values.imageGravure || null);
+  const { gravureFichierUrl, gravureFichierNom, gravureUploadState, handleUploadImage } = useEngravingUpload({
+    configId: initialConfiguration.id,
+    initialUrl: initialConfiguration.values.gravureFichierUrl,
+    initialNom: initialConfiguration.values.gravureFichierNom,
+    onLocalPreview: setImageGravure,
+  });
 
   const configuration = React.useMemo(
     () =>
@@ -104,6 +111,8 @@ export default function CoffretCadeauConfiguratorPage() {
           texteGravure,
           modeGravure,
           imageGravure,
+          gravureFichierUrl,
+          gravureFichierNom,
         },
         { name }
       ),
@@ -128,6 +137,8 @@ export default function CoffretCadeauConfiguratorPage() {
       texteGravure,
       modeGravure,
       imageGravure,
+      gravureFichierUrl,
+      gravureFichierNom,
       name,
     ]
   );
@@ -212,13 +223,6 @@ export default function CoffretCadeauConfiguratorPage() {
     []
   );
 
-  const handleUploadImage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageGravure(URL.createObjectURL(file));
-    }
-  };
-
   const [isOrdering, setIsOrdering] = useState(false);
   const [showAddedModal, setShowAddedModal] = useState(false);
 
@@ -283,6 +287,8 @@ export default function CoffretCadeauConfiguratorPage() {
         modeGravure={modeGravure}
         setModeGravure={setModeGravure}
         handleUploadImage={handleUploadImage}
+        gravureUploadState={gravureUploadState}
+        gravureFichierNom={gravureFichierNom}
         quote={quote}
         onOrder={handleOrder}
         orderPending={isOrdering}

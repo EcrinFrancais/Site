@@ -15,6 +15,12 @@
   "confirmError": "Une erreur est survenue lors de la confirmation de votre commande. Merci de réessayer.",
   "signInRequired": "Connectez-vous ou créez un compte pour finaliser votre commande. Votre panier sera conservé.",
   "freeShippingHint": "Livraison offerte dès {{threshold}} € d'achat.",
+  "legalConsent": {
+    "cgvLabel": "J'ai lu et j'accepte les",
+    "cgvLinkText": "conditions générales de vente",
+    "noWithdrawalLabel": "Je reconnais que le produit étant personnalisé, le droit de rétractation de 14 jours ne s'applique pas (Article L221-28 du Code de la consommation).",
+    "consentRequired": "Merci d'accepter les CGV et de reconnaître l'absence de droit de rétractation pour valider votre commande."
+  },
   "addedModal": {
     "title": "Ajouté au panier",
     "body": "Souhaitez-vous configurer un autre projet ou consulter votre panier ?",

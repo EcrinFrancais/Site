@@ -11,16 +11,28 @@
       "text": "All content on the site — texts, images, logos, visuals, designs and presentation elements — is the property of L’Écrin Français or its partners and is protected by intellectual property rights. Any unauthorised reproduction or use is prohibited."
     },
     "data": {
-      "title": "Data Protection",
-      "text": "Personal data collected via the site is used solely for managing your order, your client account and improving the service. It is not shared with third parties without consent, except where required by law."
+      "title": "Privacy Policy (GDPR)",
+      "text": "The information collected (name, address, email, phone number) is necessary to process your order and issue invoices. Your data is only shared with our logistics partners for delivery purposes; it is never sold to third parties. You have the right to access, correct and delete your data: to exercise it, contact ecrinfrancais@gmail.com."
     },
     "terms": {
       "title": "Terms and Conditions of Sale",
-      "text": "Quotes and price proposals are given as an indication and may be adjusted according to the final specifications, manufacturing lead time, materials selected and technical complexity of the project. Orders are confirmed after written validation by the client and payment of any deposits due. Manufacturing lead times are given as an indication and may vary according to production workload."
+      "text": "Quotes and price proposals are given as an indication and may be adjusted according to the final specifications, manufacturing lead time, materials selected and technical complexity of the project. Orders are confirmed after written validation by the client and payment of any deposits due."
     },
-    "returns": {
-      "title": "Returns and Cancellation",
-      "text": "Bespoke products are neither returned nor refunded, except in the event of an obvious defect or manufacturing error. Any cancellation request must be made as soon as possible and will be examined according to the progress of the project."
+    "customProducts": {
+      "title": "Bespoke and Personalised Products",
+      "text": "Products sold by L’Écrin Français are made to order according to the client's precise specifications (dimensions, wood essences, engravings)."
+    },
+    "noWithdrawal": {
+      "title": "Absence of Right of Withdrawal",
+      "text": "In accordance with Article L221-28 of the French Consumer Code, the right of withdrawal cannot be exercised for contracts for the supply of goods made to the consumer's specifications or clearly personalised. Consequently, no cancellation, return or refund can be accepted once the order has been validated and manufacturing has begun, except in the event of a proven non-conformity (technical defect or dimension error on our part)."
+    },
+    "woodTolerance": {
+      "title": "Technical Tolerances (Wood)",
+      "text": "As wood is a living material, variations in colour, grain or texture may appear compared to the 3D visuals shown on the site. These natural variations cannot be considered defects and do not justify a refusal of the goods."
+    },
+    "delivery": {
+      "title": "Lead Times and Delivery",
+      "text": "The announced manufacturing lead time (4 weeks) is given as an indication. A reasonable delay cannot give rise to order cancellation or damages."
     }
   }
 }

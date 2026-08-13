@@ -1,12 +1,14 @@
 // src/logic/ClientManager.js
 import { db, auth } from '../config/firebase';
-import { collection, addDoc, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc, updateDoc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { escapeHtml } from './ContactManager';
 import { EmailService } from './EmailService';
 import { OrderStatus } from '../domain/orderStatus';
 import { createOrderDraft } from './orderModel';
 import { estimateShippingCost } from './shippingService';
+import { StorageService } from './StorageService';
+import { OrderPdfService } from './OrderPdfService';
 
 export const ClientManager = {
   inscription: async (email, password, infosSup) => {
@@ -133,6 +135,26 @@ export const ClientManager = {
         cartItems.reduce((sum, item) => sum + Number(item.quote?.totalTTC || 0), 0) + shippingCostTTC
       ).toFixed(2);
 
+      // PDF récapitulatif : généré côté client (jsPDF, gratuit) et stocké sur
+      // Cloudinary (voir StorageService.js). EmailJS ne peut pas joindre de
+      // fichier binaire sur son forfait gratuit, donc le mail contient un
+      // lien de téléchargement plutôt qu'une vraie pièce jointe.
+      let pdfUrl = null;
+      try {
+        const pdfBlob = OrderPdfService.genererRecapitulatif({
+          numero,
+          date: new Date().toLocaleDateString(),
+          items: cartItems,
+          shippingCostTTC,
+          totalGeneral,
+          profile,
+        });
+        pdfUrl = await StorageService.upload(`commandes/${basketId}`, pdfBlob, 'application/pdf');
+        await Promise.all(orderIds.map((orderId) => updateDoc(doc(db, "commandes", orderId), { pdfUrl })));
+      } catch {
+        // Le PDF est un plus, pas un bloquant : la commande reste valide sans lui.
+      }
+
       const destinataire = user?.email || profile?.email;
       if (destinataire) {
         await EmailService.envoyer({
@@ -144,6 +166,7 @@ export const ClientManager = {
             `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
             `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
             `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+            pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF de votre commande</a></p>` : '',
             `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
           ].join(''),
         });
@@ -171,6 +194,7 @@ export const ClientManager = {
           `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
           `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
           `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+          pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF</a></p>` : '',
           `<p><strong>Coordonnées du client :</strong></p>`,
           `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
         ].join(''),

@@ -19,15 +19,16 @@ export const bijouxPricingService = {
     const sousType = getSousType(configuration.famille, configuration.sousType);
     const dims = configuration.dims || sousType?.dims || { L: 9, l: 9, h: 6 };
 
-    const quote = PricingEngine.calculerPrix(
-      dims.L,
-      dims.l,
-      dims.h,
-      normalizeEssence(configuration.essence),
-      normalizeFinition(configuration.finition),
-      Number(configuration.quantite || 1),
-      false
-    );
+    const quote = PricingEngine.calculerPrix({
+      longueur: dims.L,
+      largeur: dims.l,
+      hauteur: dims.h,
+      essence: normalizeEssence(configuration.essence),
+      finition: normalizeFinition(configuration.finition),
+      fermeture: configuration.fermeture,
+      qte: Number(configuration.quantite || 1),
+      isB2B: false,
+    });
 
     return {
       ...quote,

@@ -33,15 +33,16 @@ export const pricingService = {
     const effectiveWidth = selected.largeur || 9;
     const effectiveHeight = selected.hauteur || 9;
 
-    const quote = PricingEngine.calculerPrix(
-      effectiveLength,
-      effectiveWidth,
-      effectiveHeight,
-      normalizeEssence(configuration.essence),
-      normalizeFinition(configuration.finition),
-      Number(configuration.quantite || 1),
-      false
-    );
+    const quote = PricingEngine.calculerPrix({
+      longueur: effectiveLength,
+      largeur: effectiveWidth,
+      hauteur: effectiveHeight,
+      essence: normalizeEssence(configuration.essence),
+      finition: normalizeFinition(configuration.finition),
+      fermeture: configuration.fermeture,
+      qte: Number(configuration.quantite || 1),
+      isB2B: false,
+    });
 
     return {
       ...quote,

@@ -100,7 +100,14 @@ export default function AdminOrderDetailPage() {
         </button>
 
         <div style={styles.headerRow}>
-          <h1 style={styles.title}>{t('detail.orderTitle', { numero: basket.basketId.slice(-8).toUpperCase() })}</h1>
+          <div>
+            <h1 style={styles.title}>{t('detail.orderTitle', { numero: basket.basketId.slice(-8).toUpperCase() })}</h1>
+            {basket.pdfUrl && (
+              <a href={basket.pdfUrl} target="_blank" rel="noreferrer" style={{ color: '#c5a059', fontSize: '0.82rem' }}>
+                {t('detail.pdfLink')}
+              </a>
+            )}
+          </div>
           <div>
             <label style={{ display: 'block', fontSize: '0.68rem', letterSpacing: '0.08em', textTransform: 'uppercase', color: '#948a76', marginBottom: '6px' }}>
               {t('detail.statusLabel')}
@@ -244,6 +251,19 @@ function ProjectCharacteristics({ item, t }) {
           <span style={{ color: '#eaeaea', textAlign: 'right' }}>{value}</span>
         </div>
       ))}
+      {v.gravureFichierUrl && (
+        <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.88rem' }}>
+          <span style={{ color: '#948a76' }}>{t('detail.gravureFichier')}</span>
+          <a
+            href={v.gravureFichierUrl}
+            target="_blank"
+            rel="noreferrer"
+            style={{ color: '#c5a059', textAlign: 'right' }}
+          >
+            {v.gravureFichierNom || t('detail.gravureFichierOuvrir')}
+          </a>
+        </div>
+      )}
     </div>
   );
 }

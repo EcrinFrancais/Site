@@ -57,14 +57,29 @@ export default function MentionsLegalesPage() {
           <p style={styles.muted}>{t('sections.data.text')}</p>
         </div>
 
-        <div style={styles.card}>
+        <div style={styles.card} id="cgv">
           <h2 style={styles.subtitle}>{t('sections.terms.title')}</h2>
           <p style={styles.muted}>{t('sections.terms.text')}</p>
         </div>
 
         <div style={styles.card}>
-          <h2 style={styles.subtitle}>{t('sections.returns.title')}</h2>
-          <p style={styles.muted}>{t('sections.returns.text')}</p>
+          <h2 style={styles.subtitle}>{t('sections.customProducts.title')}</h2>
+          <p style={styles.muted}>{t('sections.customProducts.text')}</p>
+        </div>
+
+        <div style={styles.card} id="retractation">
+          <h2 style={styles.subtitle}>{t('sections.noWithdrawal.title')}</h2>
+          <p style={styles.muted}>{t('sections.noWithdrawal.text')}</p>
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.subtitle}>{t('sections.woodTolerance.title')}</h2>
+          <p style={styles.muted}>{t('sections.woodTolerance.text')}</p>
+        </div>
+
+        <div style={styles.card}>
+          <h2 style={styles.subtitle}>{t('sections.delivery.title')}</h2>
+          <p style={styles.muted}>{t('sections.delivery.text')}</p>
         </div>
 
         <div style={styles.card}>

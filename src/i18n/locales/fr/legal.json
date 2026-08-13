@@ -11,16 +11,28 @@
       "text": "Tous les contenus du site, textes, images, logos, visuels, modèles et éléments de présentation sont la propriété de L’Écrin Français ou de ses partenaires et sont protégés par les droits de la propriété intellectuelle. Toute reproduction ou exploitation non autorisée est interdite."
     },
     "data": {
-      "title": "Protection des données",
-      "text": "Les données personnelles collectées via le site sont utilisées uniquement pour la gestion de votre commande, votre compte client et l’amélioration du service. Elles ne sont pas transmises à des tiers sans consentement, sauf obligation légale."
+      "title": "Politique de confidentialité (RGPD)",
+      "text": "Les informations recueillies (nom, adresse, email, téléphone) sont nécessaires au traitement de votre commande et à l’établissement des factures. Vos données ne sont transmises qu’à nos partenaires logistiques pour la livraison ; elles ne sont jamais vendues à des tiers. Vous disposez d’un droit d’accès, de modification et de suppression de vos données : pour l’exercer, contactez ecrinfrancais@gmail.com."
     },
     "terms": {
       "title": "Conditions générales de vente",
-      "text": "Les devis et propositions de prix sont donnés à titre indicatif et peuvent être ajustés selon les spécifications finales, le délai de fabrication, les matières sélectionnées et la complexité technique du projet. Les commandes sont confirmées après validation écrite du client et règlement des acomptes éventuels. Les délais de fabrication sont donnés à titre indicatif et peuvent évoluer selon la charge de production."
+      "text": "Les devis et propositions de prix sont donnés à titre indicatif et peuvent être ajustés selon les spécifications finales, le délai de fabrication, les matières sélectionnées et la complexité technique du projet. Les commandes sont confirmées après validation écrite du client et règlement des acomptes éventuels."
     },
-    "returns": {
-      "title": "Retours et résiliation",
-      "text": "Les produits sur mesure ne sont ni repris ni remboursés, sauf en cas de défaut manifeste ou d’erreur de fabrication. Toute demande d’annulation doit être formulée dans les meilleurs délais et sera examinée selon l’avancement du projet."
+    "customProducts": {
+      "title": "Produits sur-mesure et personnalisés",
+      "text": "Les produits vendus par L’Écrin Français sont fabriqués à la demande selon les spécifications précises du client (dimensions, essences de bois, gravures)."
+    },
+    "noWithdrawal": {
+      "title": "Absence de droit de rétractation",
+      "text": "Conformément à l’article L221-28 du Code de la consommation, le droit de rétractation ne peut être exercé pour les contrats de fourniture de biens confectionnés selon les spécifications du consommateur ou nettement personnalisés. En conséquence, aucune annulation, aucun retour ni aucun remboursement ne pourra être accepté une fois la commande validée et la fabrication lancée, sauf en cas de défaut de conformité avéré (défaut technique ou erreur de dimension de notre part)."
+    },
+    "woodTolerance": {
+      "title": "Tolérances techniques (bois)",
+      "text": "Le bois étant un matériau vivant, des variations de teinte, de veinage ou de texture peuvent apparaître par rapport aux visuels 3D présentés sur le site. Ces variations naturelles ne peuvent être considérées comme des défauts et ne justifient pas un refus de la marchandise."
+    },
+    "delivery": {
+      "title": "Délais et livraison",
+      "text": "Le délai de fabrication annoncé (4 semaines) est donné à titre indicatif. Un retard raisonnable ne peut donner lieu à l’annulation de la commande ni à des dommages et intérêts."
     }
   }
 }

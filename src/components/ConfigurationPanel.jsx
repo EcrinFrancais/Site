@@ -40,6 +40,8 @@ export default function ConfigurationPanel({
   modeGravure,
   setModeGravure,
   handleUploadImage,
+  gravureUploadState,
+  gravureFichierNom,
   quote,
   vinsConfig,
   onOrder,
@@ -372,6 +374,15 @@ export default function ConfigurationPanel({
                       color: '#888',
                     }}
                   />
+                  {gravureUploadState === 'uploading' && (
+                    <span style={{ fontSize: '0.75rem', color: '#948a76' }}>{t('labels.engravingUploading')}</span>
+                  )}
+                  {gravureUploadState === 'done' && (
+                    <span style={{ fontSize: '0.75rem', color: '#7fae7f' }}>{t('labels.engravingUploaded', { name: gravureFichierNom })}</span>
+                  )}
+                  {gravureUploadState === 'error' && (
+                    <span style={{ fontSize: '0.75rem', color: '#d88b7c' }}>{t('labels.engravingUploadError')}</span>
+                  )}
                   <div>
                     <label style={{ ...styles.label, fontSize: '0.6rem' }}>
                       {t('labels.imageZoom', { value: tailleImage })}

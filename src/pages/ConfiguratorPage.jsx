@@ -7,6 +7,7 @@ import { configurationService } from '../logic/configurationService';
 import { createDraftConfiguration, calculateConfigurationQuote, buildConfigurationSnapshot, saveConfigurationDraft } from '../application/configurationUseCases';
 import { createCartItem } from '../domain/cartItem';
 import { estimateItemWeightKg } from '../logic/shippingService';
+import { useEngravingUpload } from '../hooks/useEngravingUpload';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
 import { useUnsavedChanges } from '../context/UnsavedChangesContext';
@@ -674,6 +675,12 @@ export default function ConfiguratorPage({ univers }) {
   );
   const [modeGravure, setModeGravure] = useState(initialConfiguration.values.modeGravure);
   const [imageGravure, setImageGravure] = useState(initialConfiguration.values.imageGravure);
+  const { gravureFichierUrl, gravureFichierNom, gravureUploadState, handleUploadImage } = useEngravingUpload({
+    configId: initialConfiguration.id,
+    initialUrl: initialConfiguration.values.gravureFichierUrl,
+    initialNom: initialConfiguration.values.gravureFichierNom,
+    onLocalPreview: setImageGravure,
+  });
 
   const configuration = React.useMemo(
     () =>
@@ -684,11 +691,32 @@ export default function ConfiguratorPage({ univers }) {
           mesures,
           essence,
           finition,
+          couleurLaque,
+          cales,
+          couleurVelours,
+          fermeture,
+          gravureType,
+          fontStyle,
+          tailleTexte,
+          tailleImage,
+          posX,
+          posY,
           quantite,
+          isOpen,
+          texteGravure,
+          modeGravure,
+          imageGravure,
+          gravureFichierUrl,
+          gravureFichierNom,
         },
         { name }
       ),
-    [initialConfiguration, taille, mesures, essence, finition, quantite, name]
+    [
+      initialConfiguration, taille, mesures, essence, finition, couleurLaque, cales,
+      couleurVelours, fermeture, gravureType, fontStyle, tailleTexte, tailleImage,
+      posX, posY, quantite, isOpen, texteGravure, modeGravure, imageGravure,
+      gravureFichierUrl, gravureFichierNom, name,
+    ]
   );
   const quote = React.useMemo(
     () => calculateConfigurationQuote(configuration),
@@ -721,6 +749,7 @@ export default function ConfiguratorPage({ univers }) {
     name, taille, mesures, essence, finition, couleurLaque, cales, couleurVelours,
     fermeture, gravureType, fontStyle, tailleTexte, tailleImage, posX, posY,
     quantite, isOpen, texteGravure, modeGravure, imageGravure,
+    gravureFichierUrl, gravureFichierNom,
   ]);
 
   useEffect(() => {
@@ -746,6 +775,7 @@ export default function ConfiguratorPage({ univers }) {
           taille, mesures, essence, finition, couleurLaque, cales, couleurVelours,
           fermeture, gravureType, fontStyle, tailleTexte, tailleImage, posX, posY,
           quantite, isOpen, texteGravure, modeGravure, imageGravure,
+          gravureFichierUrl, gravureFichierNom,
         },
         { name: nameToUse }
       );
@@ -787,13 +817,6 @@ export default function ConfiguratorPage({ univers }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
     []
   );
-
-  const handleUploadImage = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setImageGravure(URL.createObjectURL(file));
-    }
-  };
 
   const [isOrdering, setIsOrdering] = useState(false);
   const [showAddedModal, setShowAddedModal] = useState(false);
@@ -859,6 +882,8 @@ export default function ConfiguratorPage({ univers }) {
         modeGravure={modeGravure}
         setModeGravure={setModeGravure}
         handleUploadImage={handleUploadImage}
+        gravureUploadState={gravureUploadState}
+        gravureFichierNom={gravureFichierNom}
         quote={quote}
         vinsConfig={vinsConfig}
         onOrder={handleOrder}

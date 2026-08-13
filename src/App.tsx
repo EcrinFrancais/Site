@@ -18,6 +18,7 @@ import { CartProvider } from './context/CartContext';
 import { UnsavedChangesProvider } from './context/UnsavedChangesContext';
 import { CookieConsentProvider } from './context/CookieConsentContext';
 import CookieConsentBanner from './components/CookieConsentBanner';
+import AnalyticsTracker from './components/AnalyticsTracker';
 import './App.css';
 
 // Le configurateur embarque Three.js / React Three Fiber : on ne le charge
@@ -50,6 +51,7 @@ export default function App() {
         <UnsavedChangesProvider>
           <CookieConsentProvider>
             <div className="app">
+              <AnalyticsTracker />
               <Header />
               <Routes>
                 <Route path="/" element={<HomePage onStart={() => navigate('/univers')} />} />

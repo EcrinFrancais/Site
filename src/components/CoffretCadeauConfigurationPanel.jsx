@@ -41,6 +41,8 @@ export default function CoffretCadeauConfigurationPanel({
   modeGravure,
   setModeGravure,
   handleUploadImage,
+  gravureUploadState,
+  gravureFichierNom,
   quote,
   onOrder,
   orderPending,
@@ -310,6 +312,15 @@ export default function CoffretCadeauConfigurationPanel({
                     onChange={handleUploadImage}
                     style={{ ...styles.minimalInput, fontSize: '0.8rem', color: '#888' }}
                   />
+                  {gravureUploadState === 'uploading' && (
+                    <span style={{ fontSize: '0.75rem', color: '#948a76' }}>{t('configurator:labels.engravingUploading')}</span>
+                  )}
+                  {gravureUploadState === 'done' && (
+                    <span style={{ fontSize: '0.75rem', color: '#7fae7f' }}>{t('configurator:labels.engravingUploaded', { name: gravureFichierNom })}</span>
+                  )}
+                  {gravureUploadState === 'error' && (
+                    <span style={{ fontSize: '0.75rem', color: '#d88b7c' }}>{t('configurator:labels.engravingUploadError')}</span>
+                  )}
                   <div>
                     <label style={{ ...styles.label, fontSize: '0.6rem' }}>
                       {t('configurator:labels.imageZoom', { value: tailleImage })}

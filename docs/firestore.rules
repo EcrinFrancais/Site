@@ -56,6 +56,19 @@ service cloud.firestore {
       allow read, update, delete: if isAdmin();
     }
 
+    // Audience (voir SiteAnalyticsService.js / onglet admin "Audience") :
+    // écriture ouverte comme "commandes"/"messages" (visiteur anonyme),
+    // lecture réservée à l'admin. Jamais de modification/suppression
+    // individuelle depuis le site.
+    match /visites/{visiteId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+    match /pageVues/{pageVueId} {
+      allow create: if true;
+      allow read, update, delete: if isAdmin();
+    }
+
     // Avis clients : le client crée son propre avis, toujours en attente de
     // modération (le statut ne peut pas être forcé à "approuve" côté client).
     // Lecture publique limitée aux avis approuvés ; l'auteur et l'admin

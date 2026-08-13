@@ -35,6 +35,8 @@ export function createConfigurationModel({ universId, universTitle, data = {} })
       texteGravure: data.values?.texteGravure || '',
       modeGravure: data.values?.modeGravure || 'texte',
       imageGravure: data.values?.imageGravure || null,
+      gravureFichierUrl: data.values?.gravureFichierUrl || null,
+      gravureFichierNom: data.values?.gravureFichierNom || null,
     },
   };
 }

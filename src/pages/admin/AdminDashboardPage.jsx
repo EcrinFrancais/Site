@@ -119,6 +119,7 @@ export default function AdminDashboardPage() {
         <span style={styles.topbarBrand}>{t('login.brand')}</span>
         <div style={styles.topbarActions}>
           <Link to="/admin/avis" style={styles.linkButton}>{t('dashboard.reviews')}</Link>
+          <Link to="/admin/audience" style={styles.linkButton}>{t('dashboard.audience')}</Link>
           <Link to="/admin/parametres" style={styles.linkButton}>{t('dashboard.settings')}</Link>
           <button type="button" style={styles.linkButton} onClick={handleLogout}>{t('dashboard.logout')}</button>
         </div>

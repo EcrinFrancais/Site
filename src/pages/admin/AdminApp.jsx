@@ -7,6 +7,7 @@ import AdminDashboardPage from './AdminDashboardPage';
 import AdminOrderDetailPage from './AdminOrderDetailPage';
 import AdminSettingsPage from './AdminSettingsPage';
 import AdminReviewsPage from './AdminReviewsPage';
+import AdminAudiencePage from './AdminAudiencePage';
 
 export default function AdminApp() {
   return (
@@ -42,6 +43,14 @@ export default function AdminApp() {
           element={(
             <AdminProtectedRoute>
               <AdminReviewsPage />
+            </AdminProtectedRoute>
+          )}
+        />
+        <Route
+          path="audience"
+          element={(
+            <AdminProtectedRoute>
+              <AdminAudiencePage />
             </AdminProtectedRoute>
           )}
         />

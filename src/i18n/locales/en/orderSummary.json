@@ -6,5 +6,6 @@
   "shippingLine": "Shipping: €{{amount}}",
   "shippingFreeLine": "Free shipping",
   "grandTotalLine": "Total: €{{amount}}",
-  "orderIdsLine": "Order number(s): {{ids}}"
+  "orderIdsLine": "Order number(s): {{ids}}",
+  "followUpNote": "For any question about your order, contact us at ecrinfrancais@gmail.com. Our workshop will get back to you within a week to confirm the manufacturing lead time."
 }

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { useAuth } from '../context/AuthContext';
 import { useCart } from '../context/CartContext';
@@ -77,6 +77,18 @@ const styles = {
     borderTop: '1px solid rgba(212, 175, 55, 0.2)',
   },
   hint: { color: '#948a76', fontSize: '0.78rem', marginTop: '12px' },
+  consentBlock: { marginTop: '18px', display: 'grid', gap: '10px' },
+  consentLabel: {
+    display: 'flex',
+    alignItems: 'flex-start',
+    gap: '8px',
+    color: '#dccfab',
+    fontSize: '0.8rem',
+    lineHeight: 1.5,
+    cursor: 'pointer',
+  },
+  consentCheckbox: { marginTop: '3px', flexShrink: 0 },
+  inlineLink: { color: '#c5a059', textDecoration: 'underline' },
   confirmButton: {
     width: '100%',
     marginTop: '20px',
@@ -101,6 +113,9 @@ export default function CartPage() {
   const navigate = useNavigate();
   const [confirming, setConfirming] = useState(false);
   const [error, setError] = useState(false);
+  const [acceptCgv, setAcceptCgv] = useState(false);
+  const [acceptNoWithdrawal, setAcceptNoWithdrawal] = useState(false);
+  const canConfirm = acceptCgv && acceptNoWithdrawal;
 
   const handleRemove = (itemId) => {
     if (!window.confirm(t('removeConfirm'))) return;
@@ -112,6 +127,7 @@ export default function CartPage() {
       navigate('/auth', { state: { from: '/panier' } });
       return;
     }
+    if (!canConfirm) return;
     setError(false);
     setConfirming(true);
     const result = await ClientManager.sauvegarderPanier(items, profile || {});
@@ -190,9 +206,44 @@ export default function CartPage() {
               )}
               {!user && <div style={styles.hint}>{t('signInRequired')}</div>}
 
-              <button type="button" style={styles.confirmButton} onClick={handleConfirmOrder} disabled={confirming}>
+              <div style={styles.consentBlock}>
+                <label style={styles.consentLabel}>
+                  <input
+                    type="checkbox"
+                    style={styles.consentCheckbox}
+                    checked={acceptCgv}
+                    onChange={(e) => setAcceptCgv(e.target.checked)}
+                  />
+                  <span>
+                    {t('legalConsent.cgvLabel')}{' '}
+                    <Link to="/mentions-legales#cgv" target="_blank" style={styles.inlineLink}>
+                      {t('legalConsent.cgvLinkText')}
+                    </Link>
+                  </span>
+                </label>
+                <label style={styles.consentLabel}>
+                  <input
+                    type="checkbox"
+                    style={styles.consentCheckbox}
+                    checked={acceptNoWithdrawal}
+                    onChange={(e) => setAcceptNoWithdrawal(e.target.checked)}
+                  />
+                  <span>{t('legalConsent.noWithdrawalLabel')}</span>
+                </label>
+              </div>
+
+              <button
+                type="button"
+                style={{
+                  ...styles.confirmButton,
+                  ...((confirming || !canConfirm) && { opacity: 0.5, cursor: 'not-allowed' }),
+                }}
+                onClick={handleConfirmOrder}
+                disabled={confirming || !canConfirm}
+              >
                 {confirming ? t('confirming') : t('confirmOrder')}
               </button>
+              {!canConfirm && <div style={styles.hint}>{t('legalConsent.consentRequired')}</div>}
               {error && <div style={styles.error}>{t('confirmError')}</div>}
             </div>
           </>

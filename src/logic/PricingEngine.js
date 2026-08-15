@@ -61,8 +61,12 @@ export const PricingEngine = {
     // 3. Finition
     const prixFinition = PRIX_FINITION[finition] || 0;
 
-    // 4. Pièces complémentaires (quincaillerie de fermeture)
-    const prixQuincaillerie = PRIX_FERMETURE[fermeture] || 0;
+    // 4. Pièces complémentaires (quincaillerie de fermeture). Contrairement à
+    // la finition ('brut' coûte réellement 0€), aucune fermeture n'est
+    // gratuite : si le libellé reçu ne correspond à aucune clé connue (bug
+    // amont ou nouvelle option pas encore tarifée), on retombe sur la
+    // quincaillerie la moins chère plutôt que de facturer 0€ en silence.
+    const prixQuincaillerie = PRIX_FERMETURE[fermeture] ?? Math.min(...Object.values(PRIX_FERMETURE));
 
     // 5. Main d'œuvre (base + proportionnelle à la surface à travailler)
     const mainOeuvre = MAIN_OEUVRE_BASE + surfaceM2 * MAIN_OEUVRE_TAUX_M2;

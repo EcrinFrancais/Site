@@ -656,7 +656,16 @@ export default function ConfiguratorPage({ univers }) {
   const [couleurVelours, setCouleurVelours] = useState(
     initialConfiguration.values.couleurVelours
   );
-  const [fermeture, setFermeture] = useState(initialConfiguration.values.fermeture);
+  // La valeur par défaut du squelette de config ('Charnière') ne correspond
+  // à aucune des options réelles de vinsConfig.fermetures (qui sont des
+  // libellés complets) : sans ce garde-fou, PricingEngine ne reconnaît pas
+  // la valeur par défaut et facture 0€ de quincaillerie tant que le client
+  // ne touche pas au menu déroulant.
+  const [fermeture, setFermeture] = useState(
+    vinsConfig.fermetures.includes(initialConfiguration.values.fermeture)
+      ? initialConfiguration.values.fermeture
+      : vinsConfig.fermetures[0]
+  );
   const [gravureType, setGravureType] = useState(
     initialConfiguration.values.gravureType
   );
@@ -823,6 +832,10 @@ export default function ConfiguratorPage({ univers }) {
 
   const handleOrder = async () => {
     if (isOrdering) return;
+    if (modeGravure === 'image' && (gravureUploadState === 'uploading' || gravureUploadState === 'error')) {
+      alert(t('configurator:engravingNotReadyAlert'));
+      return;
+    }
     setIsOrdering(true);
     const weight = estimateItemWeightKg(quote.selectedDimensions, configuration.values.quantite);
     addItem(createCartItem(configuration, quote, weight));

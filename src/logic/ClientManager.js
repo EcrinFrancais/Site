@@ -1,6 +1,6 @@
 // src/logic/ClientManager.js
 import { db, auth } from '../config/firebase';
-import { collection, addDoc, setDoc, doc, updateDoc, getDoc, getDocs, query, where } from "firebase/firestore";
+import { collection, addDoc, setDoc, doc, getDoc, getDocs, query, where } from "firebase/firestore";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword, signOut } from "firebase/auth";
 import { escapeHtml } from './ContactManager';
 import { EmailService } from './EmailService';
@@ -103,27 +103,6 @@ export const ClientManager = {
       const basketId = `basket-${Date.now()}`;
       const shippingCostTTC = estimateShippingCost(cartItems);
       const totalWeightKg = cartItems.reduce((sum, item) => sum + Number(item.estimatedWeightKg || 0), 0);
-
-      const orderIds = [];
-      for (const item of cartItems) {
-        const shippingShareTTC = totalWeightKg > 0
-          ? shippingCostTTC * (Number(item.estimatedWeightKg || 0) / totalWeightKg)
-          : shippingCostTTC / cartItems.length;
-
-        const orderDraft = createOrderDraft(item.configuration, item.quote, profile || {}, {
-          shippingShareTTC,
-          basketId,
-        });
-
-        const docRef = await addDoc(collection(db, "commandes"), {
-          clientId: user ? user.uid : "anonyme",
-          date: new Date().toLocaleDateString(),
-          ...orderDraft,
-          statut: OrderStatus.RECEIVED,
-        });
-        orderIds.push(docRef.id);
-      }
-
       const numero = basketId.slice(-8).toUpperCase();
       const lignes = cartItems.map((item) => {
         const univers = item.universTitle || item.configuration?.universTitle || 'Configuration';
@@ -136,9 +115,14 @@ export const ClientManager = {
       ).toFixed(2);
 
       // PDF récapitulatif : généré côté client (jsPDF, gratuit) et stocké sur
-      // Cloudinary (voir StorageService.js). EmailJS ne peut pas joindre de
-      // fichier binaire sur son forfait gratuit, donc le mail contient un
-      // lien de téléchargement plutôt qu'une vraie pièce jointe.
+      // Cloudinary (voir StorageService.js) — AVANT la création des commandes,
+      // pour pouvoir inclure pdfUrl dès le addDoc ci-dessous. Les règles
+      // Firestore autorisent la création d'une commande par n'importe qui,
+      // mais réservent sa modification aux admins (protection du back
+      // office) : une mise à jour ultérieure du champ pdfUrl échouerait donc
+      // silencieusement. EmailJS ne peut pas joindre de fichier binaire sur
+      // son forfait gratuit, donc le mail contient un lien plutôt qu'une
+      // vraie pièce jointe.
       let pdfUrl = null;
       try {
         const pdfBlob = OrderPdfService.genererRecapitulatif({
@@ -150,29 +134,34 @@ export const ClientManager = {
           profile,
         });
         pdfUrl = await StorageService.upload(`commandes/${basketId}`, pdfBlob, 'application/pdf');
-        await Promise.all(orderIds.map((orderId) => updateDoc(doc(db, "commandes", orderId), { pdfUrl })));
       } catch {
         // Le PDF est un plus, pas un bloquant : la commande reste valide sans lui.
       }
 
-      const destinataire = user?.email || profile?.email;
-      if (destinataire) {
-        await EmailService.envoyer({
-          toEmail: destinataire,
-          subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
-          messageHtml: [
-            `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
-            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
-            `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
-            `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
-            `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
-            pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF de votre commande</a></p>` : '',
-            `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
-          ].join(''),
+      // Chaque article du panier devient sa propre commande Firestore ; les
+      // écritures sont indépendantes les unes des autres et peuvent partir
+      // en parallèle plutôt qu'attendre chaque addDoc l'un après l'autre.
+      const orderIds = await Promise.all(cartItems.map((item) => {
+        const shippingShareTTC = totalWeightKg > 0
+          ? shippingCostTTC * (Number(item.estimatedWeightKg || 0) / totalWeightKg)
+          : shippingCostTTC / cartItems.length;
+
+        const orderDraft = createOrderDraft(item.configuration, item.quote, profile || {}, {
+          shippingShareTTC,
+          basketId,
         });
-      }
+
+        return addDoc(collection(db, "commandes"), {
+          clientId: user ? user.uid : "anonyme",
+          date: new Date().toLocaleDateString(),
+          ...orderDraft,
+          statut: OrderStatus.RECEIVED,
+          pdfUrl,
+        }).then((docRef) => docRef.id);
+      }));
 
       // Notification interne à l'atelier, avec les coordonnées complètes du client.
+      const destinataire = user?.email || profile?.email;
       const p = profile || {};
       const adresseLignes = p.adresse
         ? [p.adresse.numero, p.adresse.voie, p.adresse.complement].filter(Boolean).join(' ')
@@ -185,20 +174,39 @@ export const ClientManager = {
         ...(p.entreprise ? [`Entreprise : ${p.entreprise}${p.siret ? ` (SIRET ${p.siret})` : ''}`] : []),
       ];
 
-      await EmailService.envoyer({
-        toEmail: 'ecrinfrancais@gmail.com',
-        subject: `Nouvelle commande #${numero} — L'Écrin Français`,
-        messageHtml: [
-          `<p><strong>Nouvelle commande reçue.</strong></p>`,
-          `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
-          `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
-          `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
-          `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
-          pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF</a></p>` : '',
-          `<p><strong>Coordonnées du client :</strong></p>`,
-          `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
-        ].join(''),
-      });
+      // Les deux emails (confirmation client, notification atelier) ne
+      // dépendent pas l'un de l'autre : ils partent en parallèle.
+      await Promise.all([
+        destinataire
+          ? EmailService.envoyer({
+              toEmail: destinataire,
+              subject: `Confirmation de votre commande #${numero} — L'Écrin Français`,
+              messageHtml: [
+                `<p>Merci pour votre commande auprès de <strong>L'Écrin Français</strong>.</p>`,
+                `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+                `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+                `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+                `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+                pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF de votre commande</a></p>` : '',
+                `<p>Notre atelier revient vers vous très prochainement pour confirmer les détails de fabrication.</p>`,
+              ].join(''),
+            })
+          : Promise.resolve(),
+        EmailService.envoyer({
+          toEmail: 'ecrinfrancais@gmail.com',
+          subject: `Nouvelle commande #${numero} — L'Écrin Français`,
+          messageHtml: [
+            `<p><strong>Nouvelle commande reçue.</strong></p>`,
+            `<p><strong>Numéro de commande :</strong> ${escapeHtml(numero)}</p>`,
+            `<ul>${lignes.map((ligne) => `<li>${escapeHtml(ligne.replace(/^- /, ''))}</li>`).join('')}</ul>`,
+            `<p><strong>Livraison :</strong> ${escapeHtml(shippingCostTTC.toFixed(2))} €</p>`,
+            `<p><strong>Total général :</strong> ${escapeHtml(totalGeneral)} €</p>`,
+            pdfUrl ? `<p><a href="${escapeHtml(pdfUrl)}">Télécharger le récapitulatif PDF</a></p>` : '',
+            `<p><strong>Coordonnées du client :</strong></p>`,
+            `<ul>${coordonnees.map((ligne) => `<li>${escapeHtml(ligne)}</li>`).join('')}</ul>`,
+          ].join(''),
+        }),
+      ]);
 
       return { success: true, orderIds, basketId };
     } catch {

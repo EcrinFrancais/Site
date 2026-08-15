@@ -44,6 +44,7 @@
     "grand": "grand"
   },
   "footerHint": "Sélectionnez vos matières, finitions et gravure pour créer votre coffret sur mesure.",
+  "engravingNotReadyAlert": "L'envoi de votre fichier de gravure est en cours ou a échoué. Merci de patienter ou de sélectionner à nouveau un fichier valide avant d'ajouter cet article au panier.",
   "addToCart": "Ajouter au panier",
   "sending": "Envoi en cours...",
   "saveDraft": "Enregistrer comme brouillon",

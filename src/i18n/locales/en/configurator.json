@@ -44,6 +44,7 @@
     "grand": "large"
   },
   "footerHint": "Select your materials, finishes and engraving to create your bespoke case.",
+  "engravingNotReadyAlert": "Your engraving file is still uploading or failed to upload. Please wait or select a valid file again before adding this item to your cart.",
   "addToCart": "Add to Cart",
   "sending": "Sending...",
   "saveDraft": "Save as draft",

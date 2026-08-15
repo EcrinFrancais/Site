@@ -264,6 +264,10 @@ export default function JewelryConfiguratorPage() {
 
   const handleOrder = async () => {
     if (isOrdering) return;
+    if (modeGravure === 'image' && (gravureUploadState === 'uploading' || gravureUploadState === 'error')) {
+      alert(t('configurator:engravingNotReadyAlert'));
+      return;
+    }
     setIsOrdering(true);
     const weight = estimateItemWeightKg(quote.selectedDimensions, configuration.values.quantite);
     addItem(createCartItem(configuration, quote, weight));

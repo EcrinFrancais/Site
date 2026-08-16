@@ -5,9 +5,10 @@
   "storyImageAlt": "Grain de bois noble travaillé en atelier",
   "story": {
     "title": "Notre histoire",
-    "lead1": "Depuis quinze ans, L'Écrin Français conçoit des coffrets et écrins pour celles et ceux qui n'achètent pas un objet précieux sans penser à la façon dont il sera protégé, transporté et transmis.",
-    "lead2": "Le dessin de chaque pièce naît en Bourgogne, dans un dialogue étroit avec nos clients et nos partenaires. Sa fabrication est confiée à notre manufacture propriétaire au Portugal, où des artisans du bois, du cuir et de la laque travaillent chaque commande comme une pièce unique — même lorsqu'il s'agit d'une série.",
-    "lead3": "Nous n'avons pas de collection figée. Nous avons un métier : écouter un besoin, choisir la bonne matière, et construire un objet qui durera plus longtemps que la mode qui l'entoure."
+    "lead1": "Notre manufacture existe depuis quinze ans. Jusqu'ici, elle a façonné des coffrets et écrins d'exception pour le compte de grandes maisons de luxe, sous des accords de confidentialité qui nous engagent à ne jamais citer leurs noms — une discrétion qui fait partie de notre métier.",
+    "lead2": "L'Écrin Français est la marque que nous créons pour nous diversifier : ouvrir cette même manufacture, les mêmes artisans et la même exigence de finition, directement aux particuliers et aux petites entreprises — sans passer par une maison tierce.",
+    "lead3": "Rien n'est produit à la chaîne. Chaque écrin reste façonné à la commande, sur une ligne volontairement non automatisée : c'est ce qui garantit l'authenticité de chaque pièce, qu'il s'agisse d'une commande unique ou d'une série.",
+    "lead4": "Comptez environ un mois entre la validation de votre commande et la livraison — le temps qu'exige un objet vraiment façonné à la main, pas le rythme d'une usine."
   },
   "cards": {
     "card1": {
@@ -20,12 +21,18 @@
     },
     "card3": {
       "title": "De la pièce unique à la série",
-      "text": "Un cadeau d'exception ou une collection destinée à un réseau de distribution : la même exigence de finition s'applique, quelle que soit la quantité."
+      "text": "Un cadeau d'exception ou une collection destinée à un réseau de distribution : la même exigence de finition s'applique, quelle que soit la quantité — avec une dégressivité tarifaire pour les commandes en volume."
     }
+  },
+  "gallery": {
+    "image1Alt": "Écrin en bois ouvert avec montre et bijoux à l'intérieur",
+    "image1Caption": "Joaillerie & horlogerie : l'écrin façonné pour l'objet qu'il protège.",
+    "image2Alt": "Mains façonnant le bois au ciseau à bois",
+    "image2Caption": "Chaque geste compte — la précision d'un ciseau à bois avant la finition."
   },
   "process": {
     "title": "Le parcours de fabrication",
-    "intro": "Chaque commande suit le même chemin, du premier échange à la livraison.",
+    "intro": "Chaque commande suit le même chemin, du premier échange à la livraison — comptez environ un mois, le temps d'une fabrication réellement artisanale.",
     "steps": {
       "step1": { "title": "Écoute & mesure", "text": "Nous prenons le temps de comprendre l'objet à protéger et l'usage de l'écrin." },
       "step2": { "title": "Choix des matières", "text": "Essence de bois, doublure, teinte : chaque matériau est sélectionné pour sa tenue dans le temps." },
@@ -37,13 +44,13 @@
   "values": {
     "title": "Nos valeurs",
     "excellence": { "title": "Excellence", "text": "Aucune pièce ne quitte l'atelier sans avoir passé notre contrôle qualité." },
-    "discretion": { "title": "Discrétion", "text": "Nous travaillons souvent en coulisses, au service de marques et de collectionneurs exigeants." },
+    "discretion": { "title": "Discrétion", "text": "Nous avons appris ce métier en coulisses, au service de maisons de luxe qui exigent la confidentialité — et nous la gardons aujourd'hui pour nos propres clients." },
     "surMesure": { "title": "Sur-mesure", "text": "Aucun catalogue figé : chaque projet part d'une feuille blanche." },
     "durabilite": { "title": "Durabilité", "text": "Des matières nobles et des assemblages pensés pour traverser les générations." }
   },
   "cta": {
     "title": "Envie de nous confier votre projet ?",
-    "lead": "Commencez la configuration de votre écrin en ligne, ou écrivez-nous directement pour un projet particulier.",
+    "lead": "Le configurateur en ligne couvre la majorité des projets. Pour une demande spécifique qu'il ne permet pas encore de composer, écrivez-nous directement : votre message part droit vers la manufacture.",
     "primary": "Concevoir votre écrin",
     "secondary": "Nous écrire"
   }

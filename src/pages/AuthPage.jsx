@@ -57,6 +57,10 @@ export default function AuthPage({ onStart }) {
       else alert(t('errors.invalidCredentials'));
     } else {
       // Vérification des mots de passe
+      if (password.length < 10) {
+        alert(t('errors.passwordTooShort'));
+        return;
+      }
       if (password !== confirmPassword) {
         alert(t('errors.passwordMismatch'));
         return; // On arrête tout si ce n'est pas identique
@@ -156,6 +160,7 @@ export default function AuthPage({ onStart }) {
                     placeholder=" "
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
+                    minLength={10}
                     required
                   />
                   <label>{t('password.create')}</label>
@@ -166,6 +171,7 @@ export default function AuthPage({ onStart }) {
                     placeholder=" "
                     value={confirmPassword}
                     onChange={(e) => setConfirmPassword(e.target.value)}
+                    minLength={10}
                     required
                   />
                   <label>{t('password.confirm')}</label>

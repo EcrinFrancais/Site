@@ -4,6 +4,11 @@ import { useTranslation } from 'react-i18next';
 import textureNoyer from '../textures/noyer.jpg';
 import textureEbene from '../textures/ebene.jpg';
 
+// Photos libres de droits (licence Unsplash), en attendant de vraies photos
+// d'atelier — à remplacer dès que la manufacture fournit ses propres clichés.
+const photoJoaillerieHorlogerie = 'https://images.unsplash.com/photo-1549315309-f0857a904065?auto=format&fit=crop&w=1200&q=80';
+const photoFacsonnage = 'https://images.unsplash.com/photo-1497219055242-93359eeed651?auto=format&fit=crop&w=1200&q=80';
+
 const styles = {
   page: {
     backgroundColor: '#0b0b0b',
@@ -14,7 +19,7 @@ const styles = {
     backgroundImage: `linear-gradient(rgba(0,0,0,0.78), rgba(0,0,0,0.6)), url(${textureNoyer})`,
     backgroundSize: 'cover',
     backgroundPosition: 'center',
-    padding: '140px 24px 100px',
+    padding: '76px 24px 52px',
     textAlign: 'center',
     borderBottom: '3px solid #c5a059',
   },
@@ -23,14 +28,14 @@ const styles = {
     letterSpacing: '0.24em',
     textTransform: 'uppercase',
     color: '#c5a059',
-    marginBottom: '18px',
+    marginBottom: '14px',
   },
   heroTitle: {
     fontFamily: "'Playfair Display', serif",
-    fontSize: 'clamp(2.2rem, 4.2vw, 3.4rem)',
+    fontSize: 'clamp(2rem, 3.6vw, 2.9rem)',
     color: '#f2e0b4',
     maxWidth: '900px',
-    margin: '0 auto 20px',
+    margin: '0 auto 16px',
     lineHeight: 1.2,
   },
   heroSubtitle: {
@@ -105,6 +110,44 @@ const styles = {
   cardIcon: { fontSize: '1.6rem', color: '#efd8a3', display: 'block', marginBottom: '14px' },
   cardTitle: { fontFamily: "'Playfair Display', serif", fontSize: '1.2rem', color: '#f3e7c4', marginBottom: '10px' },
   cardText: { color: '#b9b2a3', lineHeight: 1.7, fontSize: '0.92rem' },
+  gallerySection: {
+    padding: '0 24px 100px',
+    maxWidth: '1180px',
+    margin: '0 auto',
+  },
+  galleryGrid: {
+    display: 'grid',
+    gridTemplateColumns: 'repeat(auto-fit, minmax(320px, 1fr))',
+    gap: '26px',
+    marginTop: '48px',
+  },
+  galleryImageWrap: {
+    position: 'relative',
+    minHeight: '320px',
+    borderRadius: '20px',
+    overflow: 'hidden',
+    border: '1px solid rgba(197,160,89,0.18)',
+    boxShadow: '0 20px 50px rgba(0,0,0,0.35)',
+  },
+  galleryImg: {
+    position: 'absolute',
+    inset: 0,
+    width: '100%',
+    height: '100%',
+    objectFit: 'cover',
+    filter: 'saturate(0.9) contrast(1.05)',
+  },
+  galleryCaption: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    padding: '20px 22px',
+    background: 'linear-gradient(0deg, rgba(0,0,0,0.82), transparent)',
+    color: '#f3e7c4',
+    fontSize: '0.85rem',
+    lineHeight: 1.5,
+  },
   processSection: {
     padding: '100px 24px',
     background: 'linear-gradient(180deg, #101010 0%, #0a0a0a 100%)',
@@ -203,6 +246,9 @@ export default function AboutPage() {
             <p style={styles.lead}>
               {t('story.lead3')}
             </p>
+            <p style={styles.lead}>
+              {t('story.lead4')}
+            </p>
           </div>
         </div>
 
@@ -227,6 +273,19 @@ export default function AboutPage() {
             <p style={styles.cardText}>
               {t('cards.card3.text')}
             </p>
+          </div>
+        </div>
+      </section>
+
+      <section style={styles.gallerySection}>
+        <div style={styles.galleryGrid}>
+          <div style={styles.galleryImageWrap}>
+            <img src={photoJoaillerieHorlogerie} style={styles.galleryImg} alt={t('gallery.image1Alt')} />
+            <div style={styles.galleryCaption}>{t('gallery.image1Caption')}</div>
+          </div>
+          <div style={styles.galleryImageWrap}>
+            <img src={photoFacsonnage} style={styles.galleryImg} alt={t('gallery.image2Alt')} />
+            <div style={styles.galleryCaption}>{t('gallery.image2Caption')}</div>
           </div>
         </div>
       </section>

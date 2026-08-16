@@ -42,6 +42,11 @@ export const pricingService = {
       fermeture: configuration.fermeture,
       qte: Number(configuration.quantite || 1),
       isB2B: false,
+      cales: configuration.cales,
+      gravureType: configuration.gravureType,
+      modeGravure: configuration.modeGravure,
+      tailleTexte: configuration.tailleTexte,
+      tailleImage: configuration.tailleImage,
     });
 
     return {

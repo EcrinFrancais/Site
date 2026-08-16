@@ -5,9 +5,10 @@
   "storyImageAlt": "Noble wood grain worked in the workshop",
   "story": {
     "title": "Our Story",
-    "lead1": "For fifteen years, L'Écrin Français has designed cases and presentation boxes for those who never acquire a precious object without considering how it will be protected, transported and passed on.",
-    "lead2": "The design of every piece is born in Burgundy, in close dialogue with our clients and our partners. Its making is entrusted to our own manufacture in Portugal, where craftsmen in wood, leather and lacquer treat every order as a unique piece — even when it is part of a series.",
-    "lead3": "We have no fixed collection. We have a craft: to listen to a need, choose the right material, and build an object that will outlast the fashions surrounding it."
+    "lead1": "Our manufacture has existed for fifteen years. Until now, it has crafted exceptional cases and presentation boxes on behalf of major luxury houses, under confidentiality agreements that bind us never to name them — a discretion that is part of our craft.",
+    "lead2": "L'Écrin Français is the brand we are creating to diversify: opening this same manufacture, the same craftsmen and the same standard of finish, directly to individuals and small businesses — without going through a third-party house.",
+    "lead3": "Nothing is produced on an assembly line. Every case is still made to order, on a deliberately non-automated line: this is what guarantees the authenticity of each piece, whether it's a single commission or a series.",
+    "lead4": "Allow around a month between the confirmation of your order and delivery — the time genuinely hand-made work requires, not the pace of a factory."
   },
   "cards": {
     "card1": {
@@ -20,12 +21,18 @@
     },
     "card3": {
       "title": "From a Single Piece to a Series",
-      "text": "An exceptional gift or a collection destined for a distribution network: the same standard of finish applies, whatever the quantity."
+      "text": "An exceptional gift or a collection destined for a distribution network: the same standard of finish applies, whatever the quantity — with tiered pricing for volume orders."
     }
+  },
+  "gallery": {
+    "image1Alt": "Open wooden case with a watch and jewellery inside",
+    "image1Caption": "Jewellery & watches: the case shaped around the object it protects.",
+    "image2Alt": "Hands shaping wood with a chisel",
+    "image2Caption": "Every gesture matters — the precision of a chisel before the final finish."
   },
   "process": {
     "title": "The Making Journey",
-    "intro": "Every order follows the same path, from the first conversation to delivery.",
+    "intro": "Every order follows the same path, from the first conversation to delivery — allow around a month, the time genuinely artisanal work requires.",
     "steps": {
       "step1": { "title": "Listening & Measuring", "text": "We take the time to understand the object to be protected and the intended use of the case." },
       "step2": { "title": "Choice of Materials", "text": "Wood essence, lining, tint: every material is selected for how it holds up over time." },
@@ -37,13 +44,13 @@
   "values": {
     "title": "Our Values",
     "excellence": { "title": "Excellence", "text": "No piece leaves the workshop without passing our quality control." },
-    "discretion": { "title": "Discretion", "text": "We often work behind the scenes, in the service of exacting brands and collectors." },
+    "discretion": { "title": "Discretion", "text": "We learned this craft behind the scenes, in the service of luxury houses that demand confidentiality — and we keep that same discretion today for our own clients." },
     "surMesure": { "title": "Bespoke", "text": "No fixed catalogue: every project starts from a blank page." },
     "durabilite": { "title": "Durability", "text": "Noble materials and assemblies conceived to last generations." }
   },
   "cta": {
     "title": "Wish to entrust us with your project?",
-    "lead": "Begin configuring your case online, or write to us directly for a particular project.",
+    "lead": "The online configurator covers most projects. For a specific request it can't yet compose, write to us directly: your message goes straight to the manufacture.",
     "primary": "Design Your Case",
     "secondary": "Write to Us"
   }

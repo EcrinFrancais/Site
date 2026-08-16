@@ -103,10 +103,16 @@ export const PricingEngine = {
 
     // 4. Pièces complémentaires (quincaillerie de fermeture). Contrairement à
     // la finition ('brut' coûte réellement 0€), aucune fermeture n'est
-    // gratuite : si le libellé reçu ne correspond à aucune clé connue (bug
-    // amont ou nouvelle option pas encore tarifée), on retombe sur la
-    // quincaillerie la moins chère plutôt que de facturer 0€ en silence.
-    const prixQuincaillerie = PRIX_FERMETURE[fermeture] ?? Math.min(...Object.values(PRIX_FERMETURE));
+    // gratuite si un libellé est fourni : si celui-ci ne correspond à aucune
+    // clé connue (bug amont ou nouvelle option pas encore tarifée), on
+    // retombe sur la quincaillerie la moins chère plutôt que de facturer 0€
+    // en silence. Mais l'univers Joaillerie & Horlogerie n'a pas de champ
+    // fermeture du tout (fermeture === undefined) : dans ce cas il ne faut
+    // PAS appliquer ce filet de sécurité, sinon on facture une quincaillerie
+    // fictive à un produit qui n'en a pas.
+    const prixQuincaillerie = fermeture
+      ? PRIX_FERMETURE[fermeture] ?? Math.min(...Object.values(PRIX_FERMETURE))
+      : 0;
 
     // 4bis. Intérieur (cales) : forfait selon le type, cf. définition de PRIX_CALES.
     const prixCales = PRIX_CALES[cales] || 0;

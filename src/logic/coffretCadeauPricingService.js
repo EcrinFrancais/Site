@@ -35,6 +35,10 @@ export const coffretCadeauPricingService = {
       fermeture: configuration.fermeture,
       qte: Number(configuration.quantite || 1),
       isB2B: false,
+      // "doublure" (Aucune/Velours) est l'équivalent des cales de l'univers
+      // Vins — même paramètre `cales` côté moteur, même table PRIX_CALES :
+      // "Aucune" ne matche aucune clé donc retombe sur 0€, "Velours" à 25€.
+      cales: configuration.doublure,
       gravureType: configuration.gravureType,
       modeGravure: configuration.modeGravure,
       tailleTexte: configuration.tailleTexte,
